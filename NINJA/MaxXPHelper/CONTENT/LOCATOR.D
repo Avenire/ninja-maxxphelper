@@ -1,6 +1,7 @@
 // todo: cache list so NPCs are not looped over every frame.
 func void Ninja_MaxXPHelper_MortalNPCLocator()
 {   
+    // todo use icarus exposed member
     var int listPtr; listPtr = +(MEM_ReadInt (_@ (MEM_World) + MEMINT_SwitchG1G2 (25196, 25220)));
     var zCListSort list;
     var int waypointNamePtr; 

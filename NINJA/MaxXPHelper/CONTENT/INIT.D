@@ -22,7 +22,7 @@ func void Ninja_MaxXPHelper_Init()
     LeGo_MergeFlags(LeGo_HookEngine);
     const int once = 0;
     // todo: will it work after reloading in G2?
-    Ninja_MaxXPHelper_ClearAlerts();
+    Ninja_MaxXPHelper_ResetAlerts();
     if (!once) {
         Ninja_MaxXPHelper_ConsiderG1DoubleXPGlitch = Ninja_MaxXPHelper_GetFlagOrDefault(
             "considerG1DoubleXPGlitch",
@@ -43,6 +43,8 @@ func void Ninja_MaxXPHelper_Init()
         // todo: use FF_ApplyGT
         HookEngineF(zCWorld__AdvanceClock, 10, Ninja_MaxXPHelper_Loop);
         HookDaedalusFuncS("ZS_Dead", "Ninja_MaxXPHelper_ZS_Dead_Hook");
+        HookDaedalusFuncS("B_KillNpc", "Ninja_MaxXPHelper_B_KillNpc_Hook");
+        
         once = 1;
         Ninja_MaxXPHelper_LogInfo("Initialized.");
     };
