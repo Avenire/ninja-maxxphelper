@@ -31,6 +31,19 @@ func int _Ninja_MaxXPHelper_HandleSkipLevelZeroNPC(var c_npc self) {
     return 0;
 };
 
+func void _Ninja_MaxXPHelper_TriggerAlert(var c_npc npc, var string msg) {
+    PrintScreen(
+        msg, 
+        -1,
+        5 + _Ninja_MaxXPHelper_DeadAlerts_ActiveAlertsCount * 5,
+        "FONT_OLD_20_WHITE.tga",
+        _Ninja_MaxXPHelper_DeadAlerts_AlertTimeInSeconds
+    );
+    _Ninja_MaxXPHelper_AddDeadNPCSphere(_@(npc));
+    _Ninja_MaxXPHelper_DeadAlerts_ActiveAlertsCount = _Ninja_MaxXPHelper_DeadAlerts_ActiveAlertsCount + 1;
+    _Ninja_MaxXPHelper_DeadAlerts_LastAlertTimestamp = MEM_GetSystemTime();
+};
+
 // todo: localization
 func int _Ninja_MaxXPHelper_HandleNPCDiedAndWasNotBeatenBeforeAndDoubleXPGlitchOn(var c_npc self) {
     // If we consider double XP glitch - human NPC died, hero didn't beat them, no matter who's the killer - we lose XP.
@@ -42,18 +55,9 @@ func int _Ninja_MaxXPHelper_HandleNPCDiedAndWasNotBeatenBeforeAndDoubleXPGlitchO
             SB("RIP ");
             SB(self.name);
             SB(" who died without getting knocked down first.");
-            PrintScreen(
-                SB_ToString(), 
-                -1,
-                5 + _Ninja_MaxXPHelper_DeadAlerts_ActiveAlertsCount * 5,
-                "FONT_OLD_20_WHITE.tga",
-                _Ninja_MaxXPHelper_DeadAlerts_AlertTimeInSeconds
-            );
+            _Ninja_MaxXPHelper_TriggerAlert(self, SB_ToString());
             SB_Clear();
             SB_Destroy();
-            _Ninja_MaxXPHelper_AddDeadNPCSphere(_@(self));
-            _Ninja_MaxXPHelper_DeadAlerts_ActiveAlertsCount = _Ninja_MaxXPHelper_DeadAlerts_ActiveAlertsCount + 1;
-            _Ninja_MaxXPHelper_DeadAlerts_LastAlertTimestamp = MEM_GetSystemTime();
             return 1;
     };
     return 0;
@@ -72,28 +76,20 @@ func int _Ninja_MaxXPHelper_HandleNPCDiedAndPlayerCouldLoseXP(var c_npc self, va
         (C_NpcIsMonster(other) && other.aivar[AIV_MM_PARTYMEMBER]) ||
         // Our summon got killed and it's not Gothic 1 so no XP.
         (GOTHIC_BASE_VERSION != 1 && C_NpcIsMonster(self) && self.aivar[AIV_MM_PARTYMEMBER])
+    ) && (
+        // todo detect if NPC died from sword finisher (or not ranged/magic in general) in this mode. 
+        // As of now Gorn in Free Mine will not produce an alert.
+        Ninja_MaxXPHelper_ConsiderG1DoubleXPGlitch || 
+        !self.aivar[AIV_WASDEFEATEDBYSC]
     ) {
-        if 
-            // No G1 double XP glitch, so we need to check if NPC was beaten before.
-            (Ninja_MaxXPHelper_ConsiderG1DoubleXPGlitch || !self.aivar[AIV_WASDEFEATEDBYSC]) {
             // Now XP was 99% sure lost so alert.
             var int s; s = SB_New();
             SB("RIP ");
             SB(self.name);
-            PrintScreen(
-                SB_ToString(), 
-                -1,
-                5 + _Ninja_MaxXPHelper_DeadAlerts_ActiveAlertsCount * 5,
-                "FONT_OLD_20_WHITE.tga",
-                _Ninja_MaxXPHelper_DeadAlerts_AlertTimeInSeconds
-            );
+            _Ninja_MaxXPHelper_TriggerAlert(self, SB_ToString());
             SB_Clear();
             SB_Destroy();
-            _Ninja_MaxXPHelper_AddDeadNPCSphere(_@(self));
-            _Ninja_MaxXPHelper_DeadAlerts_ActiveAlertsCount = _Ninja_MaxXPHelper_DeadAlerts_ActiveAlertsCount + 1;
-            _Ninja_MaxXPHelper_DeadAlerts_LastAlertTimestamp = MEM_GetSystemTime();
             return 1;
-        };
     };
     return 0;
 };
@@ -130,18 +126,9 @@ func int _Ninja_MaxXPHelper_HandleStoryScriptedDeath(var int npcInstance) {
                 SB("RIP ");
                 SB(npc.name);
                 SB(" who got killed off-screen by game scripts");
-                PrintScreen(
-                    SB_ToString(), 
-                    -1,
-                    5 + _Ninja_MaxXPHelper_DeadAlerts_ActiveAlertsCount * 5,
-                    "FONT_OLD_20_WHITE.tga",
-                    _Ninja_MaxXPHelper_DeadAlerts_AlertTimeInSeconds
-                );
+                _Ninja_MaxXPHelper_TriggerAlert(self, SB_ToString());
                 SB_Clear();
                 SB_Destroy();
-                _Ninja_MaxXPHelper_AddDeadNPCSphere(_@(npc));
-                _Ninja_MaxXPHelper_DeadAlerts_ActiveAlertsCount = _Ninja_MaxXPHelper_DeadAlerts_ActiveAlertsCount + 1;
-                _Ninja_MaxXPHelper_DeadAlerts_LastAlertTimestamp = MEM_GetSystemTime();
                 return 1;
         };
     };
