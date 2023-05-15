@@ -14,6 +14,7 @@ const int _Ninja_MaxXPHelper_DeadAlerts_MaxAlerts = 5;
 
 const int _Ninja_MaxXPHelper_DeadAlerts_AlertTimeInSeconds = 20;
 const int _Ninja_MaxXPHelper_DeadAlerts_DeadSphereVisibilityInSeconds = 60;
+const int _Ninja_MaxXPHelper_DeadAlerts_B_MagicHurtNpc_Killed_To_RealKiller_Hashtable = 0;
 
 func void _Ninja_MaxXPHelper_AddDeadNPCSphere(var int npc) {
     var int idx; idx = _Ninja_MaxXPHelper_DeadAlerts_ActiveAlertsCount * _Ninja_MaxXPHelper_DeadAlerts_DeadSpheresArrElementSize;
@@ -22,13 +23,17 @@ func void _Ninja_MaxXPHelper_AddDeadNPCSphere(var int npc) {
     MEM_WriteIntArray(_@(_Ninja_MaxXPHelper_DeadSpheres), idx + 1, timestamp);
 };
 
-func int _Ninja_MaxXPHelper_HandleSkipLevelZeroNPC(var c_npc self) {
+func int _Ninja_MaxXPHelper_Handler_SkipLevelZeroNPC(var c_npc self) {
     // Ignore NPCs like Mud.
     if !Ninja_MaxXPHelper_ConsiderLevelZeroNPC &&
         self.level <= 0 {
             return 1;
     };
     return 0;
+};
+
+func int _Ninja_MaxXPHelper_Handler_SkipIfDefeatedAndNoDoubleXPMode(var c_npc self) {
+    return !(Ninja_MaxXPHelper_ConsiderG1DoubleXPGlitch || !self.aivar[AIV_WASDEFEATEDBYSC]);
 };
 
 func void _Ninja_MaxXPHelper_TriggerAlert(var c_npc npc, var string msg) {
@@ -45,16 +50,16 @@ func void _Ninja_MaxXPHelper_TriggerAlert(var c_npc npc, var string msg) {
 };
 
 // todo: localization
-func int _Ninja_MaxXPHelper_HandleNPCDiedAndWasNotBeatenBeforeAndDoubleXPGlitchOn(var c_npc self) {
+func int _Ninja_MaxXPHelper_Handler_NPCDiedAndWasNotBeatenBeforeAndDoubleXPGlitchOn(var c_npc self) {
     // If we consider double XP glitch - human NPC died, hero didn't beat them, no matter who's the killer - we lose XP.
     if	Ninja_MaxXPHelper_ConsiderG1DoubleXPGlitch &&
         !Npc_IsPlayer(self) &&
         !self.aivar[AIV_WASDEFEATEDBYSC] && 
         C_NpcIsHuman(self) {
             var int s; s = SB_New();
-            SB("RIP ");
+            SB("RIP: ");
             SB(self.name);
-            SB(" who died without getting knocked down first.");
+            SB(" died without getting beaten first (no double XP)");
             _Ninja_MaxXPHelper_TriggerAlert(self, SB_ToString());
             SB_Clear();
             SB_Destroy();
@@ -64,8 +69,16 @@ func int _Ninja_MaxXPHelper_HandleNPCDiedAndWasNotBeatenBeforeAndDoubleXPGlitchO
 };
 
 // todo: localization
-func int _Ninja_MaxXPHelper_HandleNPCDiedAndPlayerCouldLoseXP(var c_npc self, var c_npc other) {
-    if !(
+func int _Ninja_MaxXPHelper_Handler_NPCDiedAndPlayerCouldLoseXP(var c_npc self, var c_npc other) {
+    var int playerGetsXP; playerGetsXP = 0; 
+    var int B_MagicHurtNpc_actual_attacker; B_MagicHurtNpc_actual_attacker = HT_Get(
+        _Ninja_MaxXPHelper_DeadAlerts_B_MagicHurtNpc_Killed_To_RealKiller_Hashtable, _@(self)
+    );
+    if B_MagicHurtNpc_actual_attacker {
+        other = _^(B_MagicHurtNpc_actual_attacker);
+    };
+
+    if (
         // You died, loser.
         Npc_IsPlayer(self) ||
         // You killed, yay.
@@ -76,31 +89,43 @@ func int _Ninja_MaxXPHelper_HandleNPCDiedAndPlayerCouldLoseXP(var c_npc self, va
         (C_NpcIsMonster(other) && other.aivar[AIV_MM_PARTYMEMBER]) ||
         // Our summon got killed and it's not Gothic 1 so no XP.
         (GOTHIC_BASE_VERSION != 1 && C_NpcIsMonster(self) && self.aivar[AIV_MM_PARTYMEMBER])
-    ) && (
-        // todo detect if NPC died from sword finisher (or not ranged/magic in general) in this mode. 
-        // As of now Gorn in Free Mine will not produce an alert.
-        Ninja_MaxXPHelper_ConsiderG1DoubleXPGlitch || 
-        !self.aivar[AIV_WASDEFEATEDBYSC]
+        
     ) {
-            // Now XP was 99% sure lost so alert.
-            var int s; s = SB_New();
-            SB("RIP ");
-            SB(self.name);
-            _Ninja_MaxXPHelper_TriggerAlert(self, SB_ToString());
-            SB_Clear();
-            SB_Destroy();
-            return 1;
+        playerGetsXP = 1;
+    };
+    if  Ninja_MaxXPHelper_ConsiderG1DoubleXPGlitch && 
+        playerGetsXP &&
+        Npc_WasInState(self,ZS_UNCONSCIOUS) && 
+        Npc_HasReadiedMeleeWeapon(other) {
+        var int s; s = SB_New();
+        SB("RIP: ");
+        SB(self.name);
+        SB(" died from finishing move (no double XP)");
+        _Ninja_MaxXPHelper_TriggerAlert(self, SB_ToString());
+        SB_Clear();
+        SB_Destroy();
+        return 1;
+    }
+    else if !playerGetsXP {
+        // Now XP was 99% sure lost so alert.
+        var int s; s = SB_New();
+        SB("RIP: ");
+        SB(self.name);
+        _Ninja_MaxXPHelper_TriggerAlert(self, SB_ToString());
+        SB_Clear();
+        SB_Destroy();
+        return 1;
     };
     return 0;
 };
 
-func int _Ninja_MaxXPHelper_HandleSkipIfNpcWasAlreadyDead(var c_npc self) {
+func int _Ninja_MaxXPHelper_Handler_SkipIfNpcWasAlreadyDead(var c_npc self) {
     // Sometimes NPC glitch and ZS_Dead gets called multiple time - for example Orc Scout in front of the entrance
     // to Orcish Cemetery in G1 CH3. If you enter and exit the cemetery, orc will fall dead again...
     return Npc_WasInState(self, ZS_Dead);
 };
 
-func int _Ninja_MaxXPHelper_HandleSkipIfThrottled() {
+func int _Ninja_MaxXPHelper_Handler_SkipIfThrottled() {
     // Reset if last alert alredy expired (not perfect but whatever, you'd need to reload after seeing the first alert anyway...)
     if MEM_GetSystemTime() - _Ninja_MaxXPHelper_DeadAlerts_LastAlertTimestamp > _Ninja_MaxXPHelper_DeadAlerts_AlertTimeInSeconds * 1000 {
         _Ninja_MaxXPHelper_DeadAlerts_ActiveAlertsCount = 0;
@@ -112,25 +137,23 @@ func int _Ninja_MaxXPHelper_HandleSkipIfThrottled() {
     return 0;
 };
 
-func int _Ninja_MaxXPHelper_HandleStoryScriptedDeath(var int npcInstance) {
+// todo: localization
+func int _Ninja_MaxXPHelper_Handler_StoryScriptedDeath(var int npcInstance) {
     var oCNPC npc; npc = Hlp_GetNpc(npcInstance);
     var c_npc cnpc; cnpc = Hlp_GetNpc(npcInstance);
+    // todo: handle G2 cases where mortal NPCs travel worlds between chapters (Diego CH2->CH3, Gorn CH2, CH3, CH4...)
     if  // testing note: Should be false only for off-screen kill? Would need to check range otherwise.
         !npc.percActive && 
         // Skip immortal NPC
         !( cnpc.flags & NPC_FLAG_IMMORTAL) {
-        if 
-            Ninja_MaxXPHelper_ConsiderG1DoubleXPGlitch || 
-            !cnpc.aivar[AIV_WASDEFEATEDBYSC] {
-                var int s; s = SB_New();
-                SB("RIP ");
-                SB(npc.name);
-                SB(" who got killed off-screen by game scripts");
-                _Ninja_MaxXPHelper_TriggerAlert(self, SB_ToString());
-                SB_Clear();
-                SB_Destroy();
-                return 1;
-        };
+        var int s; s = SB_New();
+        SB("RIP: ");
+        SB(npc.name);
+        SB(" who got killed off-screen by game scripts");
+        _Ninja_MaxXPHelper_TriggerAlert(self, SB_ToString());
+        SB_Clear();
+        SB_Destroy();
+        return 1;
     };
     return 0;
 };
@@ -139,19 +162,22 @@ func int _Ninja_MaxXPHelper_HandleStoryScriptedDeath(var int npcInstance) {
 func void Ninja_MaxXPHelper_ZS_Dead_Hook() {
     var int handled; handled = !Ninja_MaxXPHelper_ShowMissedXPOnNPCDeathAlerts;
     if !handled {
-        handled = _Ninja_MaxXPHelper_HandleSkipIfThrottled();
+        handled = _Ninja_MaxXPHelper_Handler_SkipIfThrottled();
     };
     if !handled {
-        handled = _Ninja_MaxXPHelper_HandleSkipIfNpcWasAlreadyDead(self);
+        handled = _Ninja_MaxXPHelper_Handler_SkipIfDefeatedAndNoDoubleXPMode(self);
     };
     if !handled {
-        handled = _Ninja_MaxXPHelper_HandleSkipLevelZeroNPC(self);
+        handled = _Ninja_MaxXPHelper_Handler_SkipIfNpcWasAlreadyDead(self);
     };
     if !handled {
-        handled = _Ninja_MaxXPHelper_HandleNPCDiedAndWasNotBeatenBeforeAndDoubleXPGlitchOn(self);
+        handled = _Ninja_MaxXPHelper_Handler_SkipLevelZeroNPC(self);
     };
     if !handled {
-        handled = _Ninja_MaxXPHelper_HandleNPCDiedAndPlayerCouldLoseXP(self, other);
+        handled = _Ninja_MaxXPHelper_Handler_NPCDiedAndWasNotBeatenBeforeAndDoubleXPGlitchOn(self);
+    };
+    if !handled {
+        handled = _Ninja_MaxXPHelper_Handler_NPCDiedAndPlayerCouldLoseXP(self, other);
     };
     ContinueCall();
 };
@@ -161,16 +187,19 @@ func void Ninja_MaxXPHelper_B_KillNpc_Hook(var int npcInstance) {
     var int handled; handled = !Ninja_MaxXPHelper_ShowMissedXPOnNPCDeathAlerts;
     var c_npc cnpc; cnpc = Hlp_GetNpc(npcInstance);
     if !handled {
-        handled = _Ninja_MaxXPHelper_HandleSkipIfThrottled();
+        handled = _Ninja_MaxXPHelper_Handler_SkipIfThrottled();
     };
     if !handled {
-        handled = _Ninja_MaxXPHelper_HandleSkipIfNpcWasAlreadyDead(cnpc);
+        handled = _Ninja_MaxXPHelper_Handler_SkipIfDefeatedAndNoDoubleXPMode(self);
     };
     if !handled {
-        handled = _Ninja_MaxXPHelper_HandleSkipLevelZeroNPC(cnpc);
+        handled = _Ninja_MaxXPHelper_Handler_SkipIfNpcWasAlreadyDead(cnpc);
     };
     if !handled {
-        handled = _Ninja_MaxXPHelper_HandleStoryScriptedDeath(npcInstance);
+        handled = _Ninja_MaxXPHelper_Handler_SkipLevelZeroNPC(cnpc);
+    };
+    if !handled {
+        handled = _Ninja_MaxXPHelper_Handler_StoryScriptedDeath(npcInstance);
     };
 
     PassArgumentI(npcInstance);
@@ -196,11 +225,33 @@ func void Ninja_MaxXPHelper_DrawDeadNPCSpheres() {
     end;
 };
 
+func void _Ninja_MaxXPHelper_ClearHashTableKey(var int key, var int _) {
+    HT_Remove(_Ninja_MaxXPHelper_DeadAlerts_B_MagicHurtNpc_Killed_To_RealKiller_Hashtable,key);   
+};
+
 func void Ninja_MaxXPHelper_ResetAlerts() {
+    if !_Ninja_MaxXPHelper_DeadAlerts_B_MagicHurtNpc_Killed_To_RealKiller_Hashtable {
+        _Ninja_MaxXPHelper_DeadAlerts_B_MagicHurtNpc_Killed_To_RealKiller_Hashtable = HT_Create();
+    } else {
+        HT_ForEach(_Ninja_MaxXPHelper_DeadAlerts_B_MagicHurtNpc_Killed_To_RealKiller_Hashtable, _Ninja_MaxXPHelper_ClearHashTableKey);
+    };
     repeat(i, _Ninja_MaxXPHelper_DeadAlerts_ActiveAlertsCount); var int i;
         var int idx; idx = i * _Ninja_MaxXPHelper_DeadAlerts_DeadSpheresArrElementSize;
         MEM_WriteIntArray(_@(_Ninja_MaxXPHelper_DeadSpheres), idx, 0);
         MEM_WriteIntArray(_@(_Ninja_MaxXPHelper_DeadSpheres), idx + 1, 0);
     end;
     _Ninja_MaxXPHelper_DeadAlerts_ActiveAlertsCount = 0;
+};
+
+func void Ninja_MaxXPHelper_B_MagicHurtNpc_Hook(var C_NPC attacker, var int damage) {
+    PassArgumentN(attacker);
+    PassArgumentI(damage);
+    ContinueCall();
+    if Npc_IsDead(self) {
+        // Death XP of NPC killed by DOT stun spell like pyrokinesis could also happen in B_MagicHurtNpc.
+        // ZS_Dead might be called after this script with invalid (empty) NPC set as killer ("other" variable) which 
+        // would trigger false positive alert.
+        // To reproduce - spawn character helper, beat him, when he's up finish him off with a single cast of pyrokinesis.
+        HT_Insert(_Ninja_MaxXPHelper_DeadAlerts_B_MagicHurtNpc_Killed_To_RealKiller_Hashtable, _@(attacker), _@(self));
+    };
 };

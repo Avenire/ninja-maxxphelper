@@ -19,7 +19,7 @@ func void Ninja_MaxXPHelper_Loop()
 func void Ninja_MaxXPHelper_Init()
 {
     MEM_InitAll();
-    LeGo_MergeFlags(LeGo_HookEngine);
+    LeGo_MergeFlags(LeGo_HookEngine | LeGo_PermMem);
     const int once = 0;
     // todo: will it work after reloading in G2?
     Ninja_MaxXPHelper_ResetAlerts();
@@ -44,6 +44,7 @@ func void Ninja_MaxXPHelper_Init()
         HookEngineF(zCWorld__AdvanceClock, 10, Ninja_MaxXPHelper_Loop);
         HookDaedalusFuncS("ZS_Dead", "Ninja_MaxXPHelper_ZS_Dead_Hook");
         HookDaedalusFuncS("B_KillNpc", "Ninja_MaxXPHelper_B_KillNpc_Hook");
+        HookDaedalusFuncS("B_MagicHurtNpc", "Ninja_MaxXPHelper_B_MagicHurtNpc_Hook");
         
         once = 1;
         Ninja_MaxXPHelper_LogInfo("Initialized.");
