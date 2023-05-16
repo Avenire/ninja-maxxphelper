@@ -7,12 +7,9 @@ func void Ninja_MaxXPHelper_DrawSphere(var int x, var int y, var int z, var int 
     sphere[1] = y;
     sphere[2] = z;
     sphere[3] = mkf(radius);
-    DrawSphere(int centerPosPtr, int radius, int color
 
     const int cPtr = 0;
     const int sPtr = 0;
-    const int call = 0;
-    // todo: use LeGo Draw3D
     const int call = 0;
     if (CALL_Begin(call))
     {
@@ -32,7 +29,7 @@ func void Ninja_MaxXPHelper_DrawNPCSphere(var oCNPC npc, var int color, var int 
         var int z; z = npc._zCVob_trafoObjToWorld[11];
         var int ok; ok = TRUE;
         // Note: Should be bitfield at index 4 according to the constant but this worked in testing.
-        if FALSE && npc._zCVob_bitfield[0] & zCVob_bitfield4_dontWriteIntoArchive {
+        if npc._zCVob_bitfield[0] & zCVob_bitfield4_dontWriteIntoArchive {
             // NPC not physically placed in the world, try using waypoint location instead.
             _Ninja_MaxXPHelper_DrawNPCSphere_waypointNamePtr = _@s(npc.wpname);
             if (CALL_Begin(_Ninja_MaxXPHelper_DrawNPCSphere_call))
@@ -50,10 +47,5 @@ func void Ninja_MaxXPHelper_DrawNPCSphere(var oCNPC npc, var int color, var int 
                 ok = FALSE;
             };
         };
-        if ok {
-            Ninja_MaxXPHelper_DrawSphere(
-                x, y, z, color, 
-                Ninja_MaxXPHelper_SphereRadius
-            );
-        };
+        Ninja_MaxXPHelper_DrawSphere(x, y, z, color, Ninja_MaxXPHelper_SphereRadius);
 };

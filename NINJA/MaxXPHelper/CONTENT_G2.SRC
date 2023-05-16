@@ -9,6 +9,6 @@ content\draw.d
 content\localization.d
 content\text_print.d
 content\text_alerts.d
-content\death_alerts.d
 content\mortal_npc_locator.d
+content\death_alerts.d
 content\init.d

@@ -46,7 +46,10 @@ func int _Ninja_MaxXPHelper_Handler_SkipIfDefeatedAndNoDoubleXPMode(var c_npc se
 };
 
 func void _Ninja_MaxXPHelper_TriggerAlert(var c_npc npc, var string msg) {
-    Ninja_MaxXPHelper_AddTextAlert(msg);
+    Ninja_MaxXPHelper_AddTextAlert(
+        msg,  _Ninja_MaxXPHelper_TextAlerts_Duration, _Ninja_MaxXPHelper_TextAlerts_Color
+    );
+    Ninja_MaxXPHelper_MortalNPCLocator_AttachExpiringSphereToNpc(npc, _Ninja_MaxXPHelper_TextAlerts_Duration);
 };
 
 func int _Ninja_MaxXPHelper_Handler_NPCDiedAndWasNotBeatenBeforeAndDoubleXPGlitchOn(var c_npc _self, var c_npc _other) {

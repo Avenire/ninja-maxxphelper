@@ -7,9 +7,12 @@ func int Ninja_MaxXPHelper_GetSymbolUnsafe(var string symbol) {
 func void Ninja_MaxXPHelper_Init()
 {
     MEM_InitAll();
-    LeGo_MergeFlags(LeGo_HookEngine | LeGo_PermMem | LeGo_FrameFunctions | LeGo_Interface | LeGo_PrintS | LeGo_Timer);
+    LeGo_MergeFlags(LeGo_HookEngine | LeGo_PermMem | LeGo_FrameFunctions | LeGo_Interface | LeGo_PrintS | LeGo_Timer | LeGo_Draw3D);
+    
     const int once = 0;
+    
     if (!once) {
+        
         Ninja_MaxXPHelper_DeadOnArrivalNPCList = Ninja_MaxXPHelper_GetStrOptOrDefault(
             "deadOnArrivalNPCList", 
             Ninja_MaxXPHelper_DeadOnArrivalNPCList
