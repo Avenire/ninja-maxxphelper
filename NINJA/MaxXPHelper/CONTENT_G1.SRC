@@ -2,6 +2,7 @@ Ikarus
 LeGo
 
 content\utils.d
+content\functions_gothic_one.d
 content\const.d
 content\opts.d
 content\draw.d

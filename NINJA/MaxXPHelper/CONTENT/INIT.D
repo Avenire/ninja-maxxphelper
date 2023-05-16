@@ -16,6 +16,10 @@ func void Ninja_MaxXPHelper_Loop()
     };
 };
 
+func int Ninja_MaxXPHelper_GetSymbolUnsafe(var string symbol) {
+    var zCPar_Symbol npcSymbol; npcSymbol = _^(MEM_GetSymbol(symbol));
+    return npcSymbol.content;
+};
 func void Ninja_MaxXPHelper_Init()
 {
     MEM_InitAll();
@@ -43,6 +47,7 @@ func void Ninja_MaxXPHelper_Init()
         // todo: use FF_ApplyGT
         HookEngineF(zCWorld__AdvanceClock, 10, Ninja_MaxXPHelper_Loop);
         HookDaedalusFuncS("ZS_Dead", "Ninja_MaxXPHelper_ZS_Dead_Hook");
+        HookDaedalusFuncS("B_RemoveNpc", "Ninja_MaxXPHelper_B_RemoveNpc_Hook");
         HookDaedalusFuncS("B_KillNpc", "Ninja_MaxXPHelper_B_KillNpc_Hook");
         HookDaedalusFuncS("B_MagicHurtNpc", "Ninja_MaxXPHelper_B_MagicHurtNpc_Hook");
         

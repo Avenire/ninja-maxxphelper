@@ -25,7 +25,7 @@ toggleMortalNPCLocatorKey=KEY_V
 ; ... Defaults to 1 in Gothic 1, otherwise it's 0 as it makes no sense to have this on in G2 NotR (unless you run some mod that enables the double XP glitch there). 
 ; ... If set to 1 and alerts are on, will alert if player kills human NPC without knocking them down first (to double dip XP).
 considerG1DoubleXPGlitch=1
-; ... Defaults to 0 and will then ignore NPCs with level equal to 0 (like Mud).
+; ... Defaults to 0 and will then ignore NPCs with level equal to 0 (like Mud or self-summoned creatures like G2 NotR).
 considerLevelZeroNPC=0
 ; ... Enable (1)/Disable (0) text alerts and spheres when NPC dies and player lost XP.
 showMissedXPOnNPCDeathAlerts=1
