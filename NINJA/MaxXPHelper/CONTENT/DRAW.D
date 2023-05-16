@@ -7,9 +7,12 @@ func void Ninja_MaxXPHelper_DrawSphere(var int x, var int y, var int z, var int 
     sphere[1] = y;
     sphere[2] = z;
     sphere[3] = mkf(radius);
+    DrawSphere(int centerPosPtr, int radius, int color
 
     const int cPtr = 0;
     const int sPtr = 0;
+    const int call = 0;
+    // todo: use LeGo Draw3D
     const int call = 0;
     if (CALL_Begin(call))
     {
@@ -29,13 +32,13 @@ func void Ninja_MaxXPHelper_DrawNPCSphere(var oCNPC npc, var int color, var int 
         var int z; z = npc._zCVob_trafoObjToWorld[11];
         var int ok; ok = TRUE;
         // Note: Should be bitfield at index 4 according to the constant but this worked in testing.
-        if npc._zCVob_bitfield[0] & zCVob_bitfield4_dontWriteIntoArchive {
+        if FALSE && npc._zCVob_bitfield[0] & zCVob_bitfield4_dontWriteIntoArchive {
             // NPC not physically placed in the world, try using waypoint location instead.
-            waypointNamePtr = _@s(npc.wpname);
-            if (CALL_Begin(call))
+            _Ninja_MaxXPHelper_DrawNPCSphere_waypointNamePtr = _@s(npc.wpname);
+            if (CALL_Begin(_Ninja_MaxXPHelper_DrawNPCSphere_call))
             {
-                CALL__fastcall (_@(MEM_World.wayNet), _@(waypointNamePtr), MEMINT_SwitchG1G2(7366448, 8061744));
-                call = CALL_End();  
+                CALL__fastcall (_@(MEM_World.wayNet), _@(_Ninja_MaxXPHelper_DrawNPCSphere_waypointNamePtr), MEMINT_SwitchG1G2(7366448, 8061744));
+                _Ninja_MaxXPHelper_DrawNPCSphere_call = CALL_End();  
             };
             var int waypointPointer; waypointPointer = CALL_RetValAsInt();
             if waypointPointer {

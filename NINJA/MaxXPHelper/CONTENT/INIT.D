@@ -1,20 +1,4 @@
-func void Ninja_MaxXPHelper_Loop() 
-{
-    if (!Hlp_IsValidNpc(hero)) || (MEM_Game.pause_screen) 
-    {
-        return;
-    };
-    
-    if MEM_KeyState(Ninja_MaxXPHelper_ToggleMortalNPCLocatorKeyCode) == KEY_PRESSED {
-        Ninja_MaxXPHelper_MortalNPCLocatorOn = !Ninja_MaxXPHelper_MortalNPCLocatorOn;
-    };
-    if Ninja_MaxXPHelper_MortalNPCLocatorOn {
-        Ninja_MaxXPHelper_MortalNPCLocator();
-    };
-    if Ninja_MaxXPHelper_ShowMissedXPOnNPCDeathAlerts {
-        Ninja_MaxXPHelper_DrawDeadNPCSpheres();
-    };
-};
+
 
 func int Ninja_MaxXPHelper_GetSymbolUnsafe(var string symbol) {
     var zCPar_Symbol npcSymbol; npcSymbol = _^(MEM_GetSymbol(symbol));
@@ -23,11 +7,13 @@ func int Ninja_MaxXPHelper_GetSymbolUnsafe(var string symbol) {
 func void Ninja_MaxXPHelper_Init()
 {
     MEM_InitAll();
-    LeGo_MergeFlags(LeGo_HookEngine | LeGo_PermMem);
+    LeGo_MergeFlags(LeGo_HookEngine | LeGo_PermMem | LeGo_FrameFunctions | LeGo_Interface | LeGo_PrintS | LeGo_Timer);
     const int once = 0;
-    // todo: will it work after reloading in G2?
-    Ninja_MaxXPHelper_ResetAlerts();
     if (!once) {
+        Ninja_MaxXPHelper_DeadOnArrivalNPCList = Ninja_MaxXPHelper_GetStrOptOrDefault(
+            "deadOnArrivalNPCList", 
+            Ninja_MaxXPHelper_DeadOnArrivalNPCList
+        );
         Ninja_MaxXPHelper_ConsiderG1DoubleXPGlitch = Ninja_MaxXPHelper_GetFlagOrDefault(
             "considerG1DoubleXPGlitch",
             GOTHIC_BASE_VERSION == 1 // Double XP makes sense only in G1, set it to true only there.
@@ -44,14 +30,12 @@ func void Ninja_MaxXPHelper_Init()
             "toggleMortalNPCLocatorKey", 
             "KEY_V"
         );
-        // todo: use FF_ApplyGT
-        HookEngineF(zCWorld__AdvanceClock, 10, Ninja_MaxXPHelper_Loop);
-        HookDaedalusFuncS("ZS_Dead", "Ninja_MaxXPHelper_ZS_Dead_Hook");
-        HookDaedalusFuncS("B_RemoveNpc", "Ninja_MaxXPHelper_B_RemoveNpc_Hook");
-        HookDaedalusFuncS("B_KillNpc", "Ninja_MaxXPHelper_B_KillNpc_Hook");
-        HookDaedalusFuncS("B_MagicHurtNpc", "Ninja_MaxXPHelper_B_MagicHurtNpc_Hook");
-        
         once = 1;
+
         Ninja_MaxXPHelper_LogInfo("Initialized.");
     };
+    Ninja_MaxXPHelper_Localization_Init();
+    Ninja_MaxXPHelper_TextAlerts_Init();
+    Ninja_MaxXPHelper_DeathAlerts_Init();
+    Ninja_MaxXPHelper_MortalNPCLocator_Init();
 };

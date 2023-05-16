@@ -6,6 +6,9 @@ content\functions_gothic_two.d
 content\const.d
 content\opts.d
 content\draw.d
-content\alert.d
-content\locator.d
+content\localization.d
+content\text_print.d
+content\text_alerts.d
+content\death_alerts.d
+content\mortal_npc_locator.d
 content\init.d

@@ -41,3 +41,12 @@ func int Ninja_MaxXPHelper_GetFlagOrDefault(var string optionKey, var int defaul
     };
     return value;
 };
+
+func string Ninja_MaxXPHelper_GetStrOptOrDefault(var string optionKey, var string defaultValue) {
+    if MEM_GothOptExists(Ninja_MaxXPHelper_SectionName, optionKey) {
+        defaultValue = MEM_GetGothOpt(Ninja_MaxXPHelper_SectionName, optionKey);
+    } else {
+        MEM_SetGothOpt(Ninja_MaxXPHelper_SectionName, optionKey, defaultValue);
+    };
+    return defaultValue;
+};
