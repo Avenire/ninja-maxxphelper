@@ -49,12 +49,22 @@ func void Ninja_MaxXPHelper_TextAlerts_Init() {
     FF_ApplyExtGT(_Ninja_MaxXPHelper_TextAlerts_Show, 500, -1);
 };
 
-
-func void Ninja_MaxXPHelper_AddTextAlert(var string msg, var int duration, var int color) {
+func void Ninja_MaxXPHelper_AddTextAlert(var string msg, var int duration, var int color, var int instant) {
     var int newAlertHndl; newAlertHndl = new(_Ninja_MaxXPHelper_TextAlert_Proto);
     var _Ninja_MaxXPHelper_TextAlert newAlert; newAlert =  _^(getPtr(newAlertHndl));
     newAlert.message = msg;
     newAlert.expiresAfter = duration;
     newAlert.color = color;
-    Q_Enqueue(_Ninja_MaxXPHelper_TextAlerts_WaitingQueue, newAlertHndl);
+    if instant {
+        _Ninja_MaxXPHelper_TextAlerts_ActiveCount += 1;
+        Ninja_MaxXPHelper_PrintS_Ext(
+            newAlert.message, 
+            newAlert.expiresAfter,
+            newAlert.color
+        );
+        newAlert.expiresAfter = duration + TimerGT();
+        Q_Enqueue(_Ninja_MaxXPHelper_TextAlerts_ActiveQueue, newAlertHndl);
+    } else {
+        Q_Enqueue(_Ninja_MaxXPHelper_TextAlerts_WaitingQueue, newAlertHndl);
+    };
 };

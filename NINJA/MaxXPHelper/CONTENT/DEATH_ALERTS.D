@@ -1,20 +1,54 @@
 const int _Ninja_MaxXPHelper_DeathAlerts_B_MagicHurtNpc_Killed_To_RealKiller_Hashtable = -1;
 const int _Ninja_MaxXPHelper_DeathAlerts_DeadOnArrivalNpc_Hashtable = -1;
-
-func void Ninja_MaxXPHelper_DeathAlerts_Init() {
-    Ninja_MaxXPHelper_LogInfo("Ninja_MaxXPHelper_DeathAlerts_Init");
-    _Ninja_MaxXPHelper_DeathAlerts_B_MagicHurtNpc_Killed_To_RealKiller_Hashtable = HT_Create();
+func void Ninja_MaxXPHelper_DeathAlerts_InitDoANpcList() {
     STRINT_SplitReset();
     var int count; count = STR_SplitCount(Ninja_MaxXPHelper_DeadOnArrivalNPCList, ";");
     _Ninja_MaxXPHelper_DeathAlerts_DeadOnArrivalNpc_Hashtable = HT_Create();
     repeat(i, count); var int i;
         var string npcCode; npcCode = STRINT_SplitGet(i);
-        var zCPar_Symbol npcSymbol; npcSymbol = _^(MEM_GetSymbol(npcCode));
-        var c_npc npc; npc = _^(npcSymbol.content);
-        if Hlp_IsValidNpc(npc) && !Npc_IsDead(npc) {
-            HT_Insert(_Ninja_MaxXPHelper_DeathAlerts_DeadOnArrivalNpc_Hashtable, _@(npc), TRUE);
+        var int instanceId; instanceId = MEM_GetSymbolIndex(npcCode);
+        if HT_Get(
+            _Ninja_MaxXPHelper_DeathAlerts_DeadOnArrivalNpc_Hashtable,
+            instanceId
+        ) > 0 {
+            var int s; s = SB_New();
+            SB("Duplicated instanceId ");
+            SB(npcCode);
+            SB(" in DoA - ");
+            SB(IntToString(instanceId));
+            Ninja_MaxXPHelper_LogInfo(SB_ToString());
+            SB_Clear();
+            SB_Destroy();
+            continue;
+        };
+        if instanceId > -1 {
+            var int s; s = SB_New();
+            SB("Insert instance ");
+            SB(npcCode);
+            SB(" into DoA as ");
+            SB(IntToString(instanceId));
+            Ninja_MaxXPHelper_LogInfo(SB_ToString());
+            SB_Clear();
+            SB_Destroy();
+            HT_Insert(
+                _Ninja_MaxXPHelper_DeathAlerts_DeadOnArrivalNpc_Hashtable,
+                TRUE,
+                instanceId
+            );
         };
     end;
+};
+
+func int _Ninja_MaxXPHelper_Handler_SkipDeadOnArrivalNPC(var c_npc _self) {
+    Ninja_MaxXPHelper_LogInfo("_Ninja_MaxXPHelper_Handler_SkipDeadOnArrivalNPC");
+    var int instanceId; instanceId = Hlp_GetInstanceID(_self);
+    HT_Get(_Ninja_MaxXPHelper_DeathAlerts_DeadOnArrivalNpc_Hashtable, instanceId);
+};
+
+func void Ninja_MaxXPHelper_DeathAlerts_Init() {
+    Ninja_MaxXPHelper_LogInfo("Ninja_MaxXPHelper_DeathAlerts_Init");
+    _Ninja_MaxXPHelper_DeathAlerts_B_MagicHurtNpc_Killed_To_RealKiller_Hashtable = HT_Create();
+    Ninja_MaxXPHelper_DeathAlerts_InitDoANpcList();
     const int once = 0;
     if !once {
         HookDaedalusFuncS("ZS_Dead", "Ninja_MaxXPHelper_ZS_Dead_Hook");
@@ -47,9 +81,8 @@ func int _Ninja_MaxXPHelper_Handler_SkipIfDefeatedAndNoDoubleXPMode(var c_npc se
 
 func void _Ninja_MaxXPHelper_TriggerAlert(var c_npc npc, var string msg) {
     Ninja_MaxXPHelper_AddTextAlert(
-        msg,  _Ninja_MaxXPHelper_TextAlerts_Duration, _Ninja_MaxXPHelper_TextAlerts_Color
+        msg,  _Ninja_MaxXPHelper_TextAlerts_Duration, _Ninja_MaxXPHelper_TextAlerts_Color, FALSE
     );
-    Ninja_MaxXPHelper_MortalNPCLocator_AttachExpiringSphereToNpc(npc, _Ninja_MaxXPHelper_TextAlerts_Duration);
 };
 
 func int _Ninja_MaxXPHelper_Handler_NPCDiedAndWasNotBeatenBeforeAndDoubleXPGlitchOn(var c_npc _self, var c_npc _other) {
@@ -71,32 +104,27 @@ func int _Ninja_MaxXPHelper_Handler_NPCDiedAndWasNotBeatenBeforeAndDoubleXPGlitc
     return 0;
 };
 
-func int _Ninja_MaxXPHelper_Handler_SkipDeadOnArrivalNPC(var c_npc self) {
-    Ninja_MaxXPHelper_LogInfo("_Ninja_MaxXPHelper_Handler_SkipDeadOnArrivalNPC");
-    return !!HT_Get(_Ninja_MaxXPHelper_DeathAlerts_DeadOnArrivalNpc_Hashtable, _@(self));
-};
-
-func int _Ninja_MaxXPHelper_Handler_NPCDiedAndPlayerCouldLoseXP(var c_npc self, var c_npc other) {
+func int _Ninja_MaxXPHelper_Handler_NPCDiedAndPlayerCouldLoseXP(var c_npc _self, var c_npc _other) {
     Ninja_MaxXPHelper_LogInfo("_Ninja_MaxXPHelper_Handler_NPCDiedAndPlayerCouldLoseXP");
     var int B_MagicHurtNpc_actual_attacker; B_MagicHurtNpc_actual_attacker = HT_Get(
         _Ninja_MaxXPHelper_DeathAlerts_B_MagicHurtNpc_Killed_To_RealKiller_Hashtable,
-        _@(self)
+        _@(_self)
     );
     if B_MagicHurtNpc_actual_attacker {
-        other = _^(B_MagicHurtNpc_actual_attacker);
+        _other = _^(B_MagicHurtNpc_actual_attacker);
     };
-    Ninja_MaxXPHelper_LogInfo(ConcatStrings("_Ninja_MaxXPHelper_Handler_NPCDiedAndPlayerCouldLoseXP other=", other.name));
-    var int playerGetsXP; playerGetsXP = Ninja_MaxXPHelper_WouldReceiveVictoryXP(self, other); 
+    Ninja_MaxXPHelper_LogInfo(ConcatStrings("_Ninja_MaxXPHelper_Handler_NPCDiedAndPlayerCouldLoseXP other=", _other.name));
+    var int playerGetsXP; playerGetsXP = Ninja_MaxXPHelper_WouldReceiveVictoryXP(_self, _other); 
     if  Ninja_MaxXPHelper_ConsiderG1DoubleXPGlitch && 
         playerGetsXP &&
         Npc_WasInState(self,ZS_UNCONSCIOUS) && 
-        Npc_IsInFightMode(other,FMODE_MELEE) {
+        Npc_IsInFightMode(_other, FMODE_MELEE) {
         var int s; s = SB_New();
         SB(Ninja_MaxXPHelper_LOC_RIPPrefix);
-        SB(self.name);
+        SB(_self.name);
         SB(" ");
         SB(Ninja_MaxXPHelper_LOC_DoubleXPMeleeFinisherTip);
-        _Ninja_MaxXPHelper_TriggerAlert(self, SB_ToString());
+        _Ninja_MaxXPHelper_TriggerAlert(_self, SB_ToString());
         SB_Clear();
         SB_Destroy();
         return 1;
@@ -105,8 +133,8 @@ func int _Ninja_MaxXPHelper_Handler_NPCDiedAndPlayerCouldLoseXP(var c_npc self, 
         // Now XP was 99% sure lost so alert.
         var int s; s = SB_New();
         SB(Ninja_MaxXPHelper_LOC_RIPPrefix);
-        SB(self.name);
-        _Ninja_MaxXPHelper_TriggerAlert(self, SB_ToString());
+        SB(_self.name);
+        _Ninja_MaxXPHelper_TriggerAlert(_self, SB_ToString());
         SB_Clear();
         SB_Destroy();
         return 1;
@@ -145,27 +173,31 @@ func int _Ninja_MaxXPHelper_Handler_StoryScriptedDeath(var int npcInstance) {
 };
 
 func void Ninja_MaxXPHelper_ZS_Dead_Hook() {
+    var c_npc _self; _self = Hlp_GetNpc (self);
+    var c_npc _other; _other = Hlp_GetNpc (other);
+    Ninja_MaxXPHelper_LogInfo(ConcatStrings("ZS_Dead killed ", _self.name));
+    Ninja_MaxXPHelper_LogInfo(ConcatStrings("ZS_Dead killer ", _other.name));
     var int handled; handled = !Ninja_MaxXPHelper_ShowMissedXPOnNPCDeathAlerts;
     if !handled {
-        handled = _Ninja_MaxXPHelper_Handler_SkipPlayerDeath(self);
+        handled = _Ninja_MaxXPHelper_Handler_SkipPlayerDeath(_self);
     };
     if !handled {
-        handled = _Ninja_MaxXPHelper_Handler_SkipIfDefeatedAndNoDoubleXPMode(self);
+        handled = _Ninja_MaxXPHelper_Handler_SkipIfDefeatedAndNoDoubleXPMode(_self);
     };
     if !handled {
-        handled = _Ninja_MaxXPHelper_Handler_SkipIfNpcWasAlreadyDead(self);
+        handled = _Ninja_MaxXPHelper_Handler_SkipIfNpcWasAlreadyDead(_self);
     };
     if !handled {
-        handled = _Ninja_MaxXPHelper_Handler_SkipLevelZeroNPC(self);
+        handled = _Ninja_MaxXPHelper_Handler_SkipLevelZeroNPC(_self);
     };
     if !handled {
-        handled = _Ninja_MaxXPHelper_Handler_SkipDeadOnArrivalNPC(self);
+        handled = _Ninja_MaxXPHelper_Handler_SkipDeadOnArrivalNPC(_self);
     };
     if !handled {
-        handled = _Ninja_MaxXPHelper_Handler_NPCDiedAndWasNotBeatenBeforeAndDoubleXPGlitchOn(self, other);
+        handled = _Ninja_MaxXPHelper_Handler_NPCDiedAndWasNotBeatenBeforeAndDoubleXPGlitchOn(_self, _other);
     };
     if !handled {
-        handled = _Ninja_MaxXPHelper_Handler_NPCDiedAndPlayerCouldLoseXP(self, other);
+        handled = _Ninja_MaxXPHelper_Handler_NPCDiedAndPlayerCouldLoseXP(_self, _other);
     };
     ContinueCall();
 };

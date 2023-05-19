@@ -47,6 +47,49 @@ func string Ninja_MaxXPHelper_GetStrOptOrDefault(var string optionKey, var strin
         defaultValue = MEM_GetGothOpt(Ninja_MaxXPHelper_SectionName, optionKey);
     } else {
         MEM_SetGothOpt(Ninja_MaxXPHelper_SectionName, optionKey, defaultValue);
+        MEM_ApplyGothOpt();
     };
     return defaultValue;
+};
+
+func void Ninja_MaxXPHelper_PrintBinary(var int bitfield) {
+    repeat(i, 32); var int i;
+        if (bitfield & (1 << i)) {
+            SB("1");
+        } else {
+            SB("0");
+        };
+    end;
+};
+
+func void Ninja_MaxXPHelper_oCNPCDebug(var oCNPC npc, var string prefix) {
+        var int s; s = SB_New();
+        SB(prefix);
+        var string shortName; shortName = STR_Prefix(npc.name, 20);
+        SB(ConcatStrings(shortName, STR_Prefix("                    ", 20 - STR_Len(shortName))));
+        SB(" vob ");
+        repeat(i, 5); var int i;
+            //Ninja_MaxXPHelper_PrintBinary(MEM_ReadInt(_@(npc) + MEMINT_SwitchG1G2(1948, 1884) + i * 4));
+            Ninja_MaxXPHelper_PrintBinary(MEM_ReadInt(_@(npc) + MEMINT_SwitchG1G2(228, 260) + i * 4));
+            SB(" ");
+        end;
+        Ninja_MaxXPHelper_LogInfo(SB_ToString());
+        SB_Clear();
+        SB_Destroy();
+};
+
+func string Ninja_MaxXPHelper_ReadFileOrSetDefault(var string filename, var string default) {
+    
+    var string value; value = default;
+    if BR_OpenFile(filename)
+    { 
+        value = BR_TextLine();
+        BR_Close();           
+    } else if BW_NewFile(filename) 
+    { 
+        BW_Text(default);
+        BW_NextLine();
+        BW_Close();
+    };
+    return value;
 };

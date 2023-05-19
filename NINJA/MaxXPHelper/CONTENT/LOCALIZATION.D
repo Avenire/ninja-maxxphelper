@@ -2,6 +2,9 @@ const string Ninja_MaxXPHelper_LOC_RIPPrefix = "RIP: ";
 const string Ninja_MaxXPHelper_LOC_ScriptedDeathTip = "(Scripted Death)";
 const string Ninja_MaxXPHelper_LOC_DoubleXPMeleeFinisherTip = "(Double XP Glitch - Lost Magic/Range Kill XP)";
 const string Ninja_MaxXPHelper_LOC_DoubleXPNoZSUnconsciousXP = "(Double XP Glitch - Lost Victory XP)";
+const string Ninja_MaxXPHelper_LOC_LocatorOn = "Locator ON";
+const string Ninja_MaxXPHelper_LOC_LocatorOff = "Locator OFF";
+
 
 // https://github.com/szapp/Ninja/wiki/Inject-Changes#localization
 func int Ninja_MaxXPHelper_GuessLocalization() { // Adjust the name!

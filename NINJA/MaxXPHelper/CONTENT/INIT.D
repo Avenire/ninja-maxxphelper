@@ -12,14 +12,18 @@ func void Ninja_MaxXPHelper_Init()
     const int once = 0;
     
     if (!once) {
-        
-        Ninja_MaxXPHelper_DeadOnArrivalNPCList = Ninja_MaxXPHelper_GetStrOptOrDefault(
-            "deadOnArrivalNPCList", 
-            Ninja_MaxXPHelper_DeadOnArrivalNPCList
+        var string filename; filename = Ninja_MaxXPHelper_GetStrOptOrDefault(
+            "deadOnArrivalNPCListPath",
+            "system\deadOnArrivalNPCList.txt"
         );
+        Ninja_MaxXPHelper_DeadOnArrivalNPCList = Ninja_MaxXPHelper_ReadFileOrSetDefault(
+            filename, 
+            Ninja_MaxXPHelper_DeadOnArrivalNPCDefaultList
+        );
+
         Ninja_MaxXPHelper_ConsiderG1DoubleXPGlitch = Ninja_MaxXPHelper_GetFlagOrDefault(
             "considerG1DoubleXPGlitch",
-            GOTHIC_BASE_VERSION == 1 // Double XP makes sense only in G1, set it to true only there.
+            0
         );
         Ninja_MaxXPHelper_ConsiderLevelZeroNPC = Ninja_MaxXPHelper_GetFlagOrDefault(
             "considerLevelZeroNPC",
@@ -29,16 +33,16 @@ func void Ninja_MaxXPHelper_Init()
             "showMissedXPOnNPCDeathAlerts",
             1
         );
-        Ninja_MaxXPHelper_ToggleMortalNPCLocatorKeyCode = Ninja_MaxXPHelper_GetKeyOrDefault(
-            "toggleMortalNPCLocatorKey", 
+        Ninja_MaxXPHelper_ToggleXPNPCLocatorKeyCode = Ninja_MaxXPHelper_GetKeyOrDefault(
+            "toggleXPNPCLocatorKey", 
             "KEY_V"
         );
         once = 1;
 
-        Ninja_MaxXPHelper_LogInfo("Initialized.");
+        Ninja_MaxXPHelper_LogInfo("Initialized and build from CMD.");
     };
     Ninja_MaxXPHelper_Localization_Init();
     Ninja_MaxXPHelper_TextAlerts_Init();
     Ninja_MaxXPHelper_DeathAlerts_Init();
-    Ninja_MaxXPHelper_MortalNPCLocator_Init();
+    Ninja_MaxXPHelper_XPNPCLocator_Init();
 };

@@ -1,4 +1,4 @@
-const string Ninja_MaxXPHelper_DeadOnArrivalNPCList = "";
+const string Ninja_MaxXPHelper_DeadOnArrivalNPCDefaultList = "";
 
 func int Ninja_MaxXPHelper_VictoryXPReceived(var c_npc npc) {
     return npc.aivar[AIV_WASDEFEATEDBYSC];

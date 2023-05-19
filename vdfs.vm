@@ -1,0 +1,8 @@
+[BEGINVDF]
+BaseDir=.\
+VDFName=.\build\MaxXPHelper.vdf
+[FILES]
+NINJA
+[EXCLUDE]
+[INCLUDE]
+[ENDVDF]
