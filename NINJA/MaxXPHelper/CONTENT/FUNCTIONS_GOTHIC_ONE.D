@@ -1,20 +1,21 @@
 const string Ninja_MaxXPHelper_DeadOnArrivalNPCDefaultList = "";
+const string Ninja_MaxXPHelper_DeathAlertsSVM_Default = "Info_BaalLukor_ALTAR_13_05"; // the infamous "NOOOOO" ;)
 
 func int Ninja_MaxXPHelper_VictoryXPReceived(var c_npc npc) {
     return npc.aivar[AIV_WASDEFEATEDBYSC];
 };
 
-func int Ninja_MaxXPHelper_WouldReceiveVictoryXP(var c_npc self, var c_npc other) {
+func int Ninja_MaxXPHelper_WouldReceiveVictoryXP(var c_npc _self, var c_npc _other) {
     return (
         // You killed, yay.
-        Npc_IsPlayer(other) ||
+        Npc_IsPlayer(_other) ||
         // Our party member claimed the kill.
-        (C_NpcIsHuman(other) && other.aivar[AIV_PARTYMEMBER]) ||
+        (C_NpcIsHuman(_other) && _other.aivar[AIV_PARTYMEMBER]) ||
         // Our summon claimed the kill.
-        (C_NpcIsMonster(other) && other.aivar[AIV_MM_PARTYMEMBER])
+        (C_NpcIsMonster(_other) && _other.aivar[AIV_MM_PARTYMEMBER])
     );
 };
 
 func int Ninja_MaxXPHelper_IsKnockable(var c_npc _self, var c_npc _other) {
-    return C_NpcIsHuman(self);
+    return C_NpcIsHuman(_other);
 };

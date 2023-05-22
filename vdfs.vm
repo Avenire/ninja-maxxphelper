@@ -3,6 +3,7 @@ BaseDir=.\
 VDFName=.\build\MaxXPHelper.vdf
 [FILES]
 NINJA
+_work
 [EXCLUDE]
 [INCLUDE]
 [ENDVDF]

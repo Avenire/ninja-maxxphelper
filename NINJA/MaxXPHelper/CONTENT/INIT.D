@@ -12,6 +12,10 @@ func void Ninja_MaxXPHelper_Init()
     const int once = 0;
     
     if (!once) {
+        Ninja_MaxXPHelper_DeathAlertsSVM = Ninja_MaxXPHelper_GetStrOptOrDefault(
+            "deathAlertsSVM",
+            Ninja_MaxXPHelper_DeathAlertsSVM_Default
+        );
         var string filename; filename = Ninja_MaxXPHelper_GetStrOptOrDefault(
             "deadOnArrivalNPCListPath",
             "system\deadOnArrivalNPCList.txt"
@@ -37,12 +41,17 @@ func void Ninja_MaxXPHelper_Init()
             "toggleXPNPCLocatorKey", 
             "KEY_V"
         );
+        // todo: OPTS
+        Ninja_MaxXPHelper_IconSize = mkf(Ninja_MaxXPHelper_IconSize);
+        Ninja_MaxXPHelper_MinIconSize = mkf(Ninja_MaxXPHelper_MinIconSize);
+        Ninja_MaxXPHelper_IconFadingNearbyDistance = mkf(Ninja_MaxXPHelper_IconFadingNearbyDistance);
+        Ninja_MaxXPHelper_ColorMaxFloat = mkf(Ninja_MaxXPHelper_ColorMaxFloat);
+        
         once = 1;
-
-        Ninja_MaxXPHelper_LogInfo("Initialized and build from CMD.");
     };
     Ninja_MaxXPHelper_Localization_Init();
     Ninja_MaxXPHelper_TextAlerts_Init();
+    Ninja_MaxXPHelper_Trackers_Init();
     Ninja_MaxXPHelper_DeathAlerts_Init();
     Ninja_MaxXPHelper_XPNPCLocator_Init();
 };

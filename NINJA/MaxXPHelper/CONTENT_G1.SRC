@@ -6,7 +6,8 @@ content\functions_gothic_one.d
 content\engine_funcs.d
 content\const.d
 content\opts.d
-content\draw.d
+content\tracker_sprite.d
+content\trackers.d
 content\localization.d
 content\text_print.d
 content\text_alerts.d

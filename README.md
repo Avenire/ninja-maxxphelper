@@ -19,16 +19,35 @@ Shows a text alert when NPC dies so hero misses out XP (by the following rules):
     - [`considerG1DoubleXPGlitch=1` only] Player or party member killed NPC without beating them up first;
     - [`considerLevelZeroNPC=0`] Level 0 NPCs are ignored;
 
+In addition fail tracker will be displayed at the position of such NPC.
+
+### Future enhancements ideas
+- inverse mode for `considerG1DoubleXPGlitch` that is - warn player if they receive double XP and they don't want to
+
 # XP NPC Locator: 
-Draws spheres (circles really) around all NPCs around the current zCWorld who hero can still beat up to squeeze more XP. 
+Draws trackers at position of NPCs (of the currently loaded world) that hero can beat up to squeeze more XP.
 - Filters out NPCs with immortality flag set;
-- Takes `considerG1DoubleXPGlitch` into account (uses different color if NPC was/wasn't beaten up);
+- Takes `considerG1DoubleXPGlitch` into account (if NPC was beaten before, tracker will display an icon suggesting a ranged kill);
 - Takes `considerLevelZeroNPC` into account;
     
-     **Warning**: framerate will suffer greatly, rendering is hardly optimal. Flickering and visual glitches of the markers are to be expected (especially if there's still a lot of NPCs to beat).
+     **Warning**: framerate may suffer if enabled. Flickering and visual glitches of the trackers are possible. Was **not** tested with custom renderes like GD3D11 yet.
      
-     Usage: press a key configured by `toggleXPNPCLocatorKey` ini option (by default `V`) to toggle rendering on and off.
-    Nearby NPCs are prioritzed for display first and updated every frame. NPCs further away are **incrementally** tracked down and **should** eventually appear; If NPC was never encountered before, their spawn waypoint position is marked instead.
+     **Usage**: press a key configured by `toggleXPNPCLocatorKey` ini option (by default `V`) to toggle rendering on and off.
+    
+### How it works
+You can read the source of `XP_NPC_LOCATOR.D` to understand this in detail. 
+
+In short: nearby NPCs (whose AI is processed by game) are always updated & rendered on every frame. 
+
+Inactive NPCs (whose AI is frozen) are **incrementally** processed (couple NPCs every frame)so it doesn't impact framerate too much. 
+NPCs are divided into "buckets" based on their distance to the Hero. Only first few buckets (representing NPCs closest to the player) are rendered, other buckets are skipped. 
+
+It would be possible to render all NPCs but this would likely lower framerate too much and cause significant visual clutter. The primary purpose of this feature is to show player if they forgot about a monster or two while clearing an area and, if so, point to the nearest one. Rendering everything, especially at the start of the game, makes very little sense.
+    
+
+### Future enhancements ideas
+- render trackers for pickpocketable NPCs
+- toggle display ON only for NPCs in the line of sight
 
 # Gothic.ini options
 After installing, start the game to get the defaults set in Gothic.ini in `[MaxXPHelper-V1]` section.
@@ -54,8 +73,6 @@ VLK_4304_Addon_William;Stoneguardian_MineDead4;;VLK_4103_Waffenknecht;YGiant_Bug
 ```
 # Known Issues 
 - [`considerG1DoubleXPGlitch=1`][Death Alerts] Killing NPC too fast after they got up from unconscious may not detect lost XP
-- **[XP NPC Locator] If locator is on when saving the game, spheres get archived and on reload are permanently visible**
-- [XP NPC Locator] NPC Locator performance (especially in G2 NotR)
 - Memory is not released correctly between reloads (yet)
 
 1. Currently testing in Gothic 1.
@@ -73,3 +90,11 @@ Assuming `GOTHIC_VDFS_PATH` is set and your working directory is the repo root -
 # How to install pre-built plugin
 1. Have [Ninja](https://github.com/szapp/Ninja) installed.
 2. Drop `MaxXPHelper.vdf` file into `<gothic-main-dir>/Data`
+
+# Attributions
+The following CC0 License icons were used (and slightly tweaked):
+- https://www.svgrepo.com/svg/307071/punch-fist-hit?edit=true
+- https://www.svgrepo.com/svg/308871/skull-and-bones-deadly-skull-bones
+- https://www.svgrepo.com/svg/254407/money-bag-money
+- https://www.svgrepo.com/svg/307146/theft-crime-steal-thief
+- https://www.svgrepo.com/svg/308893/sword-conflict-war-violence
