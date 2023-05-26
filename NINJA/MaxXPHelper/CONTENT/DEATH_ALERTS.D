@@ -1,6 +1,8 @@
 const int _Ninja_MaxXPHelper_DeathAlerts_DeadOnArrivalNpc_HT = 0;
 const int _Ninja_MaxXPHelper_DeathAlerts_B_MagicHurtNpc_Killed_To_RealKiller_HT = 0;
 const int _Ninja_MaxXPHelper_DeathAlerts_AlertIdToTrackerId_HT = 0;
+const int _Ninja_MaxXPHelper_DeathAlerts_LastSVM = 0;
+const int _Ninja_MaxXPHelper_DeathAlerts_SVMThrottleInMillis = 10000;
 
 func void Ninja_MaxXPHelper_DeathAlerts_InitDeadOnArrivalNPCList() {
     STRINT_SplitReset();
@@ -52,15 +54,18 @@ func void _Ninja_MaxXPHelper_DeathAlerts_AutoExpireTrackerOnAlertShown(var int a
     Ninja_MaxXPHelper_LogInfo(ConcatStrings("Call by handle ", IntToString(alertHandle)));
     var int trackerHandle; trackerHandle = HT_Get(_Ninja_MaxXPHelper_DeathAlerts_AlertIdToTrackerId_HT, alertHandle);
     Ninja_MaxXPHelper_Trackers_SetAutoExpire(trackerHandle, _Ninja_MaxXPHelper_TextAlerts_Duration);
+    if  STR_Len(Ninja_MaxXPHelper_DeathAlertsSVM) > 0 && 
+        !Npc_IsDead(hero) && 
+        TimerGT() - _Ninja_MaxXPHelper_DeathAlerts_LastSVM > _Ninja_MaxXPHelper_DeathAlerts_SVMThrottleInMillis {
+        AI_OutputSVM(hero, hero, Ninja_MaxXPHelper_DeathAlertsSVM);
+        _Ninja_MaxXPHelper_DeathAlerts_LastSVM = TimerGT();
+    };
 };
 
 func void _Ninja_MaxXPHelper_DeathAlerts_TriggerAlert(var c_npc cnpc, var string msg) {
     var int alertHandle; alertHandle = Ninja_MaxXPHelper_AddTextAlert(
         msg,  _Ninja_MaxXPHelper_TextAlerts_Duration, _Ninja_MaxXPHelper_TextAlerts_Color, FALSE
     );
-    if STR_Len(Ninja_MaxXPHelper_DeathAlertsSVM) > 0 && !Npc_IsDead(hero) {
-        //AI_OutputSVM(hero, hero, Ninja_MaxXPHelper_DeathAlertsSVM);
-    };
     
     var oCNPC npc; npc = Hlp_GetNpc(cnpc);
     if Ninja_MaxXPHelper_IsNpcSpawned(npc) {
@@ -82,7 +87,7 @@ func void _Ninja_MaxXPHelper_DeathAlerts_TriggerAlert(var c_npc cnpc, var string
 };
 
 func void Ninja_MaxXPHelper_DeathAlerts_Init() {
-    Ninja_MaxXPHelper_LogInfo("Ninja_MaxXPHelper_DeathAlerts_Init");
+    _Ninja_MaxXPHelper_DeathAlerts_LastSVM = 0;
     HT_Destroy(_Ninja_MaxXPHelper_DeathAlerts_AlertIdToTrackerId_HT);
     HT_Destroy(_Ninja_MaxXPHelper_DeathAlerts_B_MagicHurtNpc_Killed_To_RealKiller_HT);
     HT_Destroy(_Ninja_MaxXPHelper_DeathAlerts_AlertIdToTrackerId_HT);

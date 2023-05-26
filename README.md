@@ -65,6 +65,9 @@ showMissedXPOnNPCDeathAlerts=1
 ; ... Semicolon separated list of NPC instance names to ignore if they got killed by game scripts (rather than usual gameplay) because they are effectively... "dead on (player's) arrival". 
 ; ... Path to the file from which the script should read deadOnArrivalNPCList (see section below for defaults.)
 deadOnArrivalNPCListPath=system\deadOnArrivalNPCList.txt
+; ... Easter egg "feature". Set it as empty if it starts getting on your nerves ;)
+; ... You can change it to ID of whatever dialogue line you like in the base game the most and see what happens.
+deathAlertsSVM=
 ```
 ### Dead on arrival defaults
 Following is the default for Gothic 2 NotR. See "tools/g2notr_print_doa_npcs.py" for more details how it was extracted. For Gothic 1 its empty as there're no cases where a seemingly normal NPC gets killed off-screen by game's scripts pretty much the first time player arrives in new location. **Note:** list **must end with newline** or it won't be parsed correctly and game may crash during loading.

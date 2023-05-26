@@ -1,9 +1,3 @@
-
-
-func int Ninja_MaxXPHelper_GetSymbolUnsafe(var string symbol) {
-    var zCPar_Symbol npcSymbol; npcSymbol = _^(MEM_GetSymbol(symbol));
-    return npcSymbol.content;
-};
 func void Ninja_MaxXPHelper_Init()
 {
     MEM_InitAll();
@@ -41,7 +35,7 @@ func void Ninja_MaxXPHelper_Init()
             "toggleXPNPCLocatorKey", 
             "KEY_V"
         );
-        // todo: OPTS
+        // todo: expose as OPTS?
         Ninja_MaxXPHelper_IconSize = mkf(Ninja_MaxXPHelper_IconSize);
         Ninja_MaxXPHelper_MinIconSize = mkf(Ninja_MaxXPHelper_MinIconSize);
         Ninja_MaxXPHelper_IconFadingNearbyDistance = mkf(Ninja_MaxXPHelper_IconFadingNearbyDistance);

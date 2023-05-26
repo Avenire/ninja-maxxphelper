@@ -20,39 +20,24 @@ instance _Ninja_MaxXPHelper_TextAlert@(_Ninja_MaxXPHelper_TextAlert) {
     next = 0;
 };
 
-func void _Ninja_MaxXPHelper_TextAlert_Delete(var _Ninja_MaxXPHelper_TextAlert this) {
-    Ninja_MaxXPHelper_LogInfo(ConcatStrings("Alert dtor called ", this.message));
-};
-
-
-func void _Ninja_MaxXPHelper_TextAlerts_Clear(var int rootPtr) {
-    var int root; root = MEM_ReadInt(rootPtr);
-    if !root { return; };
-    var _Ninja_MaxXPHelper_TextAlert rootNode; rootNode = _^(root);
-    MEM_WriteInt(rootPtr, 0);
-    while (root);
-        var _Ninja_MaxXPHelper_TextAlert curr; curr = _^(root);
-        free(root, _Ninja_MaxXPHelper_TextAlert@);
-        root = curr.next;
-    end;
-};
-
-func void _Ninja_MaxXPHelper_TextAlerts_Enqueue(var int rootPtr, var int newAlertPtr) {
-    var int root; root = MEM_ReadInt(rootPtr);
-    if root {
-        var _Ninja_MaxXPHelper_TextAlert rootNode; rootNode = _^(root);
-        while (rootNode.next);
-            rootNode = _^(rootNode.next);
+func int _Ninja_MaxXPHelper_TextAlerts_Enqueue(var int rootPtr, var int newAlertPtr) {
+    if Hlp_IsValidHandle(rootPtr) {
+        var _Ninja_MaxXPHelper_TextAlert rootNode;
+        var int currPtr; currPtr = rootPtr;
+        while (Hlp_IsValidHandle(currPtr));
+            rootNode = get(currPtr);
+            currPtr = rootNode.next;
         end;
         rootNode.next = newAlertPtr;
+        return rootPtr;
     } else {
-        MEM_WriteInt(rootPtr, newAlertPtr);
+        return newAlertPtr;
     };
 };
 
 func void _Ninja_MaxXPHelper_CallOnShowFunc(var int alertHandle) {
     locals();
-    var _Ninja_MaxXPHelper_TextAlert a; a = _^(alertHandle);
+    var _Ninja_MaxXPHelper_TextAlert a; a = get(alertHandle);
     if a.onShowFnc {
         MEMINT_StackPushInt(alertHandle);
         MEM_CallByPtr(a.onShowFnc);
@@ -61,21 +46,24 @@ func void _Ninja_MaxXPHelper_CallOnShowFunc(var int alertHandle) {
 
 func void _Ninja_MaxXPHelper_TextAlerts_Show() {
     if Timer_IsPaused() { return; };
-    while (_Ninja_MaxXPHelper_TextAlerts_ActiveQueue);
+    while (Hlp_IsValidHandle(_Ninja_MaxXPHelper_TextAlerts_ActiveQueue));
         var int alertPtr; alertPtr = _Ninja_MaxXPHelper_TextAlerts_ActiveQueue;
-        var _Ninja_MaxXPHelper_TextAlert alert; alert =  _^(alertPtr);
+        var _Ninja_MaxXPHelper_TextAlert alert; alert =  get(alertPtr);
         if  alert.expiresAfter < TimerGT() {
             _Ninja_MaxXPHelper_TextAlerts_ActiveCount -= 1;
             _Ninja_MaxXPHelper_TextAlerts_ActiveQueue = alert.next;
-            free(alertPtr, _Ninja_MaxXPHelper_TextAlert@);
+            delete(alertPtr);
         } else {
             break;
         };
     end;
-    while (_Ninja_MaxXPHelper_TextAlerts_WaitingQueue && _Ninja_MaxXPHelper_TextAlerts_ActiveCount < _Ninja_MaxXPHelper_TextAlerts_MaxActiveCount);
+    while (
+        Hlp_IsValidHandle(_Ninja_MaxXPHelper_TextAlerts_WaitingQueue) && 
+        _Ninja_MaxXPHelper_TextAlerts_ActiveCount < _Ninja_MaxXPHelper_TextAlerts_MaxActiveCount
+    );
+        
         var int alertPtr; alertPtr = _Ninja_MaxXPHelper_TextAlerts_WaitingQueue;
-        var _Ninja_MaxXPHelper_TextAlert alert; alert = _^(alertPtr);
-        _Ninja_MaxXPHelper_TextAlerts_WaitingQueue = alert.next;
+        var _Ninja_MaxXPHelper_TextAlert alert; alert = get(alertPtr);
         _Ninja_MaxXPHelper_TextAlerts_ActiveCount += 1;
         _Ninja_MaxXPHelper_CallOnShowFunc(alertPtr);
         Ninja_MaxXPHelper_PrintS_Ext(
@@ -84,8 +72,10 @@ func void _Ninja_MaxXPHelper_TextAlerts_Show() {
             alert.color
         );
         alert.expiresAfter = TimerGT() + alert.expiresAfter;
-        _Ninja_MaxXPHelper_TextAlerts_Enqueue(
-            _@(_Ninja_MaxXPHelper_TextAlerts_ActiveQueue),
+        _Ninja_MaxXPHelper_TextAlerts_WaitingQueue = alert.next;
+        alert.next = 0;
+        _Ninja_MaxXPHelper_TextAlerts_ActiveQueue = _Ninja_MaxXPHelper_TextAlerts_Enqueue(
+            _Ninja_MaxXPHelper_TextAlerts_ActiveQueue,
             alertPtr
         );
     end;
@@ -95,17 +85,18 @@ func void Ninja_MaxXPHelper_TextAlerts_Init() {
     _Ninja_MaxXPHelper_TextAlerts_ActiveCount = 0;
     // Not using Lego Queues because getting mysterious crashes and I can't get my head around
     // how is memory is supposed to be correctly managed with them.
-    _Ninja_MaxXPHelper_TextAlerts_Clear(_@(_Ninja_MaxXPHelper_TextAlerts_WaitingQueue));
-    _Ninja_MaxXPHelper_TextAlerts_Clear(_@(_Ninja_MaxXPHelper_TextAlerts_ActiveQueue));
+    _Ninja_MaxXPHelper_TextAlerts_WaitingQueue = 0;
+    _Ninja_MaxXPHelper_TextAlerts_ActiveQueue = 0;
     FF_ApplyOnceGT(_Ninja_MaxXPHelper_TextAlerts_Show);  
 };
 
 func int Ninja_MaxXPHelper_AddTextAlert(var string msg, var int duration, var int color, var int instant) {
-    var int alertPtr; alertPtr = create(_Ninja_MaxXPHelper_TextAlert@);
-    var _Ninja_MaxXPHelper_TextAlert newAlert; newAlert =  _^(alertPtr);
+    var int alertPtr; alertPtr = new(_Ninja_MaxXPHelper_TextAlert@);
+    var _Ninja_MaxXPHelper_TextAlert newAlert; newAlert =  get(alertPtr);
     newAlert.message = msg;
     newAlert.expiresAfter = duration;
     newAlert.color = color;
+    newAlert.next = 0;
     if instant {
         _Ninja_MaxXPHelper_TextAlerts_ActiveCount += 1;
         Ninja_MaxXPHelper_PrintS_Ext(
@@ -114,13 +105,13 @@ func int Ninja_MaxXPHelper_AddTextAlert(var string msg, var int duration, var in
             newAlert.color
         );
         newAlert.expiresAfter = duration + TimerGT();
-        _Ninja_MaxXPHelper_TextAlerts_Enqueue(
-            _@(_Ninja_MaxXPHelper_TextAlerts_ActiveQueue),
+        _Ninja_MaxXPHelper_TextAlerts_ActiveQueue = _Ninja_MaxXPHelper_TextAlerts_Enqueue(
+            _Ninja_MaxXPHelper_TextAlerts_ActiveQueue,
             alertPtr
         );
     } else {
-        _Ninja_MaxXPHelper_TextAlerts_Enqueue(
-            _@(_Ninja_MaxXPHelper_TextAlerts_WaitingQueue),
+        _Ninja_MaxXPHelper_TextAlerts_WaitingQueue = _Ninja_MaxXPHelper_TextAlerts_Enqueue(
+            _Ninja_MaxXPHelper_TextAlerts_WaitingQueue,
             alertPtr
         );
     };
@@ -128,6 +119,8 @@ func int Ninja_MaxXPHelper_AddTextAlert(var string msg, var int duration, var in
 };
 
 func void Ninja_MaxXPHelper_SetOnShowFunc(var int textAlertHandle, var func onShowFnc) {
-    var _Ninja_MaxXPHelper_TextAlert ta; ta = _^(textAlertHandle); // SIC
-    ta.onShowFnc = MEM_GetFuncPtr(onShowFnc);
+    if Hlp_IsValidHandle(textAlertHandle) {
+        var _Ninja_MaxXPHelper_TextAlert ta; ta = get(textAlertHandle);
+        ta.onShowFnc = MEM_GetFuncPtr(onShowFnc);
+    };
 };
