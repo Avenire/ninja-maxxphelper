@@ -2,15 +2,15 @@ Ikarus
 LeGo
 
 content\utils.d
-content\functions_gothic_one.d
+content\gothic_one_specific.d
 content\engine_funcs.d
 content\const.d
 content\opts.d
+content\text_print.d
+content\text_alerts.d
 content\tracker_sprite.d
 content\trackers.d
 content\localization.d
-content\text_print.d
-content\text_alerts.d
 content\xp_npc_locator.d
 content\death_alerts.d
 content\init.d

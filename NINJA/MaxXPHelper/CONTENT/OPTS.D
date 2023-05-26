@@ -5,3 +5,5 @@ const int Ninja_MaxXPHelper_ConsiderLevelZeroNPC = 0;
 const int Ninja_MaxXPHelper_ShowMissedXPOnNPCDeathAlerts = 0;
 const string Ninja_MaxXPHelper_DeadOnArrivalNPCList = "";
 const string Ninja_MaxXPHelper_DeathAlertsSVM = "";
+
+const int Ninja_MaxXPHelper_DeathAlertsFailColor = 0;

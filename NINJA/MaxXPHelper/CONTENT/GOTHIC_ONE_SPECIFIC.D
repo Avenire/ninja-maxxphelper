@@ -19,3 +19,5 @@ func int Ninja_MaxXPHelper_WouldReceiveVictoryXP(var c_npc _self, var c_npc _oth
 func int Ninja_MaxXPHelper_IsKnockable(var c_npc _self, var c_npc _other) {
     return C_NpcIsHuman(_other);
 };
+
+const int zRND_XD3D_D3DRS_ALPHATESTENABLE_OFFSET = 112;

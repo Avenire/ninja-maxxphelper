@@ -2,8 +2,11 @@ const string Ninja_MaxXPHelper_LOC_RIPPrefix = "RIP: ";
 const string Ninja_MaxXPHelper_LOC_ScriptedDeathTip = "(Scripted Death)";
 const string Ninja_MaxXPHelper_LOC_DoubleXPMeleeFinisherTip = "(Double XP Glitch - Lost Magic/Range Kill XP)";
 const string Ninja_MaxXPHelper_LOC_DoubleXPNoZSUnconsciousXP = "(Double XP Glitch - Lost Victory XP)";
-const string Ninja_MaxXPHelper_LOC_LocatorOn = "Locator ON";
-const string Ninja_MaxXPHelper_LOC_LocatorOff = "Locator OFF";
+const string Ninja_MaxXPHelper_LOC_LocatorOn = "XPNPCLocator ON";
+const string Ninja_MaxXPHelper_LOC_LocatorOff = "XPNPCLocator OFF";
+
+const string Ninja_MaxXPHelper_LOC_TrackersRespectDepthBufferOn = "Trackers Respect Depth Buffer ON";
+const string Ninja_MaxXPHelper_LOC_TrackersRespectDepthBufferOFF = "Trackers Respect Depth Buffer OFF";
 
 
 // https://github.com/szapp/Ninja/wiki/Inject-Changes#localization

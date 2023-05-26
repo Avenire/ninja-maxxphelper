@@ -93,3 +93,38 @@ func string Ninja_MaxXPHelper_ReadFileOrSetDefault(var string filename, var stri
     };
     return value;
 };
+
+func int Ninja_MaxXPHelper_GetColorOptOrDefault(var string optionKey, var int defaultValue) {
+    if MEM_GothOptExists(Ninja_MaxXPHelper_SectionName, optionKey) {
+        var string colorHex; colorHex = MEM_GetGothOpt(Ninja_MaxXPHelper_SectionName, optionKey);
+        var int colorHexLen; colorHexLen = STR_Len(colorHex);        
+        // #RRGGBB is 7 chars
+        if  colorHexLen == 7 && 
+            STR_GetCharAt(colorHex, 0) == STR_ToChar("#") {
+            SB("#");
+            SB(IntToString(STR_GetCharAt(colorHex, 1)));
+            SB(" ");
+            SB(
+                IntToString(MEMINT_HexCharToInt(STR_GetCharAt(colorHex, 1)))
+            );
+            Ninja_MaxXPHelper_LogInfo(SB_ToString());
+            SB_Clear();
+            SB_Destroy();
+            return RGBA(
+                MEMINT_HexCharToInt(STR_GetCharAt(colorHex, 1)) << 4 | MEMINT_HexCharToInt(STR_GetCharAt(colorHex, 2)),
+                MEMINT_HexCharToInt(STR_GetCharAt(colorHex, 3)) << 4 | MEMINT_HexCharToInt(STR_GetCharAt(colorHex, 4)),
+                MEMINT_HexCharToInt(STR_GetCharAt(colorHex, 5)) << 4 | MEMINT_HexCharToInt(STR_GetCharAt(colorHex, 6)),
+                Ninja_MaxXPHelper_ColorMaxInt
+            );
+        };
+    };
+    var int s; s = SB_New();
+    SB("#");
+    SB(MEMINT_ByteToKeyHex(defaultValue>>16));
+    SB(MEMINT_ByteToKeyHex(defaultValue>>8));
+    SB(MEMINT_ByteToKeyHex(defaultValue));
+    MEM_SetGothOpt(Ninja_MaxXPHelper_SectionName, optionKey, SB_ToString());
+    SB_Clear();
+    SB_Destroy();
+    return ChangeAlpha(defaultValue, Ninja_MaxXPHelper_ColorMaxInt);
+};

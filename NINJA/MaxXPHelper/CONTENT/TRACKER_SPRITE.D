@@ -49,12 +49,13 @@ func int _Ninja_MaxXPHelper_TrackerSprite_UpdateSprite(
     if gf(wh, iconSize) {
         wh = iconSize;
     };
-    var int zCamera; zCamera = _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[3];
     var int nwh; nwh = negf(wh);
-    _Ninja_MaxXPHelper_Trackers_UpdateVertex(verticesPtr, 0, addf(px, nwh), addf(py, nwh), FLOATONE, color);
-    _Ninja_MaxXPHelper_Trackers_UpdateVertex(verticesPtr, 1, addf(px, wh), addf(py, nwh), FLOATONE, color);
-    _Ninja_MaxXPHelper_Trackers_UpdateVertex(verticesPtr, 2, addf(px, wh), addf(py, wh), FLOATONE, color);
-    _Ninja_MaxXPHelper_Trackers_UpdateVertex(verticesPtr, 3, addf(px, nwh), addf(py, wh), FLOATONE, color);
+    var int d; d = FLOATONE;
+    var int depthValue; depthValue = _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[3];
+    _Ninja_MaxXPHelper_Trackers_UpdateVertex(verticesPtr, 0, addf(px, nwh), addf(py, nwh), depthValue, color);
+    _Ninja_MaxXPHelper_Trackers_UpdateVertex(verticesPtr, 1, addf(px, wh), addf(py, nwh), depthValue, color);
+    _Ninja_MaxXPHelper_Trackers_UpdateVertex(verticesPtr, 2, addf(px, wh), addf(py, wh), depthValue, color);
+    _Ninja_MaxXPHelper_Trackers_UpdateVertex(verticesPtr, 3, addf(px, nwh), addf(py, wh), depthValue, color);
     return TRUE;
 };
 
@@ -62,6 +63,13 @@ func void Ninja_MaxXPHelper_TrackerSprite_Draw(
     var Ninja_MaxXPHelper_TrackerSprite this,
     var int xfcenter, var int yfcenter, var int zfcenter, var int color, var int iconSize
 ) {
+    const int once = 0;
+    if !once {
+        Ninja_MaxXPHelper_LogInfo(IntToString(zrenderer_adr));
+        Ninja_MaxXPHelper_LogInfo(IntToString(MEM_ReadInt(zrenderer_adr)));
+        Ninja_MaxXPHelper_LogInfo(ConcatStrings("buffer level? ", IntToString(MEM_ReadInt(MEM_ReadInt(zrenderer_adr) +  MEMINT_SwitchG1G2(2356, 2364) ))));
+        once = 1;
+    };
     if this.buffer && this.texture {
         var int verticesPtr; verticesPtr = MEM_ReadInt(this.buffer);
         if _Ninja_MaxXPHelper_TrackerSprite_UpdateSprite(
@@ -75,8 +83,6 @@ func void Ninja_MaxXPHelper_TrackerSprite_Draw(
             zRND_D3D_DrawPolySimple(this.texture, verticesPtr, 4);
         };
     };
-
-
 };
 
 func int Ninja_MaxXPHelper_TrackerSprite_Create(var string textureName) {

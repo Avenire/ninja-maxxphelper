@@ -21,3 +21,5 @@ func int Ninja_MaxXPHelper_IsKnockable(var c_npc _self, var c_npc _other) {
     other = Hlp_GetNpc (otherBak);
     return res;
 };
+
+const int zRND_XD3D_D3DRS_ALPHATESTENABLE_OFFSET = 116;

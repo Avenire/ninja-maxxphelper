@@ -91,32 +91,32 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
     var int halfside; halfside = mulf(sideSize, FLOATHALF);
     var int xCamera; xCamera = addf(
         addf(
-            mulf(MEM_Camera.camMatrix[0], xfcenter),
-            mulf(MEM_Camera.camMatrix[1], yfcenter)
+            mulf(MEM_Camera.trafoView[0], xfcenter),
+            mulf(MEM_Camera.trafoView[1], yfcenter)
         ),
         addf(
-            mulf(MEM_Camera.camMatrix[2], zfcenter),
-            MEM_Camera.camMatrix[3]
+            mulf(MEM_Camera.trafoView[2], zfcenter),
+            MEM_Camera.trafoView[3]
         )
     );
     var int yCamera; yCamera = addf(
         addf(
-            mulf(MEM_Camera.camMatrix[5], yfcenter),
-            mulf(MEM_Camera.camMatrix[4], xfcenter)
+            mulf(MEM_Camera.trafoView[5], yfcenter),
+            mulf(MEM_Camera.trafoView[4], xfcenter)
         ),
         addf(
-            mulf(MEM_Camera.camMatrix[6], zfcenter),
-            MEM_Camera.camMatrix[7]
+            mulf(MEM_Camera.trafoView[6], zfcenter),
+            MEM_Camera.trafoView[7]
         )
     );
     var int zCamera; zCamera = addf(
         addf(
-            mulf(MEM_Camera.camMatrix[9], yfcenter),
-            mulf(MEM_Camera.camMatrix[8], xfcenter)
+            mulf(MEM_Camera.trafoView[9], yfcenter),
+            mulf(MEM_Camera.trafoView[8], xfcenter)
         ),
         addf(
-            mulf(MEM_Camera.camMatrix[10], zfcenter),
-            MEM_Camera.camMatrix[11]
+            mulf(MEM_Camera.trafoView[10], zfcenter),
+            MEM_Camera.trafoView[11]
         )
     );
     // Skip if not in front of the camera
@@ -126,7 +126,21 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
     _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[0] = xCamera;
     _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[1] = yCamera;
     _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[2] = zCamera;
-    _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[3] = zCamera;
+    
+    var int depthValue; depthValue = addf(
+        divf(MEM_Camera.farClipZ, subf(MEM_Camera.farClipZ, MEM_Camera.nearClipZ)),
+        divf(
+            divf(
+                negf(mulf(MEM_Camera.farClipZ, MEM_Camera.nearClipZ)),
+                subf(MEM_Camera.farClipZ, MEM_Camera.nearClipZ)
+            ),
+            zCamera
+        )
+    );
+    if GOTHIC_BASE_VERSION > 1 {
+        depthValue = divf(FLOATONE, subf(FLOATONE, depthValue));
+    };
+    _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[3] = depthValue;
 
     const int cameraTranslatedAtX[3] = {0,0,0};
     cameraTranslatedAtX[0] = addf(halfside, xCamera);
@@ -207,4 +221,31 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
     _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[1] = py;
     _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[2] = sideSizeShift;
     return TRUE;
+};
+
+func void zRND_D3D_SetAlphaBlendFuncImmed(var int zTRnd_AlphaBlendFunc) {
+    const int ptr = 0;
+    ptr = zTRnd_AlphaBlendFunc;
+    
+    const int call = 0;
+    if(CALL_Begin(call)) {
+        CALL_IntParam(_@(ptr));
+        CALL__thiscall(zrenderer_adr, MEMINT_SwitchG1G2(7439120, 6620880));
+
+        call = CALL_End();
+    };
+};
+
+
+func void zRND_D3D_SetAlphaBlendFuncImmed(var int zTRnd_AlphaBlendFunc) {
+    const int ptr = 0;
+    ptr = zTRnd_AlphaBlendFunc;
+    
+    const int call = 0;
+    if(CALL_Begin(call)) {
+        CALL_IntParam(_@(ptr));
+        CALL__thiscall(zrenderer_adr, MEMINT_SwitchG1G2(7439120, 6620880));
+
+        call = CALL_End();
+    };
 };

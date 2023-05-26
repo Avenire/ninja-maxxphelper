@@ -114,7 +114,11 @@ func void _Ninja_MaxXPHelper_XPNPCLocator_ProcessNearby()
 	repeat(i, MEM_ArraySize(_Ninja_MaxXPHelper_XPNPCLocator_NearbyNPCArray)); var int i;
         var oCNPC npc; npc = _^(MEM_ArrayRead(_Ninja_MaxXPHelper_XPNPCLocator_NearbyNPCArray, i));
         if Hlp_IsValidNpc(npc) {
+            if npc.idx == 12469 {
+                
+            };
             _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(npc, TRUE);
+            
         };
 	end;
 };
@@ -137,6 +141,7 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_NextGlobalNpc() {
 func void _Ninja_MaxXPHelper_XPNPCLocator_HideHandle(var int trackerKey, var int trackerHandle) {
     Ninja_MaxXPHelper_Trackers_Hide(trackerHandle, TRUE);
 };
+
 func void _Ninja_MaxXPHelper_XPNPCLocator_ReadInput() 
 {
     if MEM_KeyState(Ninja_MaxXPHelper_ToggleXPNPCLocatorKeyCode) == KEY_PRESSED {
@@ -150,7 +155,7 @@ func void _Ninja_MaxXPHelper_XPNPCLocator_ReadInput()
                 _Ninja_MaxXPHelper_XPNPCLocator_HideHandle
             );
         };
-        Ninja_MaxXPHelper_AddTextAlert(
+        Ninja_MaxXPHelper_TextAlerts_Create(
             msg, Ninja_MaxXPHelper_SystemAlertDuration, 
             RGBA(50, 255, 50, 0),
             TRUE

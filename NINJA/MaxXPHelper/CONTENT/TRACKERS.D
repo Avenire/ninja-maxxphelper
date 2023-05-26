@@ -5,6 +5,7 @@ const int _Ninja_MaxXPHelper_Trackers_NextID = 1;
 const int _Ninja_MaxXPHelper_Trackers_Handles = 0;
 const int Ninja_MaxXPHelper_Trackers_MaxPriority = 0;
 const int _Ninja_MaxXPHelper_Trackers_FrameTime = 0;
+const int Ninja_MaxXPHelper_Trackers_zBufferEnabled = 0;
 
 class _Ninja_MaxXPHelper_Tracker {
     var int xfcenter;
@@ -105,11 +106,42 @@ func void _Ninja_MaxXPHelper_Trackers_Hook() {
         Timer_IsPaused() {
         return;
     };
+    if MEM_KeyState(KEY_G) == KEY_PRESSED {
+        Ninja_MaxXPHelper_Trackers_zBufferEnabled = !Ninja_MaxXPHelper_Trackers_zBufferEnabled;
+        var string msg; msg = Ninja_MaxXPHelper_LOC_TrackersRespectDepthBufferOn;
+        if !Ninja_MaxXPHelper_Trackers_zBufferEnabled {
+            msg = Ninja_MaxXPHelper_LOC_TrackersRespectDepthBufferOFF;
+        };
+        Ninja_MaxXPHelper_TextAlerts_Create(
+            msg, 
+            Ninja_MaxXPHelper_SystemAlertDuration, 
+            RGBA(50, 255, 50, 0),
+            TRUE
+        );
+    };
     var int bucketsRendered; bucketsRendered = 0;
-    zRND_XD3D_SetRenderState(D3DRS_ZENABLE, false); // Disable depthbuffer
+    var int zrendererPtr; zrendererPtr = MEM_ReadInt(zrenderer_adr);
     zRND_D3D_SetAlphaBlendFunc(zRND_ALPHA_FUNC_BLEND);
+    if Ninja_MaxXPHelper_Trackers_zBufferEnabled {
+        zRND_XD3D_SetRenderState(D3DRS_ZENABLE, true);
+        // Magic (explained). All of this is done to make my (potentially) transparent tracker sprites behave with depthbuffer on.
+        // DrawPolySimple is stubborn and disables D3DRS_ALPHATESTENABLE if local state indicates it's set (xd3d_actRenderState[zRND_XD3D_D3DRS_ALPHATESTENABLE_OFFSET] != 0).
+        // So I am forced to trick renderer into thinking it's disabled while it actually isn't.
+        zRND_XD3D_SetRenderState(Ninja_MaxXPHelper_D3DRENDERSTATE_D3DRS_ALPHATESTENABLE, true);
+        MEM_WriteInt(zrendererPtr + zRND_XD3D_D3DRS_ALPHATESTENABLE_OFFSET, 0);
+        // I only am concerned about fully transparent background of sprites 
+        // and game's defaults are much more aggresive (like slightly less than 200 alpha is already filtered out). 
+        zRND_XD3D_SetRenderState(Ninja_MaxXPHelper_D3DRENDERSTATE_D3DRS_ALPHAREF, 1);
+    } else {
+        zRND_XD3D_SetRenderState(D3DRS_ZENABLE, false);
+    };
+
     var int rendered; rendered = 0;
     _Ninja_MaxXPHelper_Trackers_FrameTime = TimerGT();
+    var int maxBucketsToRender; maxBucketsToRender = _Ninja_MaxXPHelper_Trackers_MaxRenderedBuckets;
+    if Ninja_MaxXPHelper_Trackers_zBufferEnabled {
+        maxBucketsToRender = 1; // If depth buffer is on then attempt to render only high priority (usually nearby) trackers.
+    };
     repeat(i, _Ninja_MaxXPHelper_Trackers_MaxBuckets - 2); var int i;
         if bucketsRendered >= _Ninja_MaxXPHelper_Trackers_MaxRenderedBuckets { break; };
         var int bucketRoot; bucketRoot = MEM_ReadIntArray(_Ninja_MaxXPHelper_Trackers_BucketsArray, i);
@@ -129,7 +161,15 @@ func void _Ninja_MaxXPHelper_Trackers_Hook() {
             continue;
         };
     end;
-    zRND_XD3D_SetRenderState(D3DRS_ZENABLE, true); // Enable depthbuffer
+    if Ninja_MaxXPHelper_Trackers_zBufferEnabled {
+        // I saw 0xb0 (184) somewhere in G1 assembly so I just naively set that here (could use the actual "on function entered" value but meh).
+        zRND_XD3D_SetRenderState(Ninja_MaxXPHelper_D3DRENDERSTATE_D3DRS_ALPHAREF, 184);
+        // Reverse the hack.
+        MEM_WriteInt(zrendererPtr + zRND_XD3D_D3DRS_ALPHATESTENABLE_OFFSET, 1);
+        zRND_XD3D_SetRenderState(15, false);
+    } else {
+        zRND_XD3D_SetRenderState(D3DRS_ZENABLE, true);
+    };
 };
 
 func void _Ninja_MaxXPHelper_Trackers_InitBuckets() {

@@ -51,7 +51,6 @@ func int _Ninja_MaxXPHelper_DeathAlerts_Handler_SkipDeadOnArrivalNPC(var c_npc _
 };
 
 func void _Ninja_MaxXPHelper_DeathAlerts_AutoExpireTrackerOnAlertShown(var int alertHandle) {
-    Ninja_MaxXPHelper_LogInfo(ConcatStrings("Call by handle ", IntToString(alertHandle)));
     var int trackerHandle; trackerHandle = HT_Get(_Ninja_MaxXPHelper_DeathAlerts_AlertIdToTrackerId_HT, alertHandle);
     Ninja_MaxXPHelper_Trackers_SetAutoExpire(trackerHandle, _Ninja_MaxXPHelper_TextAlerts_Duration);
     if  STR_Len(Ninja_MaxXPHelper_DeathAlertsSVM) > 0 && 
@@ -63,22 +62,22 @@ func void _Ninja_MaxXPHelper_DeathAlerts_AutoExpireTrackerOnAlertShown(var int a
 };
 
 func void _Ninja_MaxXPHelper_DeathAlerts_TriggerAlert(var c_npc cnpc, var string msg) {
-    var int alertHandle; alertHandle = Ninja_MaxXPHelper_AddTextAlert(
-        msg,  _Ninja_MaxXPHelper_TextAlerts_Duration, _Ninja_MaxXPHelper_TextAlerts_Color, FALSE
+    var int alertHandle; alertHandle = Ninja_MaxXPHelper_TextAlerts_Create(
+        msg,  _Ninja_MaxXPHelper_TextAlerts_Duration, Ninja_MaxXPHelper_DeathAlertsFailColor, FALSE
     );
     
     var oCNPC npc; npc = Hlp_GetNpc(cnpc);
     if Ninja_MaxXPHelper_IsNpcSpawned(npc) {
         var int h; h = Ninja_MaxXPHelper_Trackers_Create();
         HT_Insert(_Ninja_MaxXPHelper_DeathAlerts_AlertIdToTrackerId_HT, h, alertHandle);
-        Ninja_MaxXPHelper_SetOnShowFunc(alertHandle, _Ninja_MaxXPHelper_DeathAlerts_AutoExpireTrackerOnAlertShown);
+        Ninja_MaxXPHelper_TextAlerts_SetOnShowFunc(alertHandle, _Ninja_MaxXPHelper_DeathAlerts_AutoExpireTrackerOnAlertShown);
         var int x; x = npc._zCVob_trafoObjToWorld[3];
         var int y; y = npc._zCVob_trafoObjToWorld[7];
         var int z; z = npc._zCVob_trafoObjToWorld[11];
         Ninja_MaxXPHelper_Trackers_Show(
             h,
             x, y, z,
-            Focusnames_Color_Angry(), 
+            Ninja_MaxXPHelper_DeathAlertsFailColor, 
             Ninja_MaxXPHelper_Trackers_MaxPriority,
             "MAXXPHELPER_DEATH_ALERT.tga",
             mulf(Ninja_MaxXPHelper_IconSize, FLOATHALF)
