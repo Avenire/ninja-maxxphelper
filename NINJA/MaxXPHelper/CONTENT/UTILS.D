@@ -107,7 +107,6 @@ func int Ninja_MaxXPHelper_GetColorOptOrDefault(var string optionKey, var int de
             SB(
                 IntToString(MEMINT_HexCharToInt(STR_GetCharAt(colorHex, 1)))
             );
-            Ninja_MaxXPHelper_LogInfo(SB_ToString());
             SB_Clear();
             SB_Destroy();
             return RGBA(

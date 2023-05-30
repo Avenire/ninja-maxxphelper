@@ -44,8 +44,6 @@ func void Ninja_MaxXPHelper_Init()
         Ninja_MaxXPHelper_MinIconSize = mkf(Ninja_MaxXPHelper_MinIconSize);
         Ninja_MaxXPHelper_IconFadingNearbyDistance = mkf(Ninja_MaxXPHelper_IconFadingNearbyDistance);
         Ninja_MaxXPHelper_ColorMaxFloat = mkf(Ninja_MaxXPHelper_ColorMaxFloat);
-        Ninja_MaxXPHelper_LogInfo(tostringf(MEM_Camera.nearClipZ));
-        Ninja_MaxXPHelper_LogInfo(tostringf(MEM_Camera.farClipZ));
         once = 1;
     };
     Ninja_MaxXPHelper_Localization_Init();

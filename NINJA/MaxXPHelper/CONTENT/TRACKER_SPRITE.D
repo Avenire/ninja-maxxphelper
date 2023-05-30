@@ -63,13 +63,6 @@ func void Ninja_MaxXPHelper_TrackerSprite_Draw(
     var Ninja_MaxXPHelper_TrackerSprite this,
     var int xfcenter, var int yfcenter, var int zfcenter, var int color, var int iconSize
 ) {
-    const int once = 0;
-    if !once {
-        Ninja_MaxXPHelper_LogInfo(IntToString(zrenderer_adr));
-        Ninja_MaxXPHelper_LogInfo(IntToString(MEM_ReadInt(zrenderer_adr)));
-        Ninja_MaxXPHelper_LogInfo(ConcatStrings("buffer level? ", IntToString(MEM_ReadInt(MEM_ReadInt(zrenderer_adr) +  MEMINT_SwitchG1G2(2356, 2364) ))));
-        once = 1;
-    };
     if this.buffer && this.texture {
         var int verticesPtr; verticesPtr = MEM_ReadInt(this.buffer);
         if _Ninja_MaxXPHelper_TrackerSprite_UpdateSprite(
