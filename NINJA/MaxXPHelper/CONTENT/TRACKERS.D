@@ -20,6 +20,7 @@ class _Ninja_MaxXPHelper_Tracker {
     var int skip;
     var int size;
     var int autoExpireAt;
+    var int hack;
 };
 
 instance _Ninja_MaxXPHelper_Tracker@(_Ninja_MaxXPHelper_Tracker) {
@@ -72,6 +73,7 @@ func void _Ninja_MaxXPHelper_Trackers_Draw(var _Ninja_MaxXPHelper_Tracker tracke
         return;
     };
     var Ninja_MaxXPHelper_TrackerSprite ts; ts = _^(tracker.trackerSprite);
+    _Ninja_MaxXPHelper_Trackers_DirtyHack = tracker.hack;
     Ninja_MaxXPHelper_TrackerSprite_Draw(
         ts,
         tracker.xfcenter,
@@ -102,6 +104,7 @@ func void _Ninja_MaxXPHelper_Trackers_SearchAndDestroy(var int trackerPtr) {
 
 func void _Ninja_MaxXPHelper_Trackers_Hook() {
     if  !Hlp_IsValidNpc(hero) ||
+        Npc_IsDead(hero) ||
         MEM_Game.pause_screen ||
         Timer_IsPaused() {
         return;
@@ -258,6 +261,12 @@ func void Ninja_MaxXPHelper_Trackers_SetAutoExpire(var int trackerId, var int du
     if !trackerPtr { return; };
     var _Ninja_MaxXPHelper_Tracker tracker; tracker = _^(trackerPtr);
     tracker.autoExpireAt = TimerGT() + durationInMillis;
+};
+func void Ninja_MaxXPHelper_Trackers_PullTowardsCameraFactorvar(var int trackerId, var int radiusZ) {
+    var int trackerPtr; trackerPtr = HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
+    if !trackerPtr { return; };
+    var _Ninja_MaxXPHelper_Tracker tracker; tracker = _^(trackerPtr);
+    tracker.hack = radiusZ;
 };
 
 func void Ninja_MaxXPHelper_Trackers_Hide(var int trackerId, var int keepPriority) {

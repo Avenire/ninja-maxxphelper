@@ -23,7 +23,7 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_NpcToColor(var c_npc npc) {
     } else { 
         return COL_RED; 
     };
-}; 
+};
 
 func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int processingNearby) {
     var c_npc cnpc; cnpc = _^(_@(npc));
@@ -33,9 +33,11 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int proce
     var int x; x = npc._zCVob_trafoObjToWorld[3];
     var int y; y = npc._zCVob_trafoObjToWorld[7];
     var int z; z = npc._zCVob_trafoObjToWorld[11];
+    var int radiusZ; radiusZ = mulf(subf(npc._zCVob_bbox3D_maxs[2], npc._zCVob_bbox3D_mins[2]), FLOATHALF);
     
     var int trackerKey; trackerKey = _@(npc);
     var int trackerHandle; trackerHandle = HT_Get(_Ninja_MaxXPHelper_XPNPCLocator_HandlesHT, trackerKey);
+
     if Npc_IsDead(cnpc) {
         // Make sure we don't display dead.
         Ninja_MaxXPHelper_Trackers_Hide(trackerHandle, FALSE);
@@ -71,7 +73,7 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int proce
     var int size; size = Ninja_MaxXPHelper_IconSize;
     var int dist; dist = Ninja_MaxXPHelper_Trackers_DistancePriority_Result[0];
     var int color; color = _Ninja_MaxXPHelper_XPNPCLocator_NpcToColor(cnpc);
-    if gf(Ninja_MaxXPHelper_IconFadingNearbyDistance, dist) {
+    if FALSE && gf(Ninja_MaxXPHelper_IconFadingNearbyDistance, dist) {
         var int factor; factor = subf(
             FLOATONE, 
             divf(
@@ -81,10 +83,6 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int proce
                 ), 
                 Ninja_MaxXPHelper_IconFadingNearbyDistance
             )
-        );
-        size = mulf(
-            factor,
-            Ninja_MaxXPHelper_IconSize
         );
         color = ChangeAlpha(
             color, roundf(mulf(factor, Ninja_MaxXPHelper_ColorMaxFloat))
@@ -100,6 +98,7 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int proce
         _Ninja_MaxXPHelper_XPNPCLocator_NpcToTexture(cnpc),
         size
     );
+    Ninja_MaxXPHelper_Trackers_PullTowardsCameraFactorvar(trackerHandle, radiusZ);
     if !processingNearby && _Ninja_MaxXPHelper_XPNPCLocator_NPCFullPassCycle < 2 {
         // Don't display distant NPCs until they were sorted into buckets (avoids weird flicker).
         Ninja_MaxXPHelper_Trackers_Hide(trackerHandle, TRUE);
@@ -114,9 +113,6 @@ func void _Ninja_MaxXPHelper_XPNPCLocator_ProcessNearby()
 	repeat(i, MEM_ArraySize(_Ninja_MaxXPHelper_XPNPCLocator_NearbyNPCArray)); var int i;
         var oCNPC npc; npc = _^(MEM_ArrayRead(_Ninja_MaxXPHelper_XPNPCLocator_NearbyNPCArray, i));
         if Hlp_IsValidNpc(npc) {
-            if npc.idx == 12469 {
-                
-            };
             _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(npc, TRUE);
             
         };

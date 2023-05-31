@@ -73,6 +73,7 @@ func void Ninja_MaxXPHelper_ProjectCameraToPx(var int zVEC3ptrvar, var int xfPtr
     };
 };
 
+const int _Ninja_MaxXPHelper_Trackers_DirtyHack = 0;
 const int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[4] = {0,0,0,0};
 func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
     var int xfcenter, 
@@ -88,6 +89,7 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
     // Below is reversed engineered center transformation algorithm found inlined in
     // zTBSphere3D::Draw, not sure if there's an engine call I could use, this seems to work fine.
     // Pretty much all ints here should be interpreted as 32bit floats.
+
     var int halfside; halfside = mulf(sideSize, FLOATHALF);
     var int xCamera; xCamera = addf(
         addf(
@@ -134,7 +136,7 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
                 negf(mulf(MEM_Camera.farClipZ, MEM_Camera.nearClipZ)),
                 subf(MEM_Camera.farClipZ, MEM_Camera.nearClipZ)
             ),
-            zCamera
+            subf(zCamera, _Ninja_MaxXPHelper_Trackers_DirtyHack)
         )
     );
     if GOTHIC_BASE_VERSION > 1 {
