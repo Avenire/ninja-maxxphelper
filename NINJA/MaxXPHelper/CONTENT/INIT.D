@@ -1,7 +1,7 @@
 func void Ninja_MaxXPHelper_Init()
 {
     MEM_InitAll();
-    LeGo_MergeFlags(LeGo_HookEngine | LeGo_PermMem | LeGo_FrameFunctions | LeGo_Interface | LeGo_PrintS | LeGo_Timer | LeGo_Draw3D);
+    LeGo_MergeFlags(LeGo_HookEngine | LeGo_PermMem | LeGo_FrameFunctions | LeGo_Interface | LeGo_PrintS | LeGo_Timer);
     
     const int once = 0;
     

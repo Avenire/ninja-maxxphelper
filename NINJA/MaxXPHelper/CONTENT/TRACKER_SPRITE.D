@@ -31,7 +31,8 @@ func void _Ninja_MaxXPHelper_Trackers_UpdateVertex(
 };
 
 func int _Ninja_MaxXPHelper_TrackerSprite_UpdateSprite(
-    var int verticesPtr, var int xfcenter, var int yfcenter, var int zfcenter, var int color, var int iconSize
+    var int verticesPtr, var int xfcenter, var int yfcenter, var int zfcenter, var int color, var int iconSize,
+    var int zBufferBias
 ) {
     var int px; var int py;
     if !_Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
@@ -39,7 +40,8 @@ func int _Ninja_MaxXPHelper_TrackerSprite_UpdateSprite(
         yfcenter, 
         zfcenter, 
         iconSize, 
-        Ninja_MaxXPHelper_MinIconSize
+        Ninja_MaxXPHelper_MinIconSize,
+        zBufferBias
     ) {
         return FALSE;
     };
@@ -61,7 +63,8 @@ func int _Ninja_MaxXPHelper_TrackerSprite_UpdateSprite(
 
 func void Ninja_MaxXPHelper_TrackerSprite_Draw(
     var Ninja_MaxXPHelper_TrackerSprite this,
-    var int xfcenter, var int yfcenter, var int zfcenter, var int color, var int iconSize
+    var int xfcenter, var int yfcenter, var int zfcenter, var int color, var int iconSize,
+    var int zBufferBias
 ) {
     if this.buffer && this.texture {
         var int verticesPtr; verticesPtr = MEM_ReadInt(this.buffer);
@@ -71,7 +74,8 @@ func void Ninja_MaxXPHelper_TrackerSprite_Draw(
             yfcenter, 
             zfcenter,
             color,
-            iconSize
+            iconSize,
+            zBufferBias
         ) {
             zRND_D3D_DrawPolySimple(this.texture, verticesPtr, 4);
         };

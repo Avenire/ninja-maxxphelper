@@ -62,6 +62,11 @@ func void Ninja_MaxXPHelper_PrintBinary(var int bitfield) {
     end;
 };
 
+func void Ninja_MaxXPHelper_HT_DestroyPtr(var int htPtr) {
+    if !htPtr { return; };
+    _HT_Destroy(htPtr);
+};
+
 func void Ninja_MaxXPHelper_oCNPCDebug(var oCNPC npc, var string prefix) {
         var int s; s = SB_New();
         SB(prefix);

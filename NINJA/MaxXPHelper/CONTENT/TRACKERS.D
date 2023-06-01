@@ -20,7 +20,7 @@ class _Ninja_MaxXPHelper_Tracker {
     var int skip;
     var int size;
     var int autoExpireAt;
-    var int hack;
+    var int zBufferBias;
 };
 
 instance _Ninja_MaxXPHelper_Tracker@(_Ninja_MaxXPHelper_Tracker) {
@@ -50,7 +50,7 @@ func void Ninja_MaxXPHelper_Trackers_GetNpcToHeroDistanceBasedPriority(var oCNPC
 };
 
 func void Ninja_MaxXPHelper_Trackers_Release(var int trackerId) {
-    var int trackerPtr; trackerPtr = HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
+    var int trackerPtr; trackerPtr = _HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
     if !trackerPtr { return; };
     var _Ninja_MaxXPHelper_Tracker tracker; tracker = _^(trackerPtr);
     if trackerPtr == MEM_ReadIntArray(_Ninja_MaxXPHelper_Trackers_BucketsArray, tracker.priority) {
@@ -65,7 +65,7 @@ func void Ninja_MaxXPHelper_Trackers_Release(var int trackerId) {
         prev.next = tracker.next;
     };
     free(trackerPtr, _Ninja_MaxXPHelper_Tracker@);
-    HT_Remove(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
+    _HT_Remove(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
 };
 
 func void _Ninja_MaxXPHelper_Trackers_Draw(var _Ninja_MaxXPHelper_Tracker tracker) {
@@ -73,14 +73,14 @@ func void _Ninja_MaxXPHelper_Trackers_Draw(var _Ninja_MaxXPHelper_Tracker tracke
         return;
     };
     var Ninja_MaxXPHelper_TrackerSprite ts; ts = _^(tracker.trackerSprite);
-    _Ninja_MaxXPHelper_Trackers_DirtyHack = tracker.hack;
     Ninja_MaxXPHelper_TrackerSprite_Draw(
         ts,
         tracker.xfcenter,
         tracker.yfcenter,
         tracker.zfcenter,
         tracker.color,
-        tracker.size
+        tracker.size,
+        tracker.zBufferBias
     );
 };
 
@@ -95,7 +95,7 @@ func void _Ninja_MaxXPHelper_Trackers_SearchAndDestroy_FindHandle(var int tracke
 func void _Ninja_MaxXPHelper_Trackers_SearchAndDestroy(var int trackerPtr) {
     _Ninja_MaxXPHelper_Trackers_SearchAndDestroy_TrackerHandle = -1;
     _Ninja_MaxXPHelper_Trackers_SearchAndDestroy_TrackerPtr = trackerPtr;
-    HT_ForEach(
+    _HT_ForEach(
         _Ninja_MaxXPHelper_Trackers_Handles, 
         _Ninja_MaxXPHelper_Trackers_SearchAndDestroy_FindHandle
     );
@@ -191,29 +191,32 @@ func void _Ninja_MaxXPHelper_Trackers_InitHandles_Free(var int trackerId, var in
 };
 func void _Ninja_MaxXPHelper_Trackers_InitHandles() {
     if _Ninja_MaxXPHelper_Trackers_Handles {
-        HT_ForEach(
+        _HT_ForEach(
             _Ninja_MaxXPHelper_Trackers_Handles, 
             _Ninja_MaxXPHelper_Trackers_InitHandles_Free
         );
-        HT_Destroy(_Ninja_MaxXPHelper_Trackers_Handles);
+        Ninja_MaxXPHelper_HT_DestroyPtr(_Ninja_MaxXPHelper_Trackers_Handles);
     };
-    _Ninja_MaxXPHelper_Trackers_Handles = HT_Create();
+    _Ninja_MaxXPHelper_Trackers_Handles = _HT_Create();
 };
-
+const int Ninja_MaxXPHelper_Trackers_Init_Once = 0;
 func void Ninja_MaxXPHelper_Trackers_Init() {
     _Ninja_MaxXPHelper_Trackers_NextID = 1;
     _Ninja_MaxXPHelper_Trackers_InitBuckets();
     _Ninja_MaxXPHelper_Trackers_InitHandles();
-    const int once = 0;
-    if !once {
-        HookEngineF(zRND_D3D__EndFrame, 6, _Ninja_MaxXPHelper_Trackers_Hook);
-        once = 1;
+    if !Ninja_MaxXPHelper_Trackers_Init_Once {
+        // Hook before focus labels are drawn as their presence makes trackers wiggle as camera rotates.
+        // In fact, focus labels wiggle themselves but why this gets applied to sprites... Could be it sets
+        // something weird with DX Device?
+        // todo: Riddle - understand wth does drawing of focus label do that causes this issue...
+        HookEngineF(oCGame_UpdatePlayerStatus, 6, _Ninja_MaxXPHelper_Trackers_Hook);
+        Ninja_MaxXPHelper_Trackers_Init_Once = 1;
     };
 };
 
 func int Ninja_MaxXPHelper_Trackers_Create() {
     var int trackerPtr; trackerPtr = create(_Ninja_MaxXPHelper_Tracker@);
-    HT_Insert(_Ninja_MaxXPHelper_Trackers_Handles, trackerPtr, _Ninja_MaxXPHelper_Trackers_NextID);
+    _HT_Insert(_Ninja_MaxXPHelper_Trackers_Handles, trackerPtr, _Ninja_MaxXPHelper_Trackers_NextID);
     var int rootPtr; rootPtr = MEM_ReadIntArray(_Ninja_MaxXPHelper_Trackers_BucketsArray, _Ninja_MaxXPHelper_Trackers_MaxBuckets - 1);
     if rootPtr {
         var _Ninja_MaxXPHelper_Tracker oldRootTracker; oldRootTracker = _^(rootPtr);
@@ -257,20 +260,20 @@ func void _Ninja_MaxXPHelper_Trackers_MoveBucket(var _Ninja_MaxXPHelper_Tracker 
 };
 
 func void Ninja_MaxXPHelper_Trackers_SetAutoExpire(var int trackerId, var int durationInMillis) {
-    var int trackerPtr; trackerPtr = HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
+    var int trackerPtr; trackerPtr = _HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
     if !trackerPtr { return; };
     var _Ninja_MaxXPHelper_Tracker tracker; tracker = _^(trackerPtr);
     tracker.autoExpireAt = TimerGT() + durationInMillis;
 };
-func void Ninja_MaxXPHelper_Trackers_PullTowardsCameraFactorvar(var int trackerId, var int radiusZ) {
-    var int trackerPtr; trackerPtr = HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
+func void Ninja_MaxXPHelper_Trackers_SetZBufferBias(var int trackerId, var int zBufferBias) {
+    var int trackerPtr; trackerPtr = _HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
     if !trackerPtr { return; };
     var _Ninja_MaxXPHelper_Tracker tracker; tracker = _^(trackerPtr);
-    tracker.hack = radiusZ;
+    tracker.zBufferBias = zBufferBias;
 };
 
 func void Ninja_MaxXPHelper_Trackers_Hide(var int trackerId, var int keepPriority) {
-    var int trackerPtr; trackerPtr = HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
+    var int trackerPtr; trackerPtr = _HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
     if !trackerPtr { return; };
     var _Ninja_MaxXPHelper_Tracker tracker; tracker = _^(trackerPtr);
     tracker.skip = TRUE;
@@ -291,7 +294,7 @@ func void Ninja_MaxXPHelper_Trackers_Show(
     var string textureName,
     var int size
 ) {
-    var int trackerPtr; trackerPtr = HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
+    var int trackerPtr; trackerPtr = _HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
     if !trackerPtr { return; };
     var _Ninja_MaxXPHelper_Tracker tracker; tracker = _^(trackerPtr);
     if priority < 0 {

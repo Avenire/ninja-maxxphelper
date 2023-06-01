@@ -73,11 +73,13 @@ func void Ninja_MaxXPHelper_ProjectCameraToPx(var int zVEC3ptrvar, var int xfPtr
     };
 };
 
-const int _Ninja_MaxXPHelper_Trackers_DirtyHack = 0;
 const int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[4] = {0,0,0,0};
 func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
     var int xfcenter, 
-    var int yfcenter, var int zfcenter, var int sideSize, var int minSideSize
+    var int yfcenter, var int zfcenter, 
+    var int sideSize, 
+    var int minSideSize,
+    var int zBufferBias
 ) {
     // Given center point (xfcenter,yfcenter,zfcenter) in world's coordinate system (vobs/wp trafo positions) and desired sideSize size
     // sets _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result where:
@@ -129,6 +131,9 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
     _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[1] = yCamera;
     _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[2] = zCamera;
     
+    // Formula straight from wiki (Fixed-point representation, simplied). Works well so far.
+    // https://en.wikipedia.org/wiki/Z-buffering
+    // Values gets normalized to [0,1]
     var int depthValue; depthValue = addf(
         divf(MEM_Camera.farClipZ, subf(MEM_Camera.farClipZ, MEM_Camera.nearClipZ)),
         divf(
@@ -136,34 +141,28 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
                 negf(mulf(MEM_Camera.farClipZ, MEM_Camera.nearClipZ)),
                 subf(MEM_Camera.farClipZ, MEM_Camera.nearClipZ)
             ),
-            subf(zCamera, _Ninja_MaxXPHelper_Trackers_DirtyHack)
+            subf(zCamera, zBufferBias)
         )
     );
     if GOTHIC_BASE_VERSION > 1 {
+        // For some reason Gothic 2 NotR does things bit differently.
+        // First it does a reciprocate of passed Z in DrawPolySimple and that goes to DirectX.
+        // Reciprocate means far values end up being close to 0, near values to 1.
+        // Hence I do 1 - depthValue and then take a reciprocate of that to adapt the value for DrawPolySimple there.
         depthValue = divf(FLOATONE, subf(FLOATONE, depthValue));
     };
     _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[3] = depthValue;
-
-    const int cameraTranslatedAtX[3] = {0,0,0};
-    cameraTranslatedAtX[0] = addf(halfside, xCamera);
-    cameraTranslatedAtX[1] = yCamera;
-    cameraTranslatedAtX[2] = zCamera;
     
-    const int cameraTranslatedAtY[3] = {0,0,0};
-    cameraTranslatedAtY[0] = xCamera;
-    cameraTranslatedAtY[1] = addf(halfside, yCamera);
-    cameraTranslatedAtY[2] = zCamera;
-    
-    // Honestly I'm not sure if I interpreted below 2 variables correctly but hey, it works!
-    var int lookAtCameraOffsetX; lookAtCameraOffsetX = subf(
+    var int xCameraTranslatedByHalfSideInPerspective; 
+    xCameraTranslatedByHalfSideInPerspective = subf(
         addf(
             mulf(
                 divf(
                     FLOATONE, 
-                    cameraTranslatedAtX[2]
+                    zCamera
                 ), 
                 mulf(
-                    cameraTranslatedAtX[0], 
+                    addf(halfside, xCamera), 
                     MEM_Camera.viewDistanceX
                 )
             ),
@@ -183,13 +182,14 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
             MEM_Camera.xcenter
         )
     );
-    var int lookAtCameraOffsetY; lookAtCameraOffsetY = subf(
+    var int yCameraTranslatedByHalfSideInPerspective; 
+    yCameraTranslatedByHalfSideInPerspective = subf(
         subf(
             MEM_Camera.ycenter, 
             mulf(
-                divf(FLOATONE, cameraTranslatedAtY[2]),
+                divf(FLOATONE, zCamera),
                 mulf(
-                    cameraTranslatedAtY[1],
+                    addf(halfside, yCamera),
                     MEM_Camera.viewDistanceY
                 )
             )
@@ -212,9 +212,9 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
         _@(py)
     );
 
-    var int sideSizeShift; sideSizeShift = lookAtCameraOffsetY;
-    if gf(lookAtCameraOffsetX, sideSizeShift) {
-        sideSizeShift = lookAtCameraOffsetX;        
+    var int sideSizeShift; sideSizeShift = yCameraTranslatedByHalfSideInPerspective;
+    if gf(xCameraTranslatedByHalfSideInPerspective, sideSizeShift) {
+        sideSizeShift = xCameraTranslatedByHalfSideInPerspective;        
     };
     if gf(minSideSize, sideSizeShift) {
         sideSizeShift = minSideSize;
