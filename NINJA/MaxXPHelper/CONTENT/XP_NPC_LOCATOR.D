@@ -36,7 +36,7 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int proce
     var int radiusZ; radiusZ = mulf(subf(npc._zCVob_bbox3D_maxs[2], npc._zCVob_bbox3D_mins[2]), FLOATHALF);
     
     var int trackerKey; trackerKey = _@(npc);
-    var int trackerHandle; trackerHandle = _HT_Get(_Ninja_MaxXPHelper_XPNPCLocator_HandlesHT, trackerKey);
+    var int trackerHandle; trackerHandle = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_XPNPCLocator_HandlesHT, trackerKey);
 
     if Npc_IsDead(cnpc) {
         // Make sure we don't display dead.
@@ -62,7 +62,7 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int proce
     };
     if !trackerHandle {
         trackerHandle = Ninja_MaxXPHelper_Trackers_Create();
-        _HT_Insert(_Ninja_MaxXPHelper_XPNPCLocator_HandlesHT, trackerHandle, trackerKey);
+        Ninja_MaxXPHelper_HT_Insert(_Ninja_MaxXPHelper_XPNPCLocator_HandlesHT, trackerHandle, trackerKey);
     };
 
     var int priority; priority = Ninja_MaxXPHelper_Trackers_MaxPriority;
@@ -146,7 +146,7 @@ func void _Ninja_MaxXPHelper_XPNPCLocator_ReadInput()
         if !_Ninja_MaxXPHelper_XPNPCLocator_Enabled {
             msg = Ninja_MaxXPHelper_LOC_LocatorOff;
             _Ninja_MaxXPHelper_XPNPCLocator_NPCFullPassCycle = 0;
-           _HT_ForEach(
+           Ninja_MaxXPHelper_HT_ForEach(
                 _Ninja_MaxXPHelper_XPNPCLocator_HandlesHT, 
                 _Ninja_MaxXPHelper_XPNPCLocator_HideHandle
             );
@@ -188,13 +188,13 @@ func void _Ninja_MaxXPHelper_XPNPCLocator_ReleaseHandle(var int trackerKey, var 
 };
 func void _Ninja_MaxXPHelper_XPNPCLocator_InitHandlesHT() {
   if _Ninja_MaxXPHelper_XPNPCLocator_HandlesHT {
-        _HT_ForEach(
+        Ninja_MaxXPHelper_HT_ForEach(
             _Ninja_MaxXPHelper_XPNPCLocator_HandlesHT, 
             _Ninja_MaxXPHelper_XPNPCLocator_ReleaseHandle
         );
         Ninja_MaxXPHelper_HT_DestroyPtr(_Ninja_MaxXPHelper_XPNPCLocator_HandlesHT);
     };
-    _Ninja_MaxXPHelper_XPNPCLocator_HandlesHT = _HT_Create();
+    _Ninja_MaxXPHelper_XPNPCLocator_HandlesHT = Ninja_MaxXPHelper_HT_Create();
 };
 
 func void _Ninja_MaxXPHelper_XPNPCLocator_InitNearbyNPCArray() {

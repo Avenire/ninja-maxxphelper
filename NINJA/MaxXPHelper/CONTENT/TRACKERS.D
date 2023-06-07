@@ -50,7 +50,7 @@ func void Ninja_MaxXPHelper_Trackers_GetNpcToHeroDistanceBasedPriority(var oCNPC
 };
 
 func void Ninja_MaxXPHelper_Trackers_Release(var int trackerId) {
-    var int trackerPtr; trackerPtr = _HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
+    var int trackerPtr; trackerPtr = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
     if !trackerPtr { return; };
     var _Ninja_MaxXPHelper_Tracker tracker; tracker = _^(trackerPtr);
     if trackerPtr == MEM_ReadIntArray(_Ninja_MaxXPHelper_Trackers_BucketsArray, tracker.priority) {
@@ -65,7 +65,7 @@ func void Ninja_MaxXPHelper_Trackers_Release(var int trackerId) {
         prev.next = tracker.next;
     };
     free(trackerPtr, _Ninja_MaxXPHelper_Tracker@);
-    _HT_Remove(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
+    Ninja_MaxXPHelper_HT_Remove(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
 };
 
 func void _Ninja_MaxXPHelper_Trackers_Draw(var _Ninja_MaxXPHelper_Tracker tracker) {
@@ -95,7 +95,7 @@ func void _Ninja_MaxXPHelper_Trackers_SearchAndDestroy_FindHandle(var int tracke
 func void _Ninja_MaxXPHelper_Trackers_SearchAndDestroy(var int trackerPtr) {
     _Ninja_MaxXPHelper_Trackers_SearchAndDestroy_TrackerHandle = -1;
     _Ninja_MaxXPHelper_Trackers_SearchAndDestroy_TrackerPtr = trackerPtr;
-    _HT_ForEach(
+    Ninja_MaxXPHelper_HT_ForEach(
         _Ninja_MaxXPHelper_Trackers_Handles, 
         _Ninja_MaxXPHelper_Trackers_SearchAndDestroy_FindHandle
     );
@@ -103,10 +103,7 @@ func void _Ninja_MaxXPHelper_Trackers_SearchAndDestroy(var int trackerPtr) {
 };
 
 func void _Ninja_MaxXPHelper_Trackers_Hook() {
-    if  !Hlp_IsValidNpc(hero) ||
-        Npc_IsDead(hero) ||
-        MEM_Game.pause_screen ||
-        Timer_IsPaused() {
+    if !Ninja_MaxXPHelper_ShouldRunHook() {
         return;
     };
     if MEM_KeyState(KEY_G) == KEY_PRESSED {
@@ -191,13 +188,13 @@ func void _Ninja_MaxXPHelper_Trackers_InitHandles_Free(var int trackerId, var in
 };
 func void _Ninja_MaxXPHelper_Trackers_InitHandles() {
     if _Ninja_MaxXPHelper_Trackers_Handles {
-        _HT_ForEach(
+        Ninja_MaxXPHelper_HT_ForEach(
             _Ninja_MaxXPHelper_Trackers_Handles, 
             _Ninja_MaxXPHelper_Trackers_InitHandles_Free
         );
         Ninja_MaxXPHelper_HT_DestroyPtr(_Ninja_MaxXPHelper_Trackers_Handles);
     };
-    _Ninja_MaxXPHelper_Trackers_Handles = _HT_Create();
+    _Ninja_MaxXPHelper_Trackers_Handles = Ninja_MaxXPHelper_HT_Create();
 };
 const int Ninja_MaxXPHelper_Trackers_Init_Once = 0;
 func void Ninja_MaxXPHelper_Trackers_Init() {
@@ -216,7 +213,7 @@ func void Ninja_MaxXPHelper_Trackers_Init() {
 
 func int Ninja_MaxXPHelper_Trackers_Create() {
     var int trackerPtr; trackerPtr = create(_Ninja_MaxXPHelper_Tracker@);
-    _HT_Insert(_Ninja_MaxXPHelper_Trackers_Handles, trackerPtr, _Ninja_MaxXPHelper_Trackers_NextID);
+    Ninja_MaxXPHelper_HT_Insert(_Ninja_MaxXPHelper_Trackers_Handles, trackerPtr, _Ninja_MaxXPHelper_Trackers_NextID);
     var int rootPtr; rootPtr = MEM_ReadIntArray(_Ninja_MaxXPHelper_Trackers_BucketsArray, _Ninja_MaxXPHelper_Trackers_MaxBuckets - 1);
     if rootPtr {
         var _Ninja_MaxXPHelper_Tracker oldRootTracker; oldRootTracker = _^(rootPtr);
@@ -260,20 +257,20 @@ func void _Ninja_MaxXPHelper_Trackers_MoveBucket(var _Ninja_MaxXPHelper_Tracker 
 };
 
 func void Ninja_MaxXPHelper_Trackers_SetAutoExpire(var int trackerId, var int durationInMillis) {
-    var int trackerPtr; trackerPtr = _HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
+    var int trackerPtr; trackerPtr = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
     if !trackerPtr { return; };
     var _Ninja_MaxXPHelper_Tracker tracker; tracker = _^(trackerPtr);
     tracker.autoExpireAt = TimerGT() + durationInMillis;
 };
 func void Ninja_MaxXPHelper_Trackers_SetZBufferBias(var int trackerId, var int zBufferBias) {
-    var int trackerPtr; trackerPtr = _HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
+    var int trackerPtr; trackerPtr = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
     if !trackerPtr { return; };
     var _Ninja_MaxXPHelper_Tracker tracker; tracker = _^(trackerPtr);
     tracker.zBufferBias = zBufferBias;
 };
 
 func void Ninja_MaxXPHelper_Trackers_Hide(var int trackerId, var int keepPriority) {
-    var int trackerPtr; trackerPtr = _HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
+    var int trackerPtr; trackerPtr = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
     if !trackerPtr { return; };
     var _Ninja_MaxXPHelper_Tracker tracker; tracker = _^(trackerPtr);
     tracker.skip = TRUE;
@@ -294,7 +291,7 @@ func void Ninja_MaxXPHelper_Trackers_Show(
     var string textureName,
     var int size
 ) {
-    var int trackerPtr; trackerPtr = _HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
+    var int trackerPtr; trackerPtr = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
     if !trackerPtr { return; };
     var _Ninja_MaxXPHelper_Tracker tracker; tracker = _^(trackerPtr);
     if priority < 0 {

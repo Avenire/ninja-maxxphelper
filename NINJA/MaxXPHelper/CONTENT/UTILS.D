@@ -132,3 +132,32 @@ func int Ninja_MaxXPHelper_GetColorOptOrDefault(var string optionKey, var int de
     SB_Destroy();
     return ChangeAlpha(defaultValue, Ninja_MaxXPHelper_ColorMaxInt);
 };
+
+func int Ninja_MaxXPHelper_ShouldRunHook() {
+    return (
+        !Hlp_IsValidNpc(hero) ||
+        Npc_IsDead(hero) ||
+        MEM_Game.pause_screen ||
+        Timer_IsPaused()
+    );
+};
+
+func int Ninja_MaxXPHelper_HT_Create() {
+    return _HT_Create();
+};
+
+func int Ninja_MaxXPHelper_HT_Get(var int ptr, var int key) {
+    return _HT_Get(ptr, key);
+};
+
+func int Ninja_MaxXPHelper_HT_Insert(var int ptr, var int value, var int key) {
+    return _HT_Insert(ptr, value, key);
+};
+
+func int Ninja_MaxXPHelper_HT_Remove(var int ptr, var int key) {
+    return _HT_Remove(ptr, value, key);
+};
+
+func void Ninja_MaxXPHelper_HT_ForEach(var int ptr, var func onEachFunc) {
+    _HT_ForEach(ptr, onEachFunc);
+};
