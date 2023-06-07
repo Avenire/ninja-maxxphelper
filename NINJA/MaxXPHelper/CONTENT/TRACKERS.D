@@ -101,11 +101,16 @@ func void _Ninja_MaxXPHelper_Trackers_SearchAndDestroy(var int trackerPtr) {
     );
     Ninja_MaxXPHelper_Trackers_Release(_Ninja_MaxXPHelper_Trackers_SearchAndDestroy_TrackerHandle);
 };
-
+const int _Ninja_MaxXPHelper_Trackers_Hookframes = 0;
 func void _Ninja_MaxXPHelper_Trackers_Hook() {
     if !Ninja_MaxXPHelper_ShouldRunHook() {
         return;
     };
+    // Encountered a bug where, when starting new game after game was already loaded (new game/loaded save)
+    // game randomly stops rendering trackers (zCamera is negative so it early exited). After inspecting camera coords
+    // when the bug was ocurring, it seemed like wrong transformation matrix is used (all X,Y,Z values are totally off)
+    // and it could be due to the wrong camera used. Since I set the camera here I cannot reproduce the bug anymore.
+    MEM_Camera = _^(MEM_Game._zCSession_camera);
     if MEM_KeyState(KEY_G) == KEY_PRESSED {
         Ninja_MaxXPHelper_Trackers_zBufferEnabled = !Ninja_MaxXPHelper_Trackers_zBufferEnabled;
         var string msg; msg = Ninja_MaxXPHelper_LOC_TrackersRespectDepthBufferOn;

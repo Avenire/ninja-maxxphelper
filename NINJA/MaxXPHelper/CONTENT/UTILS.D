@@ -134,7 +134,7 @@ func int Ninja_MaxXPHelper_GetColorOptOrDefault(var string optionKey, var int de
 };
 
 func int Ninja_MaxXPHelper_ShouldRunHook() {
-    return (
+    return !(
         !Hlp_IsValidNpc(hero) ||
         Npc_IsDead(hero) ||
         MEM_Game.pause_screen ||
@@ -142,6 +142,8 @@ func int Ninja_MaxXPHelper_ShouldRunHook() {
     );
 };
 
+// Don't want handles from Hashtables to be persisted in Save Game file so
+// workarounding that by calling Lego "private" hashtable API working on pointers
 func int Ninja_MaxXPHelper_HT_Create() {
     return _HT_Create();
 };
@@ -150,12 +152,12 @@ func int Ninja_MaxXPHelper_HT_Get(var int ptr, var int key) {
     return _HT_Get(ptr, key);
 };
 
-func int Ninja_MaxXPHelper_HT_Insert(var int ptr, var int value, var int key) {
-    return _HT_Insert(ptr, value, key);
+func void Ninja_MaxXPHelper_HT_Insert(var int ptr, var int value, var int key) {
+    _HT_Insert(ptr, value, key);
 };
 
-func int Ninja_MaxXPHelper_HT_Remove(var int ptr, var int key) {
-    return _HT_Remove(ptr, value, key);
+func void Ninja_MaxXPHelper_HT_Remove(var int ptr, var int key) {
+    _HT_Remove(ptr, key);
 };
 
 func void Ninja_MaxXPHelper_HT_ForEach(var int ptr, var func onEachFunc) {

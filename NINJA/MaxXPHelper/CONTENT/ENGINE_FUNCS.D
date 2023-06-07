@@ -123,6 +123,7 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
             MEM_Camera.trafoView[11]
         )
     );
+
     // Skip if not in front of the camera
     if !gf(zCamera, FLOATNULL) {
         return FALSE;
