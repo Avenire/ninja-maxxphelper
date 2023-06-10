@@ -52,10 +52,14 @@ func int Ninja_MaxXPHelper_IsNpcSpawned(var oCNPC npc) {
         GOTHIC_BASE_VERSION == 1 && (npc._zCVob_bitfield[0] & 256) ||
         (
             (npc._zCVob_bitfield[0] & 256) && 
-            // partial of sleeping mode flag
+            // partial of sleeping mode flag?
             (npc._zCVob_bitfield[2] & 1)
         )
     );
+};
+
+func int Ninja_MaxXPHelper_CanNpcSpawn(var oCNPC npc) {
+    return npc.bitfield[0] & oCNpc_bitfield0_spawnInRange;        
 };
 
 
@@ -224,31 +228,4 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
     _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[1] = py;
     _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[2] = sideSizeShift;
     return TRUE;
-};
-
-func void zRND_D3D_SetAlphaBlendFuncImmed(var int zTRnd_AlphaBlendFunc) {
-    const int ptr = 0;
-    ptr = zTRnd_AlphaBlendFunc;
-    
-    const int call = 0;
-    if(CALL_Begin(call)) {
-        CALL_IntParam(_@(ptr));
-        CALL__thiscall(zrenderer_adr, MEMINT_SwitchG1G2(7439120, 6620880));
-
-        call = CALL_End();
-    };
-};
-
-
-func void zRND_D3D_SetAlphaBlendFuncImmed(var int zTRnd_AlphaBlendFunc) {
-    const int ptr = 0;
-    ptr = zTRnd_AlphaBlendFunc;
-    
-    const int call = 0;
-    if(CALL_Begin(call)) {
-        CALL_IntParam(_@(ptr));
-        CALL__thiscall(zrenderer_adr, MEMINT_SwitchG1G2(7439120, 6620880));
-
-        call = CALL_End();
-    };
 };

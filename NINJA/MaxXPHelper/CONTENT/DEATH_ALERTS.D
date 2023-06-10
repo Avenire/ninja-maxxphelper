@@ -40,7 +40,7 @@ func void _Ninja_MaxXPHelper_DeathAlerts_AutoExpireTrackerOnAlertShown(var int a
     if  STR_Len(Ninja_MaxXPHelper_DeathAlertsSVM) > 0 && 
         !Npc_IsDead(hero) && 
         TimerGT() - _Ninja_MaxXPHelper_DeathAlerts_LastSVM > _Ninja_MaxXPHelper_DeathAlerts_SVMThrottleInMillis {
-        AI_OutputSVM(hero, hero, Ninja_MaxXPHelper_DeathAlertsSVM);
+        AI_OutputSVM_Overlay(hero,hero,Ninja_MaxXPHelper_DeathAlertsSVM);
         _Ninja_MaxXPHelper_DeathAlerts_LastSVM = TimerGT();
     };
 };
@@ -64,7 +64,8 @@ func void _Ninja_MaxXPHelper_DeathAlerts_TriggerAlert(var c_npc cnpc, var string
             Ninja_MaxXPHelper_DeathAlertsFailColor, 
             Ninja_MaxXPHelper_Trackers_MaxPriority,
             "MAXXPHELPER_DEATH_ALERT.tga",
-            mulf(Ninja_MaxXPHelper_IconSize, FLOATHALF)
+            mulf(Ninja_MaxXPHelper_IconSize, FLOATHALF),
+            0
         );
     };
 };

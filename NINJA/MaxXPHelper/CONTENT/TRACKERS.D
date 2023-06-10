@@ -1,6 +1,6 @@
 const int _Ninja_MaxXPHelper_Trackers_MaxBuckets = 100;
 const int _Ninja_MaxXPHelper_Trackers_BucketsArray = 0;
-const int _Ninja_MaxXPHelper_Trackers_MaxRenderedBuckets = 5;
+const int _Ninja_MaxXPHelper_Trackers_MaxRenderedBuckets = 100;
 const int _Ninja_MaxXPHelper_Trackers_NextID = 1;
 const int _Ninja_MaxXPHelper_Trackers_Handles = 0;
 const int Ninja_MaxXPHelper_Trackers_MaxPriority = 0;
@@ -21,6 +21,7 @@ class _Ninja_MaxXPHelper_Tracker {
     var int size;
     var int autoExpireAt;
     var int zBufferBias;
+    var int npcPtr;
 };
 
 instance _Ninja_MaxXPHelper_Tracker@(_Ninja_MaxXPHelper_Tracker) {
@@ -37,14 +38,23 @@ func void _Ninja_MaxXPHelper_Tracker_Delete(var _Ninja_MaxXPHelper_Tracker this)
 };
 
 const int Ninja_MaxXPHelper_Trackers_DistancePriority_Result[2] = {0,0};
-func void Ninja_MaxXPHelper_Trackers_GetNpcToHeroDistanceBasedPriority(var oCNPC npc) {
-    var int dist;
-    var c_npc cnpc; cnpc = _^(_@(npc));
-    if Ninja_MaxXPHelper_IsNpcSpawned(npc) {
-        dist = mkf(Npc_GetDistToNpc(hero, cnpc));
-    } else {
-        dist = mkf(Npc_GetDistToWP(hero, npc.wpname));
-    };
+func void Ninja_MaxXPHelper_Trackers_GetHeroDistanceBasedPriority(var int xf, var int yf, var int zf) {
+    var oCNPC heroNpc; heroNpc = Hlp_GetNpc(hero);
+    var int x; x = heroNpc._zCVob_trafoObjToWorld[zCVob_trafoObjToWorld_X];
+    var int y; y = heroNpc._zCVob_trafoObjToWorld[zCVob_trafoObjToWorld_Y];
+    var int z; z = heroNpc._zCVob_trafoObjToWorld[zCVob_trafoObjToWorld_Z];
+    var int dx; dx = subf(x, xf);
+    var int dy; dy = subf(y, yf);
+    var int dz; dz = subf(z, zf);
+    var int dist; dist = sqrtf(
+        addf(
+            mulf(dx, dx),
+            addf(
+                mulf(dy, dy),
+                mulf(dz, dz)
+            )
+        )
+    );
     Ninja_MaxXPHelper_Trackers_DistancePriority_Result[1] = roundf (divf(dist, mkf(2000))) + 1;
     Ninja_MaxXPHelper_Trackers_DistancePriority_Result[0] = dist;
 };
@@ -80,7 +90,8 @@ func void _Ninja_MaxXPHelper_Trackers_Draw(var _Ninja_MaxXPHelper_Tracker tracke
         tracker.zfcenter,
         tracker.color,
         tracker.size,
-        tracker.zBufferBias
+        tracker.zBufferBias,
+        tracker.npcPtr
     );
 };
 
@@ -102,6 +113,7 @@ func void _Ninja_MaxXPHelper_Trackers_SearchAndDestroy(var int trackerPtr) {
     Ninja_MaxXPHelper_Trackers_Release(_Ninja_MaxXPHelper_Trackers_SearchAndDestroy_TrackerHandle);
 };
 const int _Ninja_MaxXPHelper_Trackers_Hookframes = 0;
+const int Ninja_MaxXPHelper_Trackers_DebugLog = 0;
 func void _Ninja_MaxXPHelper_Trackers_Hook() {
     if !Ninja_MaxXPHelper_ShouldRunHook() {
         return;
@@ -123,6 +135,9 @@ func void _Ninja_MaxXPHelper_Trackers_Hook() {
             RGBA(50, 255, 50, 0),
             TRUE
         );
+    };
+    if MEM_KeyState(KEY_U) == KEY_PRESSED {
+        Ninja_MaxXPHelper_Trackers_DebugLog = TRUE;
     };
     var int bucketsRendered; bucketsRendered = 0;
     var int zrendererPtr; zrendererPtr = MEM_ReadInt(zrenderer_adr);
@@ -166,6 +181,7 @@ func void _Ninja_MaxXPHelper_Trackers_Hook() {
             continue;
         };
     end;
+    Ninja_MaxXPHelper_Trackers_DebugLog = FALSE;
     if Ninja_MaxXPHelper_Trackers_zBufferEnabled {
         // I saw 0xb0 (184) somewhere in G1 assembly so I just naively set that here (could use the actual "on function entered" value but meh).
         zRND_XD3D_SetRenderState(Ninja_MaxXPHelper_D3DRENDERSTATE_D3DRS_ALPHAREF, 184);
@@ -294,11 +310,13 @@ func void Ninja_MaxXPHelper_Trackers_Show(
     var int color, 
     var int priority,
     var string textureName,
-    var int size
+    var int size,
+    var int npcPtr
 ) {
     var int trackerPtr; trackerPtr = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
     if !trackerPtr { return; };
     var _Ninja_MaxXPHelper_Tracker tracker; tracker = _^(trackerPtr);
+    tracker.npcPtr = npcPtr;
     if priority < 0 {
         priority = Ninja_MaxXPHelper_Trackers_MaxPriority;
     } else if priority >= _Ninja_MaxXPHelper_Trackers_MaxBuckets - 1 {

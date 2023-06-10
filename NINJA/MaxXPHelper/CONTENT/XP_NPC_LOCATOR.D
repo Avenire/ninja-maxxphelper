@@ -25,68 +25,71 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_NpcToColor(var c_npc npc) {
     };
 };
 
+
 func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int processingNearby) {
     var c_npc cnpc; cnpc = _^(_@(npc));
     if Npc_IsPlayer(cnpc) {
         return FALSE;
     };
-    var int x; x = npc._zCVob_trafoObjToWorld[3];
-    var int y; y = npc._zCVob_trafoObjToWorld[7];
-    var int z; z = npc._zCVob_trafoObjToWorld[11];
-    var int radiusZ; radiusZ = mulf(subf(npc._zCVob_bbox3D_maxs[2], npc._zCVob_bbox3D_mins[2]), FLOATHALF);
+
+    var int x; x = npc._zCVob_trafoObjToWorld[zCVob_trafoObjToWorld_X];
+    var int y; y = npc._zCVob_trafoObjToWorld[zCVob_trafoObjToWorld_Y];
+    var int z; z = npc._zCVob_trafoObjToWorld[zCVob_trafoObjToWorld_Z];
     
     var int trackerKey; trackerKey = _@(npc);
     var int trackerHandle; trackerHandle = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_XPNPCLocator_HandlesHT, trackerKey);
-
-    if Npc_IsDead(cnpc) {
-        // Make sure we don't display dead.
-        Ninja_MaxXPHelper_Trackers_Hide(trackerHandle, FALSE);
-        return TRUE;
-    };
-    var int waypointPointer; waypointPointer = Ninja_MaxXPHelper_GetWaypointByName(npc.wpname);
-    if !Ninja_MaxXPHelper_IsNpcSpawned(npc) {
-        if !waypointPointer {
-            return FALSE; // Nothing to show.
-        };
-        var zCWaypoint wp; wp = _^(waypointPointer);
-        x = wp.pos[0];
-        y = wp.pos[1];
-        z = wp.pos[2];
-    };
-    if  (cnpc.flags & NPC_FLAG_IMMORTAL) || 
+    if  Npc_IsDead(cnpc) ||
+        (cnpc.flags & NPC_FLAG_IMMORTAL) || 
         (!Ninja_MaxXPHelper_ConsiderG1DoubleXPGlitch && Ninja_MaxXPHelper_VictoryXPReceived(cnpc)) ||
         (!Ninja_MaxXPHelper_ConsiderLevelZeroNPC && cnpc.level <= 0) {
-        // No XP for NPC, skip.
         Ninja_MaxXPHelper_Trackers_Hide(trackerHandle, FALSE);
         return FALSE;
     };
+    var int color; color = _Ninja_MaxXPHelper_XPNPCLocator_NpcToColor(cnpc);
+    if !Ninja_MaxXPHelper_IsNpcSpawned(npc) {
+        // todo: do all of this once per NPC?
+        if !Ninja_MaxXPHelper_CanNpcSpawn(npc) {
+            return FALSE;
+        };
+        // Some NPCs in G2 seem to have incorrect waypoint set (lizard in NW_CITY_HARBOUR_01)
+        // so need to check spawn position first
+        var int spawnNodeListCnt; spawnNodeListCnt = MEM_SpawnManager.spawnList_numInArray;
+        repeat(i, spawnNodeListCnt); var int i;
+            var oTSpawnNode node; node = _^(MEM_ArrayRead(_@(MEM_SpawnManager), i));
+            if node.npc == _@(npc) {
+                x = node.spawnPos[0];
+                y = node.spawnPos[1];
+                z = node.spawnPos[2];
+                break;
+            };
+        end;
+        // This can however still be world origin (0,0,0) so if that's the case then fallback to WP location...
+        if x == FLOATNULL && y == FLOATNULL && z == FLOATNULL {
+            var int waypointPointer; waypointPointer = Ninja_MaxXPHelper_GetWaypointByName(npc.wpname);
+            if waypointPointer {
+                var zCWaypoint wp; wp = _^(waypointPointer);
+                x = wp.pos[0];
+                y = wp.pos[1];
+                z = wp.pos[2];
+            };
+        } else {
+            //Ninja_MaxXPHelper_oCNPCDebug(npc, "[spwn]");
+        };
+        if x == FLOATNULL && y == FLOATNULL && z == FLOATNULL {
+            //Ninja_MaxXPHelper_oCNPCDebug(npc, "[skip]");
+            return FALSE;
+        };
+    };
+
     if !trackerHandle {
         trackerHandle = Ninja_MaxXPHelper_Trackers_Create();
         Ninja_MaxXPHelper_HT_Insert(_Ninja_MaxXPHelper_XPNPCLocator_HandlesHT, trackerHandle, trackerKey);
     };
 
     var int priority; priority = Ninja_MaxXPHelper_Trackers_MaxPriority;
-    Ninja_MaxXPHelper_Trackers_GetNpcToHeroDistanceBasedPriority(npc);
     if !processingNearby {
+        Ninja_MaxXPHelper_Trackers_GetHeroDistanceBasedPriority(x, y, z);
         priority = Ninja_MaxXPHelper_Trackers_DistancePriority_Result[1];
-    };
-    var int size; size = Ninja_MaxXPHelper_IconSize;
-    var int dist; dist = Ninja_MaxXPHelper_Trackers_DistancePriority_Result[0];
-    var int color; color = _Ninja_MaxXPHelper_XPNPCLocator_NpcToColor(cnpc);
-    if FALSE && gf(Ninja_MaxXPHelper_IconFadingNearbyDistance, dist) {
-        var int factor; factor = subf(
-            FLOATONE, 
-            divf(
-                subf(
-                    Ninja_MaxXPHelper_IconFadingNearbyDistance, 
-                    dist
-                ), 
-                Ninja_MaxXPHelper_IconFadingNearbyDistance
-            )
-        );
-        color = ChangeAlpha(
-            color, roundf(mulf(factor, Ninja_MaxXPHelper_ColorMaxFloat))
-        );
     };
     Ninja_MaxXPHelper_Trackers_Show(
         trackerHandle, 
@@ -96,9 +99,15 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int proce
         color, 
         priority,
         _Ninja_MaxXPHelper_XPNPCLocator_NpcToTexture(cnpc),
-        size
+        Ninja_MaxXPHelper_IconSize,
+        _@(npc)
     );
-    Ninja_MaxXPHelper_Trackers_SetZBufferBias(trackerHandle, radiusZ);
+    if Ninja_MaxXPHelper_Trackers_zBufferEnabled {
+        Ninja_MaxXPHelper_Trackers_SetZBufferBias(
+            trackerHandle, 
+            mulf(subf(npc._zCVob_bbox3D_maxs[2], npc._zCVob_bbox3D_mins[2]), FLOATHALF)
+        );
+    };
     if !processingNearby && _Ninja_MaxXPHelper_XPNPCLocator_NPCFullPassCycle < 2 {
         // Don't display distant NPCs until they were sorted into buckets (avoids weird flicker).
         Ninja_MaxXPHelper_Trackers_Hide(trackerHandle, TRUE);

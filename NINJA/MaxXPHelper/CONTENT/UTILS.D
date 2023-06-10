@@ -68,11 +68,22 @@ func void Ninja_MaxXPHelper_HT_DestroyPtr(var int htPtr) {
 };
 
 func void Ninja_MaxXPHelper_oCNPCDebug(var oCNPC npc, var string prefix) {
+        var int symbolPtr; symbolPtr = MEM_GetSymbolByIndex(Hlp_GetInstanceID(npc));
+        var zCPar_Symbol symbol; symbol = _^(symbolPtr);
+        const int pad = 30;
+        var string shortName; shortName = STR_Prefix(symbol.name, pad);
+        shortName = ConcatStrings(shortName, STR_Prefix("                               ", pad - STR_Len(shortName)));
         var int s; s = SB_New();
         SB(prefix);
-        var string shortName; shortName = STR_Prefix(npc.name, 20);
-        SB(ConcatStrings(shortName, STR_Prefix("                    ", 20 - STR_Len(shortName))));
-        SB(" vob ");
+        SB(" ");
+        SB(shortName);
+        SB(" oCNPC ");
+        repeat(i, 5); var int i;
+            var int val; val = MEM_ReadStatArr(npc.bitfield, i);
+            Ninja_MaxXPHelper_PrintBinary(val);
+            SB(" ");
+        end;
+        SB(" zCVob ");
         repeat(i, 5); var int i;
             //Ninja_MaxXPHelper_PrintBinary(MEM_ReadInt(_@(npc) + MEMINT_SwitchG1G2(1948, 1884) + i * 4));
             Ninja_MaxXPHelper_PrintBinary(MEM_ReadInt(_@(npc) + MEMINT_SwitchG1G2(228, 260) + i * 4));

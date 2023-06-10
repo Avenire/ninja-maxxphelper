@@ -64,7 +64,7 @@ func int _Ninja_MaxXPHelper_TrackerSprite_UpdateSprite(
 func void Ninja_MaxXPHelper_TrackerSprite_Draw(
     var Ninja_MaxXPHelper_TrackerSprite this,
     var int xfcenter, var int yfcenter, var int zfcenter, var int color, var int iconSize,
-    var int zBufferBias
+    var int zBufferBias, var int npcPtr
 ) {
     if this.buffer && this.texture {
         var int verticesPtr; verticesPtr = MEM_ReadInt(this.buffer);
@@ -77,6 +77,13 @@ func void Ninja_MaxXPHelper_TrackerSprite_Draw(
             iconSize,
             zBufferBias
         ) {
+            if npcPtr && Ninja_MaxXPHelper_Trackers_DebugLog {
+                var oCNPC npc; npc = _^(npcPtr);
+                if !Ninja_MaxXPHelper_IsNpcSpawned(npc) {
+                    Ninja_MaxXPHelper_oCNPCDebug(npc, "");
+                };
+                
+            };
             zRND_D3D_DrawPolySimple(this.texture, verticesPtr, 4);
         };
     };
