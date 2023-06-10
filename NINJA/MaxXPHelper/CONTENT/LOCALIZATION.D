@@ -5,8 +5,8 @@ const string Ninja_MaxXPHelper_LOC_DoubleXPNoZSUnconsciousXP = "(Double XP Glitc
 const string Ninja_MaxXPHelper_LOC_LocatorOn = "XPNPCLocator ON";
 const string Ninja_MaxXPHelper_LOC_LocatorOff = "XPNPCLocator OFF";
 
-const string Ninja_MaxXPHelper_LOC_TrackersRespectDepthBufferOn = "Trackers Respect Depth Buffer ON";
-const string Ninja_MaxXPHelper_LOC_TrackersRespectDepthBufferOFF = "Trackers Respect Depth Buffer OFF";
+const string Ninja_MaxXPHelper_LOC_TrackersUseZBufferOn = "Trackers Use Z Buffer ON";
+const string Ninja_MaxXPHelper_LOC_TrackersUseZBufferOff = "Trackers Respect Z Buffer OFF";
 
 
 // https://github.com/szapp/Ninja/wiki/Inject-Changes#localization

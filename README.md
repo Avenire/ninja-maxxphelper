@@ -54,7 +54,7 @@ After installing, start the game to get the defaults set in Gothic.ini in `[MaxX
 
 ```
 [MAXXPHELPER-V1]
-; ... Key constant name as defined in Icarus (https://github.com/Lehona/Ikarus/blob/a7bcd2b19ab3ba05b8d4c6e8068f8c3cae9540a2/Ikarus_Const_G1.d#L181)
+; ... Key constant name (as defined in Ikarus https://github.com/Lehona/Ikarus/blob/a7bcd2b19ab3ba05b8d4c6e8068f8c3cae9540a2/Ikarus_Const_G1.d#L181) which toggles XPNPCLocator trackers.
 toggleXPNPCLocatorKey=KEY_V
 ; ... Should the script consider double XP exploit from Gothic 1 (1 - on, 0 - off, default - off); It makes very little sense to set it on if playing anything but Gothic 1;
 considerG1DoubleXPGlitch=1
@@ -65,9 +65,22 @@ showMissedXPOnNPCDeathAlerts=1
 ; ... Semicolon separated list of NPC instance names to ignore if they got killed by game scripts (rather than usual gameplay) because they are effectively... "dead on (player's) arrival". 
 ; ... Path to the file from which the script should read deadOnArrivalNPCList (see section below for defaults.)
 deadOnArrivalNPCListPath=system\deadOnArrivalNPCList.txt
-; ... Easter egg "feature". Set it as empty if it starts getting on your nerves ;)
-; ... You can change it to ID of whatever dialogue line you like in the base game the most and see what happens.
+; ... Easter egg "feature" triggering on death alerts. Set it as empty to disable...
+; ... ...or you can tinker with it by setting the value to ID of your favourite dialogue line.
 deathAlertsSVM=
+; ... Whether trackers should use z buffer (depth buffer) i.e. be occluded by objects in front or not (be drawn on top of everything). 1 - on, 0 - off, default - off.
+trackersUseZBuffer=0
+; ... Key constant name to toggle `trackersUseZBuffer` option, not set by default.
+toggleTrackersUseZBufferKeyCode=
+; ... How many "buckets" of trackers should be rendered. XPNPCLocator sorts inactive (far) NPCs into buckets based on distance from the hero.
+; ... If set to 100 and z buffer is not in use, every tracker is rendered which will likely slow the performance. Best to keep this option low, default is 5.
+trackersRenderingLevel=5
+; ... Whether to display a tracker at NPC death location when death alert is triggered.  1 - on, 0 - off, default - on.
+showTrackerOnDeathAlert=1
+; ... How long death alert tracker is displayed before it auto expires.
+deathAlertTrackerDurationInMillis=5000
+; ... How long death alert text notification is displayed before it auto expires.
+deathAlertTextDurationInMillis=5000
 ```
 ### Dead on arrival defaults
 Following is the default for Gothic 2 NotR. See "tools/g2notr_print_doa_npcs.py" for more details how it was extracted. For Gothic 1 its empty as there're no cases where a seemingly normal NPC gets killed off-screen by game's scripts pretty much the first time player arrives in new location. **Note:** list **must end with newline** or it won't be parsed correctly and game may crash during loading.

@@ -2,8 +2,8 @@ func void Ninja_MaxXPHelper_LogInfo(var string message) {
     MEM_Info(ConcatStrings("MaxXPHelper: " , message));
 };
 
-func int Ninja_MaxXPHelper_GetKeyOrDefault(var string optionKey, var string defaultKeyName) {
-    var int keyCode;
+func int Ninja_MaxXPHelper_GetKeyCodeOrSetDefault(var string optionKey, var string defaultKeyName) {
+    var int keyCode; keyCode = 0;
     var zCPar_Symbol symb;
     if MEM_GothOptExists(Ninja_MaxXPHelper_SectionName, optionKey) {
         var string configuredKey; configuredKey = MEM_GetGothOpt(Ninja_MaxXPHelper_SectionName, optionKey);
@@ -19,15 +19,25 @@ func int Ninja_MaxXPHelper_GetKeyOrDefault(var string optionKey, var string defa
             };
         };  
     };
+    Ninja_MaxXPHelper_LogInfo(IntToString(keyCode));
     if !keyCode {
-        symb = _^(MEM_GetSymbol(defaultKeyName));
-        keyCode = symb.content;
+        if STR_Len(defaultKeyName) {
+            symb = _^(MEM_GetSymbol(defaultKeyName));
+            keyCode = symb.content;
+        };
         MEM_SetGothOpt(Ninja_MaxXPHelper_SectionName, optionKey, defaultKeyName);
+    };
+    if keyCode {
+        MEM_SetKey(ConcatStrings(Ninja_MaxXPHelper_SectionName, optionKey), keyCode);
     };
     return keyCode;
 };
 
-func int Ninja_MaxXPHelper_GetFlagOrDefault(var string optionKey, var int defaultValue) {
+func void Ninja_MaxXPHelper_SetIntOpt(var string optionKey, var int value) {
+    MEM_SetGothOpt(Ninja_MaxXPHelper_SectionName, optionKey, IntToString(value));
+};
+
+func int Ninja_MaxXPHelper_GetIntOptOrSetDefault(var string optionKey, var int defaultValue) {
     var int value; value = defaultValue;
     if MEM_GothOptExists(Ninja_MaxXPHelper_SectionName, optionKey) {
         value = STR_ToInt(
@@ -37,7 +47,7 @@ func int Ninja_MaxXPHelper_GetFlagOrDefault(var string optionKey, var int defaul
             )
         );
     } else {
-        MEM_SetGothOpt(Ninja_MaxXPHelper_SectionName, optionKey, IntToString(value));
+        Ninja_MaxXPHelper_SetIntOpt(optionKey, value);
     };
     return value;
 };

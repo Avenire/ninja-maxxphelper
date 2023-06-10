@@ -36,7 +36,7 @@ func int _Ninja_MaxXPHelper_DeathAlerts_Handler_SkipDeadOnArrivalNPC(var c_npc _
 
 func void _Ninja_MaxXPHelper_DeathAlerts_AutoExpireTrackerOnAlertShown(var int alertHandle) {
     var int trackerHandle; trackerHandle = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_DeathAlerts_AlertIdToTrackerId_HT, alertHandle);
-    Ninja_MaxXPHelper_Trackers_SetAutoExpire(trackerHandle, _Ninja_MaxXPHelper_TextAlerts_Duration);
+    Ninja_MaxXPHelper_Trackers_SetAutoExpire(trackerHandle, Ninja_MaxXPHelper_DeathAlertTrackerDurationInMillis);
     if  STR_Len(Ninja_MaxXPHelper_DeathAlertsSVM) > 0 && 
         !Npc_IsDead(hero) && 
         TimerGT() - _Ninja_MaxXPHelper_DeathAlerts_LastSVM > _Ninja_MaxXPHelper_DeathAlerts_SVMThrottleInMillis {
@@ -47,11 +47,14 @@ func void _Ninja_MaxXPHelper_DeathAlerts_AutoExpireTrackerOnAlertShown(var int a
 
 func void _Ninja_MaxXPHelper_DeathAlerts_TriggerAlert(var c_npc cnpc, var string msg) {
     var int alertHandle; alertHandle = Ninja_MaxXPHelper_TextAlerts_Create(
-        msg,  _Ninja_MaxXPHelper_TextAlerts_Duration, Ninja_MaxXPHelper_DeathAlertsFailColor, FALSE
+        msg,  
+        Ninja_MaxXPHelper_DeathAlertTextDurationInMillis, 
+        Ninja_MaxXPHelper_DeathAlertsFailColor, 
+        FALSE
     );
     
     var oCNPC npc; npc = Hlp_GetNpc(cnpc);
-    if Ninja_MaxXPHelper_IsNpcSpawned(npc) {
+    if Ninja_MaxXPHelper_ShowTrackerOnDeathAlert && Ninja_MaxXPHelper_IsNpcSpawned(npc) {
         var int h; h = Ninja_MaxXPHelper_Trackers_Create();
         Ninja_MaxXPHelper_HT_Insert(_Ninja_MaxXPHelper_DeathAlerts_AlertIdToTrackerId_HT, h, alertHandle);
         Ninja_MaxXPHelper_TextAlerts_SetOnShowFunc(alertHandle, _Ninja_MaxXPHelper_DeathAlerts_AutoExpireTrackerOnAlertShown);
@@ -64,8 +67,7 @@ func void _Ninja_MaxXPHelper_DeathAlerts_TriggerAlert(var c_npc cnpc, var string
             Ninja_MaxXPHelper_DeathAlertsFailColor, 
             Ninja_MaxXPHelper_Trackers_MaxPriority,
             "MAXXPHELPER_DEATH_ALERT.tga",
-            mulf(Ninja_MaxXPHelper_IconSize, FLOATHALF),
-            0
+            Ninja_MaxXPHelper_IconSize
         );
     };
 };

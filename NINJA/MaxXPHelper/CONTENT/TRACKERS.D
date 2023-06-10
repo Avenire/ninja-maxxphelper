@@ -1,11 +1,10 @@
 const int _Ninja_MaxXPHelper_Trackers_MaxBuckets = 100;
 const int _Ninja_MaxXPHelper_Trackers_BucketsArray = 0;
-const int _Ninja_MaxXPHelper_Trackers_MaxRenderedBuckets = 100;
+const int Ninja_MaxXPHelper_TrackersRenderingLevel = 100;
 const int _Ninja_MaxXPHelper_Trackers_NextID = 1;
 const int _Ninja_MaxXPHelper_Trackers_Handles = 0;
 const int Ninja_MaxXPHelper_Trackers_MaxPriority = 0;
 const int _Ninja_MaxXPHelper_Trackers_FrameTime = 0;
-const int Ninja_MaxXPHelper_Trackers_zBufferEnabled = 0;
 
 class _Ninja_MaxXPHelper_Tracker {
     var int xfcenter;
@@ -21,7 +20,6 @@ class _Ninja_MaxXPHelper_Tracker {
     var int size;
     var int autoExpireAt;
     var int zBufferBias;
-    var int npcPtr;
 };
 
 instance _Ninja_MaxXPHelper_Tracker@(_Ninja_MaxXPHelper_Tracker) {
@@ -90,8 +88,7 @@ func void _Ninja_MaxXPHelper_Trackers_Draw(var _Ninja_MaxXPHelper_Tracker tracke
         tracker.zfcenter,
         tracker.color,
         tracker.size,
-        tracker.zBufferBias,
-        tracker.npcPtr
+        tracker.zBufferBias
     );
 };
 
@@ -112,8 +109,24 @@ func void _Ninja_MaxXPHelper_Trackers_SearchAndDestroy(var int trackerPtr) {
     );
     Ninja_MaxXPHelper_Trackers_Release(_Ninja_MaxXPHelper_Trackers_SearchAndDestroy_TrackerHandle);
 };
-const int _Ninja_MaxXPHelper_Trackers_Hookframes = 0;
-const int Ninja_MaxXPHelper_Trackers_DebugLog = 0;
+
+func void _Ninja_MaxXPHelper_Trackers_HandleToggleUseZBuffer() {
+    if MEM_KeyState(Ninja_MaxXPHelper_ToggleTrackersUseZBufferKeyCode) == KEY_PRESSED {
+        Ninja_MaxXPHelper_TrackersUseZBuffer = !Ninja_MaxXPHelper_TrackersUseZBuffer;
+        Ninja_MaxXPHelper_SetIntOpt(Ninja_MaxXPHelper_TrackersUseZBuffer_OptKey, Ninja_MaxXPHelper_TrackersUseZBuffer);
+        var string msg; msg = Ninja_MaxXPHelper_LOC_TrackersUseZBufferOn;
+        if !Ninja_MaxXPHelper_TrackersUseZBuffer {
+            msg = Ninja_MaxXPHelper_LOC_TrackersUseZBufferOff;
+        };
+        Ninja_MaxXPHelper_TextAlerts_Create(
+            msg, 
+            Ninja_MaxXPHelper_SystemAlertDuration, 
+            RGBA(50, 255, 50, 0),
+            TRUE
+        );
+    };
+};
+
 func void _Ninja_MaxXPHelper_Trackers_Hook() {
     if !Ninja_MaxXPHelper_ShouldRunHook() {
         return;
@@ -123,26 +136,13 @@ func void _Ninja_MaxXPHelper_Trackers_Hook() {
     // when the bug was ocurring, it seemed like wrong transformation matrix is used (all X,Y,Z values are totally off)
     // and it could be due to the wrong camera used. Since I set the camera here I cannot reproduce the bug anymore.
     MEM_Camera = _^(MEM_Game._zCSession_camera);
-    if MEM_KeyState(KEY_G) == KEY_PRESSED {
-        Ninja_MaxXPHelper_Trackers_zBufferEnabled = !Ninja_MaxXPHelper_Trackers_zBufferEnabled;
-        var string msg; msg = Ninja_MaxXPHelper_LOC_TrackersRespectDepthBufferOn;
-        if !Ninja_MaxXPHelper_Trackers_zBufferEnabled {
-            msg = Ninja_MaxXPHelper_LOC_TrackersRespectDepthBufferOFF;
-        };
-        Ninja_MaxXPHelper_TextAlerts_Create(
-            msg, 
-            Ninja_MaxXPHelper_SystemAlertDuration, 
-            RGBA(50, 255, 50, 0),
-            TRUE
-        );
-    };
-    if MEM_KeyState(KEY_U) == KEY_PRESSED {
-        Ninja_MaxXPHelper_Trackers_DebugLog = TRUE;
-    };
+
+    _Ninja_MaxXPHelper_Trackers_HandleToggleUseZBuffer();
+
     var int bucketsRendered; bucketsRendered = 0;
     var int zrendererPtr; zrendererPtr = MEM_ReadInt(zrenderer_adr);
     zRND_D3D_SetAlphaBlendFunc(zRND_ALPHA_FUNC_BLEND);
-    if Ninja_MaxXPHelper_Trackers_zBufferEnabled {
+    if Ninja_MaxXPHelper_TrackersUseZBuffer {
         zRND_XD3D_SetRenderState(D3DRS_ZENABLE, true);
         // Magic (explained). All of this is done to make my (potentially) transparent tracker sprites behave with depthbuffer on.
         // DrawPolySimple is stubborn and disables D3DRS_ALPHATESTENABLE if local state indicates it's set (xd3d_actRenderState[zRND_XD3D_D3DRS_ALPHATESTENABLE_OFFSET] != 0).
@@ -158,12 +158,8 @@ func void _Ninja_MaxXPHelper_Trackers_Hook() {
 
     var int rendered; rendered = 0;
     _Ninja_MaxXPHelper_Trackers_FrameTime = TimerGT();
-    var int maxBucketsToRender; maxBucketsToRender = _Ninja_MaxXPHelper_Trackers_MaxRenderedBuckets;
-    if Ninja_MaxXPHelper_Trackers_zBufferEnabled {
-        maxBucketsToRender = 1; // If depth buffer is on then attempt to render only high priority (usually nearby) trackers.
-    };
+    var int maxBucketsToRender; maxBucketsToRender = Ninja_MaxXPHelper_TrackersRenderingLevel;
     repeat(i, _Ninja_MaxXPHelper_Trackers_MaxBuckets - 2); var int i;
-        if bucketsRendered >= _Ninja_MaxXPHelper_Trackers_MaxRenderedBuckets { break; };
         var int bucketRoot; bucketRoot = MEM_ReadIntArray(_Ninja_MaxXPHelper_Trackers_BucketsArray, i);
         if bucketRoot {
             while (bucketRoot);
@@ -177,12 +173,14 @@ func void _Ninja_MaxXPHelper_Trackers_Hook() {
                 rendered = rendered + 1;
             end;
             bucketsRendered = bucketsRendered + 1;
+            // Always attempt to render bucket 0.
+            if bucketsRendered >= Ninja_MaxXPHelper_TrackersRenderingLevel { break; };
         } else {
             continue;
         };
     end;
-    Ninja_MaxXPHelper_Trackers_DebugLog = FALSE;
-    if Ninja_MaxXPHelper_Trackers_zBufferEnabled {
+
+    if Ninja_MaxXPHelper_TrackersUseZBuffer {
         // I saw 0xb0 (184) somewhere in G1 assembly so I just naively set that here (could use the actual "on function entered" value but meh).
         zRND_XD3D_SetRenderState(Ninja_MaxXPHelper_D3DRENDERSTATE_D3DRS_ALPHAREF, 184);
         // Reverse the hack.
@@ -310,13 +308,11 @@ func void Ninja_MaxXPHelper_Trackers_Show(
     var int color, 
     var int priority,
     var string textureName,
-    var int size,
-    var int npcPtr
+    var int size
 ) {
     var int trackerPtr; trackerPtr = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
     if !trackerPtr { return; };
     var _Ninja_MaxXPHelper_Tracker tracker; tracker = _^(trackerPtr);
-    tracker.npcPtr = npcPtr;
     if priority < 0 {
         priority = Ninja_MaxXPHelper_Trackers_MaxPriority;
     } else if priority >= _Ninja_MaxXPHelper_Trackers_MaxBuckets - 1 {

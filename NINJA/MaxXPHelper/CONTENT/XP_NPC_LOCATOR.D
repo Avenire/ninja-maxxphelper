@@ -99,10 +99,9 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int proce
         color, 
         priority,
         _Ninja_MaxXPHelper_XPNPCLocator_NpcToTexture(cnpc),
-        Ninja_MaxXPHelper_IconSize,
-        _@(npc)
+        Ninja_MaxXPHelper_IconSize
     );
-    if Ninja_MaxXPHelper_Trackers_zBufferEnabled {
+    if Ninja_MaxXPHelper_TrackersUseZBuffer {
         Ninja_MaxXPHelper_Trackers_SetZBufferBias(
             trackerHandle, 
             mulf(subf(npc._zCVob_bbox3D_maxs[2], npc._zCVob_bbox3D_mins[2]), FLOATHALF)

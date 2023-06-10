@@ -19,21 +19,45 @@ func void Ninja_MaxXPHelper_Init()
             Ninja_MaxXPHelper_DeadOnArrivalNPCDefaultList
         );
 
-        Ninja_MaxXPHelper_ConsiderG1DoubleXPGlitch = Ninja_MaxXPHelper_GetFlagOrDefault(
+        Ninja_MaxXPHelper_ConsiderG1DoubleXPGlitch = Ninja_MaxXPHelper_GetIntOptOrSetDefault(
             "considerG1DoubleXPGlitch",
             0
         );
-        Ninja_MaxXPHelper_ConsiderLevelZeroNPC = Ninja_MaxXPHelper_GetFlagOrDefault(
+        Ninja_MaxXPHelper_ConsiderLevelZeroNPC = Ninja_MaxXPHelper_GetIntOptOrSetDefault(
             "considerLevelZeroNPC",
             0 // Skip NPCs like Mud which wouldn't yield any XP in base game anyway.
         );
-        Ninja_MaxXPHelper_ShowMissedXPOnNPCDeathAlerts = Ninja_MaxXPHelper_GetFlagOrDefault(
+        Ninja_MaxXPHelper_ShowMissedXPOnNPCDeathAlerts = Ninja_MaxXPHelper_GetIntOptOrSetDefault(
             "showMissedXPOnNPCDeathAlerts",
             1
         );
-        Ninja_MaxXPHelper_ToggleXPNPCLocatorKeyCode = Ninja_MaxXPHelper_GetKeyOrDefault(
+        Ninja_MaxXPHelper_ToggleXPNPCLocatorKeyCode = Ninja_MaxXPHelper_GetKeyCodeOrSetDefault(
             "toggleXPNPCLocatorKey", 
             "KEY_V"
+        );
+        Ninja_MaxXPHelper_ToggleTrackersUseZBufferKeyCode = Ninja_MaxXPHelper_GetKeyCodeOrSetDefault(
+            "toggleTrackersUseZBufferKey", 
+            ""
+        );
+        Ninja_MaxXPHelper_TrackersUseZBuffer = Ninja_MaxXPHelper_GetIntOptOrSetDefault(
+            Ninja_MaxXPHelper_TrackersUseZBuffer_OptKey,
+            0
+        );
+        Ninja_MaxXPHelper_TrackersRenderingLevel = Ninja_MaxXPHelper_GetIntOptOrSetDefault(
+            "trackersRenderingLevel",
+            5
+        );
+        Ninja_MaxXPHelper_ShowTrackerOnDeathAlert = Ninja_MaxXPHelper_GetIntOptOrSetDefault(
+            "showTrackerOnDeathAlert",
+            1
+        );
+        Ninja_MaxXPHelper_DeathAlertTrackerDurationInMillis = Ninja_MaxXPHelper_GetIntOptOrSetDefault(
+            "deathAlertTrackerDurationInMillis",
+            Ninja_MaxXPHelper_DeathAlertTrackerDurationInMillis
+        );
+        Ninja_MaxXPHelper_DeathAlertTextDurationInMillis = Ninja_MaxXPHelper_GetIntOptOrSetDefault(
+            "deathAlertTextDurationInMillis",
+            Ninja_MaxXPHelper_DeathAlertTextDurationInMillis
         );
         Ninja_MaxXPHelper_DeathAlertsFailColor = Ninja_MaxXPHelper_GetColorOptOrDefault(
             "deathAlertsFailColor",
