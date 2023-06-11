@@ -66,8 +66,7 @@ func void _Ninja_MaxXPHelper_DeathAlerts_TriggerAlert(var c_npc cnpc, var string
             x, y, z,
             Ninja_MaxXPHelper_DeathAlertsFailColor, 
             Ninja_MaxXPHelper_Trackers_MaxPriority,
-            "MAXXPHELPER_DEATH_ALERT.tga",
-            Ninja_MaxXPHelper_IconSize
+            "MAXXPHELPER_DEATH_ALERT.tga"
         );
     };
 };

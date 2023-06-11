@@ -17,7 +17,6 @@ class _Ninja_MaxXPHelper_Tracker {
     var int next;
     var int prev;
     var int skip;
-    var int size;
     var int autoExpireAt;
     var int zBufferBias;
 };
@@ -86,7 +85,7 @@ func void _Ninja_MaxXPHelper_Trackers_Draw(var _Ninja_MaxXPHelper_Tracker tracke
         tracker.yfcenter,
         tracker.zfcenter,
         tracker.color,
-        tracker.size,
+        Ninja_MaxXPHelper_IconSize,
         tracker.zBufferBias
     );
 };
@@ -323,8 +322,7 @@ func void Ninja_MaxXPHelper_Trackers_Show(
     var int zfcenter, 
     var int color, 
     var int priority,
-    var string textureName,
-    var int size
+    var string textureName
 ) {
     var int trackerPtr; trackerPtr = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
     if !trackerPtr { return; };
@@ -348,6 +346,5 @@ func void Ninja_MaxXPHelper_Trackers_Show(
     tracker.yfcenter = yfcenter;
     tracker.zfcenter = zfcenter;
     tracker.color = color;
-    tracker.size = size;
     tracker.skip = FALSE;
 };

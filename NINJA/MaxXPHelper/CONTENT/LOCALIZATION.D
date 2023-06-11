@@ -11,6 +11,9 @@ const string Ninja_MaxXPHelper_LOC_TrackersUseZBufferOff = "Trackers Use Z Buffe
 const string Ninja_MaxXPHelper_LOC_TrackersMaxRenderingEnabledOn = "Trackers Max Rendering Level On";
 const string Ninja_MaxXPHelper_LOC_TrackersMaxRenderingEnabledOff = "Trackers Max Rendering Level Off";
 
+const string Ninja_MaxXPHelper_LOC_PickpocketWarningOther = "Not Pickpocketable Anymore (Item Was Likely Looted)";
+const string Ninja_MaxXPHelper_LOC_PickpocketWarningDeath = "Not Pickpocketable Anymore (NPC Died)";
+
 // https://github.com/szapp/Ninja/wiki/Inject-Changes#localization
 func int Ninja_MaxXPHelper_GuessLocalization() { // Adjust the name!
     var int pan; pan = MEM_GetSymbol("MOBNAME_PAN");
