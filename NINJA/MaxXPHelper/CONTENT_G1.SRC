@@ -1,8 +1,8 @@
 Ikarus
 LeGo
 
-content\utils.d
-content\gothic_one_specific.d
+content\utils_shared.d
+content\utils_g1.d
 content\engine_funcs.d
 content\const.d
 content\opts.d

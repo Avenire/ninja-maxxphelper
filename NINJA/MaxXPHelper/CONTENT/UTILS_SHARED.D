@@ -19,7 +19,6 @@ func int Ninja_MaxXPHelper_GetKeyCodeOrSetDefault(var string optionKey, var stri
             };
         };  
     };
-    Ninja_MaxXPHelper_LogInfo(IntToString(keyCode));
     if !keyCode {
         if STR_Len(defaultKeyName) {
             symb = _^(MEM_GetSymbol(defaultKeyName));
@@ -52,7 +51,7 @@ func int Ninja_MaxXPHelper_GetIntOptOrSetDefault(var string optionKey, var int d
     return value;
 };
 
-func string Ninja_MaxXPHelper_GetStrOptOrDefault(var string optionKey, var string defaultValue) {
+func string Ninja_MaxXPHelper_GetStrOptOrSetDefault(var string optionKey, var string defaultValue) {
     if MEM_GothOptExists(Ninja_MaxXPHelper_SectionName, optionKey) {
         defaultValue = MEM_GetGothOpt(Ninja_MaxXPHelper_SectionName, optionKey);
     } else {
@@ -70,11 +69,6 @@ func void Ninja_MaxXPHelper_PrintBinary(var int bitfield) {
             SB("0");
         };
     end;
-};
-
-func void Ninja_MaxXPHelper_HT_DestroyPtr(var int htPtr) {
-    if !htPtr { return; };
-    _HT_Destroy(htPtr);
 };
 
 func void Ninja_MaxXPHelper_oCNPCDebug(var oCNPC npc, var string prefix) {
@@ -120,7 +114,7 @@ func string Ninja_MaxXPHelper_ReadFileOrSetDefault(var string filename, var stri
     return value;
 };
 
-func int Ninja_MaxXPHelper_GetColorOptOrDefault(var string optionKey, var int defaultValue) {
+func int Ninja_MaxXPHelper_GetRGBColorOptOrSetDefault(var string optionKey, var int defaultValue) {
     if MEM_GothOptExists(Ninja_MaxXPHelper_SectionName, optionKey) {
         var string colorHex; colorHex = MEM_GetGothOpt(Ninja_MaxXPHelper_SectionName, optionKey);
         var int colorHexLen; colorHexLen = STR_Len(colorHex);        
@@ -163,6 +157,23 @@ func int Ninja_MaxXPHelper_ShouldRunHook() {
     );
 };
 
+func int Ninja_MaxXPHelper_IsNpcSpawned(var oCNPC npc) {
+    return (
+        // 256 is partial zCVob_bitfield0_castDynShadow flag; found by experimenting, seems to work in G1
+        // if NPC was never spawned it's 0, if it was ever active, it's 1 (persists with saves too)
+        GOTHIC_BASE_VERSION == 1 && (npc._zCVob_bitfield[0] & 256) ||
+        (
+            (npc._zCVob_bitfield[0] & 256) && 
+            // partial of sleeping mode flag?
+            (npc._zCVob_bitfield[2] & 1)
+        )
+    );
+};
+
+func int Ninja_MaxXPHelper_CanNpcSpawn(var oCNPC npc) {
+    return npc.bitfield[0] & oCNpc_bitfield0_spawnInRange;        
+};
+
 // Don't want handles from Hashtables to be persisted in Save Game file so
 // workarounding that by calling Lego "private" hashtable API working on pointers
 func int Ninja_MaxXPHelper_HT_Create() {
@@ -183,4 +194,9 @@ func void Ninja_MaxXPHelper_HT_Remove(var int ptr, var int key) {
 
 func void Ninja_MaxXPHelper_HT_ForEach(var int ptr, var func onEachFunc) {
     _HT_ForEach(ptr, onEachFunc);
+};
+
+func void Ninja_MaxXPHelper_HT_Destroy(var int htPtr) {
+    if !htPtr { return; };
+    _HT_Destroy(htPtr);
 };

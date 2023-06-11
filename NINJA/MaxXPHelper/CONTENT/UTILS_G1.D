@@ -7,7 +7,7 @@ func int Ninja_MaxXPHelper_VictoryXPReceived(var c_npc npc) {
 
 func int Ninja_MaxXPHelper_WouldReceiveVictoryXP(var c_npc _self, var c_npc _other) {
     return (
-        // You killed, yay.
+        // Player killed.
         Npc_IsPlayer(_other) ||
         // Our party member claimed the kill.
         (C_NpcIsHuman(_other) && _other.aivar[AIV_PARTYMEMBER]) ||

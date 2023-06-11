@@ -6,8 +6,10 @@ const string Ninja_MaxXPHelper_LOC_LocatorOn = "XPNPCLocator ON";
 const string Ninja_MaxXPHelper_LOC_LocatorOff = "XPNPCLocator OFF";
 
 const string Ninja_MaxXPHelper_LOC_TrackersUseZBufferOn = "Trackers Use Z Buffer ON";
-const string Ninja_MaxXPHelper_LOC_TrackersUseZBufferOff = "Trackers Respect Z Buffer OFF";
+const string Ninja_MaxXPHelper_LOC_TrackersUseZBufferOff = "Trackers Use Z Buffer OFF";
 
+const string Ninja_MaxXPHelper_LOC_TrackersMaxRenderingEnabledOn = "Trackers Max Rendering Level On";
+const string Ninja_MaxXPHelper_LOC_TrackersMaxRenderingEnabledOff = "Trackers Max Rendering Level Off";
 
 // https://github.com/szapp/Ninja/wiki/Inject-Changes#localization
 func int Ninja_MaxXPHelper_GuessLocalization() { // Adjust the name!

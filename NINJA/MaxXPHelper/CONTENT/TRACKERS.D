@@ -1,10 +1,10 @@
 const int _Ninja_MaxXPHelper_Trackers_MaxBuckets = 100;
 const int _Ninja_MaxXPHelper_Trackers_BucketsArray = 0;
-const int Ninja_MaxXPHelper_TrackersRenderingLevel = 100;
 const int _Ninja_MaxXPHelper_Trackers_NextID = 1;
 const int _Ninja_MaxXPHelper_Trackers_Handles = 0;
 const int Ninja_MaxXPHelper_Trackers_MaxPriority = 0;
 const int _Ninja_MaxXPHelper_Trackers_FrameTime = 0;
+const int _Ninja_MaxXPHelper_Trackers_MaxRenderingLevelEnabled = 0;
 
 class _Ninja_MaxXPHelper_Tracker {
     var int xfcenter;
@@ -31,7 +31,6 @@ instance _Ninja_MaxXPHelper_Tracker@(_Ninja_MaxXPHelper_Tracker) {
 };
 
 func void _Ninja_MaxXPHelper_Tracker_Delete(var _Ninja_MaxXPHelper_Tracker this) {
-    // _Ninja_MaxXPHelper_Tracker_Delete destructor
     free(this.trackerSprite, Ninja_MaxXPHelper_TrackerSprite@);
 };
 
@@ -121,7 +120,23 @@ func void _Ninja_MaxXPHelper_Trackers_HandleToggleUseZBuffer() {
         Ninja_MaxXPHelper_TextAlerts_Create(
             msg, 
             Ninja_MaxXPHelper_SystemAlertDuration, 
-            RGBA(50, 255, 50, 0),
+            Ninja_MaxXPHelper_SystemNotificationsColor,
+            TRUE
+        );
+    };
+};
+
+func void _Ninja_MaxXPHelper_Trackers_HandleToggleMaxRenderingLevel() {
+    if MEM_KeyState(Ninja_MaxXPHelper_ToggleTrackersMaxRenderingLevelKeyCode) == KEY_PRESSED {
+        _Ninja_MaxXPHelper_Trackers_MaxRenderingLevelEnabled = !_Ninja_MaxXPHelper_Trackers_MaxRenderingLevelEnabled;
+        var string msg; msg = Ninja_MaxXPHelper_LOC_TrackersMaxRenderingEnabledOn;
+        if !_Ninja_MaxXPHelper_Trackers_MaxRenderingLevelEnabled {
+            msg = Ninja_MaxXPHelper_LOC_TrackersMaxRenderingEnabledOff;
+        };
+        Ninja_MaxXPHelper_TextAlerts_Create(
+            msg, 
+            Ninja_MaxXPHelper_SystemAlertDuration, 
+            Ninja_MaxXPHelper_SystemNotificationsColor,
             TRUE
         );
     };
@@ -138,6 +153,7 @@ func void _Ninja_MaxXPHelper_Trackers_Hook() {
     MEM_Camera = _^(MEM_Game._zCSession_camera);
 
     _Ninja_MaxXPHelper_Trackers_HandleToggleUseZBuffer();
+    _Ninja_MaxXPHelper_Trackers_HandleToggleMaxRenderingLevel();
 
     var int bucketsRendered; bucketsRendered = 0;
     var int zrendererPtr; zrendererPtr = MEM_ReadInt(zrenderer_adr);
@@ -173,11 +189,10 @@ func void _Ninja_MaxXPHelper_Trackers_Hook() {
                 rendered = rendered + 1;
             end;
             bucketsRendered = bucketsRendered + 1;
-            // Always attempt to render bucket 0.
-            if bucketsRendered >= Ninja_MaxXPHelper_TrackersRenderingLevel { break; };
-        } else {
-            continue;
         };
+        // Checking it here so max priority bucket always gets a chance to render.
+        if !_Ninja_MaxXPHelper_Trackers_MaxRenderingLevelEnabled && 
+            bucketsRendered >= Ninja_MaxXPHelper_TrackersRenderingLevel { break; };
     end;
 
     if Ninja_MaxXPHelper_TrackersUseZBuffer {
@@ -211,7 +226,7 @@ func void _Ninja_MaxXPHelper_Trackers_InitHandles() {
             _Ninja_MaxXPHelper_Trackers_Handles, 
             _Ninja_MaxXPHelper_Trackers_InitHandles_Free
         );
-        Ninja_MaxXPHelper_HT_DestroyPtr(_Ninja_MaxXPHelper_Trackers_Handles);
+        Ninja_MaxXPHelper_HT_Destroy(_Ninja_MaxXPHelper_Trackers_Handles);
     };
     _Ninja_MaxXPHelper_Trackers_Handles = Ninja_MaxXPHelper_HT_Create();
 };
@@ -281,6 +296,7 @@ func void Ninja_MaxXPHelper_Trackers_SetAutoExpire(var int trackerId, var int du
     var _Ninja_MaxXPHelper_Tracker tracker; tracker = _^(trackerPtr);
     tracker.autoExpireAt = TimerGT() + durationInMillis;
 };
+
 func void Ninja_MaxXPHelper_Trackers_SetZBufferBias(var int trackerId, var int zBufferBias) {
     var int trackerPtr; trackerPtr = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
     if !trackerPtr { return; };

@@ -7,7 +7,7 @@ const int _Ninja_MaxXPHelper_DeathAlerts_SVMThrottleInMillis = 10000;
 func void Ninja_MaxXPHelper_DeathAlerts_InitDeadOnArrivalNPCList() {
     STRINT_SplitReset();
     var int count; count = STR_SplitCount(Ninja_MaxXPHelper_DeadOnArrivalNPCList, ";");
-    Ninja_MaxXPHelper_HT_DestroyPtr(_Ninja_MaxXPHelper_DeathAlerts_DeadOnArrivalNpc_HT);
+    Ninja_MaxXPHelper_HT_Destroy(_Ninja_MaxXPHelper_DeathAlerts_DeadOnArrivalNpc_HT);
     _Ninja_MaxXPHelper_DeathAlerts_DeadOnArrivalNpc_HT = Ninja_MaxXPHelper_HT_Create();
     repeat(i, count); var int i;
         var string npcCode; npcCode = STRINT_SplitGet(i);
@@ -74,13 +74,11 @@ func void _Ninja_MaxXPHelper_DeathAlerts_TriggerAlert(var c_npc cnpc, var string
 const int Ninja_MaxXPHelper_DeathAlerts_Init_Once = 0;
 func void Ninja_MaxXPHelper_DeathAlerts_Init() {
     _Ninja_MaxXPHelper_DeathAlerts_LastSVM = 0;
-    Ninja_MaxXPHelper_HT_DestroyPtr(_Ninja_MaxXPHelper_DeathAlerts_AlertIdToTrackerId_HT);
-    Ninja_MaxXPHelper_HT_DestroyPtr(_Ninja_MaxXPHelper_DeathAlerts_B_MagicHurtNpc_Killed_To_RealKiller_HT);
-    Ninja_MaxXPHelper_HT_DestroyPtr(_Ninja_MaxXPHelper_DeathAlerts_AlertIdToTrackerId_HT);
+    Ninja_MaxXPHelper_HT_Destroy(_Ninja_MaxXPHelper_DeathAlerts_AlertIdToTrackerId_HT);
+    Ninja_MaxXPHelper_HT_Destroy(_Ninja_MaxXPHelper_DeathAlerts_B_MagicHurtNpc_Killed_To_RealKiller_HT);
 
     _Ninja_MaxXPHelper_DeathAlerts_AlertIdToTrackerId_HT = Ninja_MaxXPHelper_HT_Create();
     _Ninja_MaxXPHelper_DeathAlerts_B_MagicHurtNpc_Killed_To_RealKiller_HT = Ninja_MaxXPHelper_HT_Create();
-    _Ninja_MaxXPHelper_DeathAlerts_AlertIdToTrackerId_HT = Ninja_MaxXPHelper_HT_Create();
 
     Ninja_MaxXPHelper_DeathAlerts_InitDeadOnArrivalNPCList();
     if !Ninja_MaxXPHelper_DeathAlerts_Init_Once {
@@ -206,7 +204,7 @@ func void Ninja_MaxXPHelper_ZS_Dead_Hook() {
     var c_npc _other; _other = Hlp_GetNpc (other);
     Ninja_MaxXPHelper_LogInfo(ConcatStrings("ZS_Dead killed ", _self.name));
     Ninja_MaxXPHelper_LogInfo(ConcatStrings("ZS_Dead killer ", _other.name));
-    var int handled; handled = !Ninja_MaxXPHelper_ShowMissedXPOnNPCDeathAlerts;
+    var int handled; handled = !Ninja_MaxXPHelper_ShowDeathAlerts;
     if !handled {
         handled = _Ninja_MaxXPHelper_DeathAlerts_Handler_SkipPlayerDeath(_self);
     };
@@ -235,7 +233,7 @@ func void Ninja_MaxXPHelper_B_KillNpc_Hook(var int npcInstance) {
     if !Ninja_MaxXPHelper_ShouldRunHook() {
         return;
     };
-    var int handled; handled = !Ninja_MaxXPHelper_ShowMissedXPOnNPCDeathAlerts;
+    var int handled; handled = !Ninja_MaxXPHelper_ShowDeathAlerts;
     var c_npc cnpc; cnpc = Hlp_GetNpc(npcInstance);
     Ninja_MaxXPHelper_LogInfo(ConcatStrings("B_KillNpc ", cnpc.name));
     if !handled {
@@ -283,7 +281,7 @@ func void Ninja_MaxXPHelper_B_RemoveNpc_Hook(var int npcInstance) {
     };
     var c_npc cnpc; cnpc = Hlp_GetNpc(npcInstance);
     Ninja_MaxXPHelper_LogInfo(ConcatStrings("B_RemoveNpc: ", cnpc.name));
-    var int handled; handled = !Ninja_MaxXPHelper_ShowMissedXPOnNPCDeathAlerts;
+    var int handled; handled = !Ninja_MaxXPHelper_ShowDeathAlerts;
     if !handled {
         Ninja_MaxXPHelper_LogInfo("_Ninja_MaxXPHelper_DeathAlerts_Handler_SkipPlayerDeath");
         handled = _Ninja_MaxXPHelper_DeathAlerts_Handler_SkipPlayerDeath(cnpc);

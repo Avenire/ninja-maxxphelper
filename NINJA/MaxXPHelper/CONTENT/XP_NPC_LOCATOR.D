@@ -25,7 +25,6 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_NpcToColor(var c_npc npc) {
     };
 };
 
-
 func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int processingNearby) {
     var c_npc cnpc; cnpc = _^(_@(npc));
     if Npc_IsPlayer(cnpc) {
@@ -122,7 +121,6 @@ func void _Ninja_MaxXPHelper_XPNPCLocator_ProcessNearby()
         var oCNPC npc; npc = _^(MEM_ArrayRead(_Ninja_MaxXPHelper_XPNPCLocator_NearbyNPCArray, i));
         if Hlp_IsValidNpc(npc) {
             _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(npc, TRUE);
-            
         };
 	end;
 };
@@ -145,9 +143,7 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_NextGlobalNpc() {
 func void _Ninja_MaxXPHelper_XPNPCLocator_HideHandle(var int trackerKey, var int trackerHandle) {
     Ninja_MaxXPHelper_Trackers_Hide(trackerHandle, TRUE);
 };
-
-func void _Ninja_MaxXPHelper_XPNPCLocator_ReadInput() 
-{
+func void _Ninja_MaxXPHelper_XPNPCLocator_ReadInput() {
     if MEM_KeyState(Ninja_MaxXPHelper_ToggleXPNPCLocatorKeyCode) == KEY_PRESSED {
         _Ninja_MaxXPHelper_XPNPCLocator_Enabled = !_Ninja_MaxXPHelper_XPNPCLocator_Enabled;
         var string msg; msg = Ninja_MaxXPHelper_LOC_LocatorOn;
@@ -160,8 +156,9 @@ func void _Ninja_MaxXPHelper_XPNPCLocator_ReadInput()
             );
         };
         Ninja_MaxXPHelper_TextAlerts_Create(
-            msg, Ninja_MaxXPHelper_SystemAlertDuration, 
-            RGBA(50, 255, 50, 0),
+            msg, 
+            Ninja_MaxXPHelper_SystemAlertDuration, 
+            Ninja_MaxXPHelper_SystemNotificationsColor,
             TRUE
         );
     };    
@@ -200,7 +197,7 @@ func void _Ninja_MaxXPHelper_XPNPCLocator_InitHandlesHT() {
             _Ninja_MaxXPHelper_XPNPCLocator_HandlesHT, 
             _Ninja_MaxXPHelper_XPNPCLocator_ReleaseHandle
         );
-        Ninja_MaxXPHelper_HT_DestroyPtr(_Ninja_MaxXPHelper_XPNPCLocator_HandlesHT);
+        Ninja_MaxXPHelper_HT_Destroy(_Ninja_MaxXPHelper_XPNPCLocator_HandlesHT);
     };
     _Ninja_MaxXPHelper_XPNPCLocator_HandlesHT = Ninja_MaxXPHelper_HT_Create();
 };

@@ -1,16 +1,16 @@
 func void Ninja_MaxXPHelper_Init()
 {
     MEM_InitAll();
-    LeGo_MergeFlags(LeGo_HookEngine | LeGo_PermMem | LeGo_FrameFunctions | LeGo_Interface | LeGo_PrintS | LeGo_Timer);
+    LeGo_MergeFlags(LeGo_HookEngine | LeGo_FrameFunctions | LeGo_Interface | LeGo_PrintS | LeGo_Timer);
     
     const int once = 0;
-    
     if (!once) {
-        Ninja_MaxXPHelper_DeathAlertsSVM = Ninja_MaxXPHelper_GetStrOptOrDefault(
+        // todo: use init menu.
+        Ninja_MaxXPHelper_DeathAlertsSVM = Ninja_MaxXPHelper_GetStrOptOrSetDefault(
             "deathAlertsSVM",
             Ninja_MaxXPHelper_DeathAlertsSVM_Default
         );
-        var string filename; filename = Ninja_MaxXPHelper_GetStrOptOrDefault(
+        var string filename; filename = Ninja_MaxXPHelper_GetStrOptOrSetDefault(
             "deadOnArrivalNPCListPath",
             "system\deadOnArrivalNPCList.txt"
         );
@@ -27,8 +27,8 @@ func void Ninja_MaxXPHelper_Init()
             "considerLevelZeroNPC",
             0 // Skip NPCs like Mud which wouldn't yield any XP in base game anyway.
         );
-        Ninja_MaxXPHelper_ShowMissedXPOnNPCDeathAlerts = Ninja_MaxXPHelper_GetIntOptOrSetDefault(
-            "showMissedXPOnNPCDeathAlerts",
+        Ninja_MaxXPHelper_ShowDeathAlerts = Ninja_MaxXPHelper_GetIntOptOrSetDefault(
+            "showDeathAlerts",
             1
         );
         Ninja_MaxXPHelper_ToggleXPNPCLocatorKeyCode = Ninja_MaxXPHelper_GetKeyCodeOrSetDefault(
@@ -37,6 +37,10 @@ func void Ninja_MaxXPHelper_Init()
         );
         Ninja_MaxXPHelper_ToggleTrackersUseZBufferKeyCode = Ninja_MaxXPHelper_GetKeyCodeOrSetDefault(
             "toggleTrackersUseZBufferKey", 
+            ""
+        );
+        Ninja_MaxXPHelper_ToggleTrackersMaxRenderingLevelKeyCode = Ninja_MaxXPHelper_GetKeyCodeOrSetDefault(
+            "toggleTrackersMaxRenderingLevelKey", 
             ""
         );
         Ninja_MaxXPHelper_TrackersUseZBuffer = Ninja_MaxXPHelper_GetIntOptOrSetDefault(
@@ -59,9 +63,13 @@ func void Ninja_MaxXPHelper_Init()
             "deathAlertTextDurationInMillis",
             Ninja_MaxXPHelper_DeathAlertTextDurationInMillis
         );
-        Ninja_MaxXPHelper_DeathAlertsFailColor = Ninja_MaxXPHelper_GetColorOptOrDefault(
+        Ninja_MaxXPHelper_DeathAlertsFailColor = Ninja_MaxXPHelper_GetRGBColorOptOrSetDefault(
             "deathAlertsFailColor",
-            RGBA(255, 50, 50, 0)
+            RGBA(255, 50, 50, 255)
+        );
+        Ninja_MaxXPHelper_SystemNotificationsColor = Ninja_MaxXPHelper_GetRGBColorOptOrSetDefault(
+            "systemNotificationsColor",
+            RGBA(50, 255, 50, 255)
         );
         // todo: expose as OPTS?
         Ninja_MaxXPHelper_IconSize = mkf(Ninja_MaxXPHelper_IconSize);
