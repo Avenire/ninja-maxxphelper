@@ -169,7 +169,7 @@ func void _Ninja_MaxXPHelper_XPNPCLocator_RefreshLoop() {
     if _Ninja_MaxXPHelper_XPNPCLocator_Enabled {
         var int processed; processed = 0;
         _Ninja_MaxXPHelper_XPNPCLocator_ProcessNearby();
-        while (_Ninja_MaxXPHelper_XPNPCLocator_Enabled && !Timer_IsPaused());
+        while (TRUE);
             var int npcPtr; npcPtr = _Ninja_MaxXPHelper_XPNPCLocator_NextGlobalNpc();
             if !npcPtr {
                 _Ninja_MaxXPHelper_XPNPCLocator_NPCFullPassCycle = _Ninja_MaxXPHelper_XPNPCLocator_NPCFullPassCycle + 1;
