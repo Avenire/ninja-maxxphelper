@@ -11,6 +11,7 @@ content\text_alerts.d
 content\tracker_sprite.d
 content\trackers.d
 content\localization.d
+content\thief_scanner_dummy.d
 content\xp_npc_locator.d
 content\death_alerts.d
 content\init.d

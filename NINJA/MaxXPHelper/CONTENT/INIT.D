@@ -31,15 +31,15 @@ func void Ninja_MaxXPHelper_Init()
             "showDeathAlerts",
             1
         );
-        Ninja_MaxXPHelper_ToggleXPNPCLocatorKeyCode = Ninja_MaxXPHelper_GetKeyCodeOrSetDefault(
+        Ninja_MaxXPHelper_ToggleXPNPCLocatorKeyCode = Ninja_MaxXPHelper_GetKeyCodeOptOrSetDefault(
             "toggleXPNPCLocatorKey", 
             "KEY_V"
         );
-        Ninja_MaxXPHelper_ToggleTrackersUseZBufferKeyCode = Ninja_MaxXPHelper_GetKeyCodeOrSetDefault(
+        Ninja_MaxXPHelper_ToggleTrackersUseZBufferKeyCode = Ninja_MaxXPHelper_GetKeyCodeOptOrSetDefault(
             "toggleTrackersUseZBufferKey", 
             ""
         );
-        Ninja_MaxXPHelper_ToggleTrackersMaxRenderingLevelKeyCode = Ninja_MaxXPHelper_GetKeyCodeOrSetDefault(
+        Ninja_MaxXPHelper_ToggleTrackersMaxRenderingLevelKeyCode = Ninja_MaxXPHelper_GetKeyCodeOptOrSetDefault(
             "toggleTrackersMaxRenderingLevelKey", 
             ""
         );
@@ -71,6 +71,14 @@ func void Ninja_MaxXPHelper_Init()
             "systemNotificationsColor",
             RGBA(50, 255, 50, 255)
         );
+        Ninja_MaxXPHelper_PickpocketAlertsWarningColor = Ninja_MaxXPHelper_GetRGBColorOptOrSetDefault(
+            "pickpocketAlertsWarningColor",
+            RGBA(255, 95, 21, 255)
+        );
+        Ninja_MaxXPHelper_ConsiderPickpocketing = Ninja_MaxXPHelper_GetIntOptOrSetDefault(
+            "considerPickpocketing",
+            GOTHIC_BASE_VERSION == 2
+        );
         // todo: expose as OPTS?
         Ninja_MaxXPHelper_IconSize = mkf(Ninja_MaxXPHelper_IconSize);
         Ninja_MaxXPHelper_MinIconSize = mkf(Ninja_MaxXPHelper_MinIconSize);
@@ -81,6 +89,7 @@ func void Ninja_MaxXPHelper_Init()
     Ninja_MaxXPHelper_Localization_Init();
     Ninja_MaxXPHelper_TextAlerts_Init();
     Ninja_MaxXPHelper_Trackers_Init();
+    Ninja_MaxXPHelper_ThiefScanner_Init();
     Ninja_MaxXPHelper_DeathAlerts_Init();
     Ninja_MaxXPHelper_XPNPCLocator_Init();
 };

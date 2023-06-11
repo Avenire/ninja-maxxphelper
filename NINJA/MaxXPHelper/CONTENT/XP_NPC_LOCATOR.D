@@ -37,14 +37,29 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int proce
     
     var int trackerKey; trackerKey = _@(npc);
     var int trackerHandle; trackerHandle = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_XPNPCLocator_HandlesHT, trackerKey);
-    if  Npc_IsDead(cnpc) ||
+    if  Npc_IsDead(cnpc) {
+        Ninja_MaxXPHelper_Trackers_Hide(trackerHandle, FALSE);
+        return FALSE;
+    };
+    var string texture; texture = _Ninja_MaxXPHelper_XPNPCLocator_NpcToTexture(cnpc);
+    var int color; color = _Ninja_MaxXPHelper_XPNPCLocator_NpcToColor(cnpc);
+    if Ninja_MaxXPHelper_ConsiderPickpocketing && Ninja_MaxXPHelper_ThiefScanner_CanPickpocketNpc(cnpc) {
+        texture = "MAXXPHELPER_PICKPOCKET.tga";
+        var int enoughDex; enoughDex = Ninja_MaxXPHelper_ThiefScanner_EnoughDexToPickpocket(cnpc);
+        if enoughDex == Ninja_MaxXPHelper_ThiefScanner_Unknown {
+            color = COL_Blue;
+        } else if enoughDex == Ninja_MaxXPHelper_ThiefScanner_SeemsEnough {
+            color = COL_Green;
+        } else {
+            color = COL_RED;
+        };
+    } else if 
         (cnpc.flags & NPC_FLAG_IMMORTAL) || 
         (!Ninja_MaxXPHelper_ConsiderG1DoubleXPGlitch && Ninja_MaxXPHelper_VictoryXPReceived(cnpc)) ||
         (!Ninja_MaxXPHelper_ConsiderLevelZeroNPC && cnpc.level <= 0) {
         Ninja_MaxXPHelper_Trackers_Hide(trackerHandle, FALSE);
         return FALSE;
     };
-    var int color; color = _Ninja_MaxXPHelper_XPNPCLocator_NpcToColor(cnpc);
     if !Ninja_MaxXPHelper_IsNpcSpawned(npc) {
         // todo: do all of this once per NPC?
         if !Ninja_MaxXPHelper_CanNpcSpawn(npc) {
@@ -97,8 +112,7 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int proce
         z, 
         color, 
         priority,
-        _Ninja_MaxXPHelper_XPNPCLocator_NpcToTexture(cnpc),
-        Ninja_MaxXPHelper_IconSize
+        texture
     );
     if Ninja_MaxXPHelper_TrackersUseZBuffer {
         Ninja_MaxXPHelper_Trackers_SetZBufferBias(
@@ -115,12 +129,25 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int proce
 
 func void _Ninja_MaxXPHelper_XPNPCLocator_ProcessNearby() 
 {
-    MEM_ArrayClear(_Ninja_MaxXPHelper_XPNPCLocator_NearbyNPCArray);
-    Ninja_MaxXPHelper_oCNPCSearchVobList(_Ninja_MaxXPHelper_XPNPCLocator_NearbyNPCArray);
-	repeat(i, MEM_ArraySize(_Ninja_MaxXPHelper_XPNPCLocator_NearbyNPCArray)); var int i;
-        var oCNPC npc; npc = _^(MEM_ArrayRead(_Ninja_MaxXPHelper_XPNPCLocator_NearbyNPCArray, i));
+    var int idx;
+    var int size;
+    var int processed; processed = 0;
+    if idx == size {
+        MEM_ArrayClear(_Ninja_MaxXPHelper_XPNPCLocator_NearbyNPCArray);
+        Ninja_MaxXPHelper_oCNPCSearchVobList(_Ninja_MaxXPHelper_XPNPCLocator_NearbyNPCArray);
+        size = MEM_ArraySize(_Ninja_MaxXPHelper_XPNPCLocator_NearbyNPCArray);
+        idx = 0;
+    };
+    
+	while (idx < size);
+        var oCNPC npc; npc = _^(MEM_ArrayRead(_Ninja_MaxXPHelper_XPNPCLocator_NearbyNPCArray, idx));
         if Hlp_IsValidNpc(npc) {
             _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(npc, TRUE);
+            processed = processed + 1;
+        };
+        idx = idx + 1;
+        if processed > Ninja_MaxXPHelper_XPNPCLocator_MaxNPCToProcessEachFrameBeforeYield {
+            break;
         };
 	end;
 };

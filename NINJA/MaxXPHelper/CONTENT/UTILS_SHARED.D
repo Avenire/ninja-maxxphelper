@@ -2,65 +2,6 @@ func void Ninja_MaxXPHelper_LogInfo(var string message) {
     MEM_Info(ConcatStrings("MaxXPHelper: " , message));
 };
 
-func int Ninja_MaxXPHelper_GetKeyCodeOrSetDefault(var string optionKey, var string defaultKeyName) {
-    var int keyCode; keyCode = 0;
-    var zCPar_Symbol symb;
-    if MEM_GothOptExists(Ninja_MaxXPHelper_SectionName, optionKey) {
-        var string configuredKey; configuredKey = MEM_GetGothOpt(Ninja_MaxXPHelper_SectionName, optionKey);
-        var int symbolPtr; symbolPtr = MEM_GetSymbol(configuredKey);
-        if symbolPtr {
-            symb = _^(symbolPtr);
-            if symb.content && 
-                (
-                    (symb.content >= KEY_ESCAPE && symb.content <= KEY_MEDIASELECT) ||
-                    (symb.content >= MOUSE_BUTTONLEFT && symb.content <= MOUSE_XBUTTON5)
-                ) {
-                keyCode = symb.content;
-            };
-        };  
-    };
-    if !keyCode {
-        if STR_Len(defaultKeyName) {
-            symb = _^(MEM_GetSymbol(defaultKeyName));
-            keyCode = symb.content;
-        };
-        MEM_SetGothOpt(Ninja_MaxXPHelper_SectionName, optionKey, defaultKeyName);
-    };
-    if keyCode {
-        MEM_SetKey(ConcatStrings(Ninja_MaxXPHelper_SectionName, optionKey), keyCode);
-    };
-    return keyCode;
-};
-
-func void Ninja_MaxXPHelper_SetIntOpt(var string optionKey, var int value) {
-    MEM_SetGothOpt(Ninja_MaxXPHelper_SectionName, optionKey, IntToString(value));
-};
-
-func int Ninja_MaxXPHelper_GetIntOptOrSetDefault(var string optionKey, var int defaultValue) {
-    var int value; value = defaultValue;
-    if MEM_GothOptExists(Ninja_MaxXPHelper_SectionName, optionKey) {
-        value = STR_ToInt(
-            MEM_GetGothOpt(
-                Ninja_MaxXPHelper_SectionName, 
-                optionKey
-            )
-        );
-    } else {
-        Ninja_MaxXPHelper_SetIntOpt(optionKey, value);
-    };
-    return value;
-};
-
-func string Ninja_MaxXPHelper_GetStrOptOrSetDefault(var string optionKey, var string defaultValue) {
-    if MEM_GothOptExists(Ninja_MaxXPHelper_SectionName, optionKey) {
-        defaultValue = MEM_GetGothOpt(Ninja_MaxXPHelper_SectionName, optionKey);
-    } else {
-        MEM_SetGothOpt(Ninja_MaxXPHelper_SectionName, optionKey, defaultValue);
-        MEM_ApplyGothOpt();
-    };
-    return defaultValue;
-};
-
 func void Ninja_MaxXPHelper_PrintBinary(var int bitfield) {
     repeat(i, 32); var int i;
         if (bitfield & (1 << i)) {
@@ -98,56 +39,6 @@ func void Ninja_MaxXPHelper_oCNPCDebug(var oCNPC npc, var string prefix) {
         SB_Destroy();
 };
 
-func string Ninja_MaxXPHelper_ReadFileOrSetDefault(var string filename, var string default) {
-    
-    var string value; value = default;
-    if BR_OpenFile(filename)
-    { 
-        value = BR_TextLine();
-        BR_Close();           
-    } else if BW_NewFile(filename) 
-    { 
-        BW_Text(default);
-        BW_NextLine();
-        BW_Close();
-    };
-    return value;
-};
-
-func int Ninja_MaxXPHelper_GetRGBColorOptOrSetDefault(var string optionKey, var int defaultValue) {
-    if MEM_GothOptExists(Ninja_MaxXPHelper_SectionName, optionKey) {
-        var string colorHex; colorHex = MEM_GetGothOpt(Ninja_MaxXPHelper_SectionName, optionKey);
-        var int colorHexLen; colorHexLen = STR_Len(colorHex);        
-        // #RRGGBB is 7 chars
-        if  colorHexLen == 7 && 
-            STR_GetCharAt(colorHex, 0) == STR_ToChar("#") {
-            SB("#");
-            SB(IntToString(STR_GetCharAt(colorHex, 1)));
-            SB(" ");
-            SB(
-                IntToString(MEMINT_HexCharToInt(STR_GetCharAt(colorHex, 1)))
-            );
-            SB_Clear();
-            SB_Destroy();
-            return RGBA(
-                MEMINT_HexCharToInt(STR_GetCharAt(colorHex, 1)) << 4 | MEMINT_HexCharToInt(STR_GetCharAt(colorHex, 2)),
-                MEMINT_HexCharToInt(STR_GetCharAt(colorHex, 3)) << 4 | MEMINT_HexCharToInt(STR_GetCharAt(colorHex, 4)),
-                MEMINT_HexCharToInt(STR_GetCharAt(colorHex, 5)) << 4 | MEMINT_HexCharToInt(STR_GetCharAt(colorHex, 6)),
-                Ninja_MaxXPHelper_ColorMaxInt
-            );
-        };
-    };
-    var int s; s = SB_New();
-    SB("#");
-    SB(MEMINT_ByteToKeyHex(defaultValue>>16));
-    SB(MEMINT_ByteToKeyHex(defaultValue>>8));
-    SB(MEMINT_ByteToKeyHex(defaultValue));
-    MEM_SetGothOpt(Ninja_MaxXPHelper_SectionName, optionKey, SB_ToString());
-    SB_Clear();
-    SB_Destroy();
-    return ChangeAlpha(defaultValue, Ninja_MaxXPHelper_ColorMaxInt);
-};
-
 func int Ninja_MaxXPHelper_ShouldRunHook() {
     return !(
         !Hlp_IsValidNpc(hero) ||
@@ -155,6 +46,18 @@ func int Ninja_MaxXPHelper_ShouldRunHook() {
         MEM_Game.pause_screen ||
         Timer_IsPaused()
     );
+};
+
+func int Ninja_MaxXPHelper_EndsWith(var string str, var string suffix) {
+    if STR_Len(str) < STR_Len(suffix) { return FALSE; };
+    return STR_Compare(
+        STR_SubStr(str, STR_Len(str) - STR_Len(suffix), STR_Len(suffix)),
+        suffix
+    ) == STR_EQUAL;
+};
+
+func int Ninja_MaxXPHelper_IsNpcPickpocketable(var C_NPC npc) {
+    return GOTHIC_BASE_VERSION == 2; // placeholder
 };
 
 func int Ninja_MaxXPHelper_IsNpcSpawned(var oCNPC npc) {
@@ -199,4 +102,24 @@ func void Ninja_MaxXPHelper_HT_ForEach(var int ptr, var func onEachFunc) {
 func void Ninja_MaxXPHelper_HT_Destroy(var int htPtr) {
     if !htPtr { return; };
     _HT_Destroy(htPtr);
+};
+
+func int Ninja_MaxXPHelper_HT_Has(var int htPtr, var int key) {
+    return _HT_Has(htPtr, key);
+};
+
+func void Ninja_MaxXPHelper_HT_InsertOrChange(var int ptr, var int key, var int value) {
+    _HT_InsertOrChange(ptr, value, key);
+};
+
+func void Ninja_MaxXPHelper_HT_ClearAndCreate(var int htPtr, var int foreachFuncPtrMaybe) {
+    if !htPtr { return; };
+    var int ptr; ptr = MEM_ReadInt(htPtr);
+    if ptr {
+        if foreachFuncPtrMaybe {
+            //Ninja_MaxXPHelper_HT_ForEach(htPtr, foreachFuncPtrMaybe);
+        };
+        Ninja_MaxXPHelper_HT_Destroy(ptr);
+    };
+    MEM_WriteInt(htPtr, Ninja_MaxXPHelper_HT_Create());
 };
