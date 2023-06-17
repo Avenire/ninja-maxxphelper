@@ -117,15 +117,15 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int proce
         Ninja_MaxXPHelper_Trackers_GetHeroDistanceBasedPriority(x, y, z);
         priority = Ninja_MaxXPHelper_Trackers_DistancePriority_Result[1];
     };
-    Ninja_MaxXPHelper_Trackers_Show(
-        trackerHandle, 
-        x, 
-        y,
-        z, 
-        color, 
-        priority,
-        texture
-    );
+     Ninja_MaxXPHelper_Trackers_Show(
+            trackerHandle, 
+            x, 
+            y,
+            z, 
+            color, 
+            priority,
+            texture
+        );
     if Ninja_MaxXPHelper_TrackersUseZBuffer {
         Ninja_MaxXPHelper_Trackers_SetZBufferBias(
             trackerHandle, 
@@ -160,21 +160,6 @@ func void _Ninja_MaxXPHelper_XPNPCLocator_ProcessNearbyNPCs()
 	end;
 };
 
-func int _Ninja_MaxXPHelper_XPNPCLocator_NextGlobalNpc() {
-    if !_Ninja_MaxXPHelper_XPNPCLocator_NextGlobalNpcPtr {
-        _Ninja_MaxXPHelper_XPNPCLocator_NextGlobalNpcPtr = MEM_World.voblist_npcs;
-    };
-    var int listPtr; listPtr = _Ninja_MaxXPHelper_XPNPCLocator_NextGlobalNpcPtr;
-    var zCListSort list;
-    if !listPtr {
-        return 0;
-    };
-    list = _^ (listPtr);
-    listPtr = list.next;
-    _Ninja_MaxXPHelper_XPNPCLocator_NextGlobalNpcPtr = listPtr;
-    return list.data;
-};
-
 func void _Ninja_MaxXPHelper_XPNPCLocator_HideHandle(var int trackerKey, var int trackerHandle) {
     Ninja_MaxXPHelper_Trackers_Hide(trackerHandle, TRUE);
 };
@@ -202,10 +187,9 @@ func void _Ninja_MaxXPHelper_XPNPCLocator_ReadInput() {
 func void _Ninja_MaxXPHelper_XPNPCLocator_ProcessGlobalNPCs() {
     var int processed; processed = 0;
     while (TRUE);
-        var int npcPtr; npcPtr = _Ninja_MaxXPHelper_XPNPCLocator_NextGlobalNpc();
+        var int npcPtr; npcPtr = _Ninja_MaxXPHelper_zCListSort_Cycle(_@(_Ninja_MaxXPHelper_ThiefScanner_NextGlobalNpcPtr), MEM_World.voblist_npcs);
         if !npcPtr {
             _Ninja_MaxXPHelper_XPNPCLocator_NPCFullPassCycle = _Ninja_MaxXPHelper_XPNPCLocator_NPCFullPassCycle + 1;
-            break;
         };
         var oCNPC npc; npc = _^(npcPtr);
         if Hlp_IsValidNpc(npc) {

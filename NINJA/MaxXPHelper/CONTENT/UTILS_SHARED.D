@@ -69,6 +69,22 @@ func int Ninja_MaxXPHelper_IsNpcSpawned(var oCNPC npc) {
     );
 };
 
+func int _Ninja_MaxXPHelper_zCListSort_Cycle(var int zCListSort_currentPtr_Ptr, var int zCListSort_rootPtr) {
+    var int ptr; ptr = MEM_ReadInt(zCListSort_currentPtr_Ptr);
+    if !ptr {
+        MEM_WriteInt(zCListSort_currentPtr_Ptr, zCListSort_rootPtr);
+    };
+    var int listPtr; listPtr = ptr;
+    var zCListSort list;
+    if !listPtr {
+        return 0;
+    };
+    list = _^ (listPtr);
+    listPtr = list.next;
+    MEM_WriteInt(zCListSort_currentPtr_Ptr, listPtr);
+    return list.data;
+};
+
 func int Ninja_MaxXPHelper_CanNpcSpawn(var oCNPC npc) {
     return npc.bitfield[0] & oCNpc_bitfield0_spawnInRange;        
 };
