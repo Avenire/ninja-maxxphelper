@@ -5,6 +5,7 @@ const int Ninja_MaxXPHelper_XPNPCLocator_MaxNPCToProcessEachFrameBeforeYield = 5
 const int _Ninja_MaxXPHelper_XPNPCLocator_NextGlobalNpcPtr = 0;
 const int _Ninja_MaxXPHelper_XPNPCLocator_NPCFullPassCycle = 0;
 const int _Ninja_MaxXPHelper_XPNPCLocator_NPCToCycle_HT = 0;
+const int _Ninja_MaxXPHelper_XPNPCLocator_NPCToAlternativeTrackerLocation_HT = 0;
 
 
 func string _Ninja_MaxXPHelper_XPNPCLocator_NpcToTexture(var c_npc npc) {
@@ -27,15 +28,80 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_NpcToColor(var c_npc npc) {
     };
 };
 
+const int _Ninja_MaxXPHelper_XPNPCLocator_TryGetLocation_Result[3] = {0,0,0}; 
+func int _Ninja_MaxXPHelper_XPNPCLocator_TryGetLocation(var oCNPC npc) {
+    const int empty[3] = {0,0,0};
+    var int x; x = 0; 
+    var int y; y = 0; 
+    var int z; z = 0;
+    if !Ninja_MaxXPHelper_IsNpcSpawned(npc) {
+        // todo: do all of this once per NPC?
+        if !Ninja_MaxXPHelper_CanNpcSpawn(npc) {
+            return FALSE;
+        };
+        var int altLocationPtr; altLocationPtr = Ninja_MaxXPHelper_HT_Get(
+            _Ninja_MaxXPHelper_XPNPCLocator_NPCToAlternativeTrackerLocation_HT,
+            _@(npc)
+        );
+        if altLocationPtr {
+            if altLocationPtr == _@(empty) { return FALSE; };
+            x = MEM_ReadInt(altLocationPtr);
+            y = MEM_ReadInt(altLocationPtr + 4);
+            z = MEM_ReadInt(altLocationPtr + 8);
+        } else {
+            // Some NPCs in G2 seem to have incorrect waypoint set (lizard in NW_CITY_HARBOUR_01)
+            // so need to check spawn position first
+            var int i; i = 0;
+            while (i < MEM_SpawnManager.spawnList_numInArray);
+                var oTSpawnNode node; node = _^(MEM_ArrayRead(_@(MEM_SpawnManager), i));
+                if node.npc == _@(npc) {
+                    x = node.spawnPos[0];
+                    y = node.spawnPos[1];
+                    z = node.spawnPos[2];
+                    Ninja_MaxXPHelper_HT_InsertOrChange(_Ninja_MaxXPHelper_XPNPCLocator_NPCToAlternativeTrackerLocation_HT, _@(npc), _@(node.spawnPos));
+                    break;
+                };
+                i = i + 1;
+            end;
+            // This can however still be world origin (0,0,0) so if that's the case then fallback to WP location...
+            if x == FLOATNULL && y == FLOATNULL && z == FLOATNULL {
+                var int waypointPointer; waypointPointer = Ninja_MaxXPHelper_GetWaypointByName(npc.wpname);
+                if waypointPointer {
+                    var zCWaypoint wp; wp = _^(waypointPointer);
+                    x = wp.pos[0];
+                    y = wp.pos[1];
+                    z = wp.pos[2];
+                    Ninja_MaxXPHelper_HT_InsertOrChange(_Ninja_MaxXPHelper_XPNPCLocator_NPCToAlternativeTrackerLocation_HT, _@(npc), _@(wp.pos));
+                };
+            };
+            if x == FLOATNULL && y == FLOATNULL && z == FLOATNULL {
+                Ninja_MaxXPHelper_HT_InsertOrChange(_Ninja_MaxXPHelper_XPNPCLocator_NPCToAlternativeTrackerLocation_HT, _@(npc), _@(empty));
+                return FALSE;
+            };
+        };
+    } else {
+        x = npc._zCVob_trafoObjToWorld[zCVob_trafoObjToWorld_X];
+        y = npc._zCVob_trafoObjToWorld[zCVob_trafoObjToWorld_Y];
+        z = npc._zCVob_trafoObjToWorld[zCVob_trafoObjToWorld_Z];
+    };
+    if x == FLOATNULL && y == FLOATNULL && z == FLOATNULL {
+        return FALSE;
+    };
+    _Ninja_MaxXPHelper_XPNPCLocator_TryGetLocation_Result[0] = x;
+    _Ninja_MaxXPHelper_XPNPCLocator_TryGetLocation_Result[1] = y;
+    _Ninja_MaxXPHelper_XPNPCLocator_TryGetLocation_Result[2] = z;
+    return TRUE;
+};
+
 func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int processingNearby) {
     var c_npc cnpc; cnpc = _^(_@(npc));
     if Npc_IsPlayer(cnpc) {
         return FALSE;
     };
 
-    var int x; x = npc._zCVob_trafoObjToWorld[zCVob_trafoObjToWorld_X];
-    var int y; y = npc._zCVob_trafoObjToWorld[zCVob_trafoObjToWorld_Y];
-    var int z; z = npc._zCVob_trafoObjToWorld[zCVob_trafoObjToWorld_Z];
+    var int x; x = 0; 
+    var int y; y = 0; 
+    var int z; z = 0;
     
     var int trackerKey; trackerKey = _@(npc);
     var int trackerHandle; trackerHandle = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_XPNPCLocator_HandlesHT, trackerKey);
@@ -44,7 +110,7 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int proce
         return FALSE;
     };
     if !processingNearby && 
-        Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_XPNPCLocator_NPCToCycle_HT, trackerKey) == _Ninja_MaxXPHelper_XPNPCLocator_NPCFullPassCycle + 1{
+        Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_XPNPCLocator_NPCToCycle_HT, trackerKey) == _Ninja_MaxXPHelper_XPNPCLocator_NPCFullPassCycle + 1 {
         return FALSE;
     };
     Ninja_MaxXPHelper_HT_InsertOrChange(
@@ -72,41 +138,13 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int proce
         Ninja_MaxXPHelper_Trackers_Hide(trackerHandle, FALSE);
         return FALSE;
     };
-    if !Ninja_MaxXPHelper_IsNpcSpawned(npc) {
-        // todo: do all of this once per NPC?
-        if !Ninja_MaxXPHelper_CanNpcSpawn(npc) {
-            return FALSE;
-        };
-        // Some NPCs in G2 seem to have incorrect waypoint set (lizard in NW_CITY_HARBOUR_01)
-        // so need to check spawn position first
-        var int spawnNodeListCnt; spawnNodeListCnt = MEM_SpawnManager.spawnList_numInArray;
-        repeat(i, spawnNodeListCnt); var int i;
-            var oTSpawnNode node; node = _^(MEM_ArrayRead(_@(MEM_SpawnManager), i));
-            if node.npc == _@(npc) {
-                x = node.spawnPos[0];
-                y = node.spawnPos[1];
-                z = node.spawnPos[2];
-                break;
-            };
-        end;
-        // This can however still be world origin (0,0,0) so if that's the case then fallback to WP location...
-        if x == FLOATNULL && y == FLOATNULL && z == FLOATNULL {
-            var int waypointPointer; waypointPointer = Ninja_MaxXPHelper_GetWaypointByName(npc.wpname);
-            if waypointPointer {
-                var zCWaypoint wp; wp = _^(waypointPointer);
-                x = wp.pos[0];
-                y = wp.pos[1];
-                z = wp.pos[2];
-            };
-        } else {
-            //Ninja_MaxXPHelper_oCNPCDebug(npc, "[spwn]");
-        };
-        if x == FLOATNULL && y == FLOATNULL && z == FLOATNULL {
-            //Ninja_MaxXPHelper_oCNPCDebug(npc, "[skip]");
-            return FALSE;
-        };
-    };
 
+    if !_Ninja_MaxXPHelper_XPNPCLocator_TryGetLocation(npc) {
+        return FALSE;
+    };
+    x = _Ninja_MaxXPHelper_XPNPCLocator_TryGetLocation_Result[0];
+    y = _Ninja_MaxXPHelper_XPNPCLocator_TryGetLocation_Result[1];
+    z = _Ninja_MaxXPHelper_XPNPCLocator_TryGetLocation_Result[2];
     if !trackerHandle {
         trackerHandle = Ninja_MaxXPHelper_Trackers_Create();
         Ninja_MaxXPHelper_HT_Insert(_Ninja_MaxXPHelper_XPNPCLocator_HandlesHT, trackerHandle, trackerKey);
@@ -118,14 +156,14 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int proce
         priority = Ninja_MaxXPHelper_Trackers_DistancePriority_Result[1];
     };
      Ninja_MaxXPHelper_Trackers_Show(
-            trackerHandle, 
-            x, 
-            y,
-            z, 
-            color, 
-            priority,
-            texture
-        );
+        trackerHandle, 
+        x, 
+        y,
+        z, 
+        color, 
+        priority,
+        texture
+    );
     if Ninja_MaxXPHelper_TrackersUseZBuffer {
         Ninja_MaxXPHelper_Trackers_SetZBufferBias(
             trackerHandle, 
@@ -140,13 +178,12 @@ func void _Ninja_MaxXPHelper_XPNPCLocator_ProcessNearbyNPCs()
     var int idx;
     var int size;
     var int processed; processed = 0;
-    if idx == size {
+    size = MEM_ArraySize(_Ninja_MaxXPHelper_XPNPCLocator_NearbyNPCArray);
+    if idx >= size {
         MEM_ArrayClear(_Ninja_MaxXPHelper_XPNPCLocator_NearbyNPCArray);
         Ninja_MaxXPHelper_oCNPCSearchVobList(_Ninja_MaxXPHelper_XPNPCLocator_NearbyNPCArray);
-        size = MEM_ArraySize(_Ninja_MaxXPHelper_XPNPCLocator_NearbyNPCArray);
         idx = 0;
     };
-    
 	while (idx < size);
         var oCNPC npc; npc = _^(MEM_ArrayRead(_Ninja_MaxXPHelper_XPNPCLocator_NearbyNPCArray, idx));
         if Hlp_IsValidNpc(npc) {
@@ -235,6 +272,7 @@ func void _Ninja_MaxXPHelper_XPNPCLocator_InitNearbyNPCArray() {
 
 func void Ninja_MaxXPHelper_XPNPCLocator_Init() {
     Ninja_MaxXPHelper_HT_ClearAndCreate(_@(_Ninja_MaxXPHelper_XPNPCLocator_NPCToCycle_HT), 0);
+    Ninja_MaxXPHelper_HT_ClearAndCreate(_@(_Ninja_MaxXPHelper_XPNPCLocator_NPCToAlternativeTrackerLocation_HT), 0);
     _Ninja_MaxXPHelper_XPNPCLocator_Enabled = FALSE;
     _Ninja_MaxXPHelper_XPNPCLocator_NPCFullPassCycle = 0;
     _Ninja_MaxXPHelper_XPNPCLocator_NextGlobalNpcPtr = MEM_World.voblist_npcs;
