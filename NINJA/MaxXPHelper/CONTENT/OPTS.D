@@ -24,6 +24,13 @@ const int Ninja_MaxXPHelper_PickpocketSeemsEnoughDexColor = 0;
 const int Ninja_MaxXPHelper_PickpocketSeemsNotEnoughDexColor = 0;
 const int Ninja_MaxXPHelper_PickpocketIndeterminableColor = 0;
 
+const int Ninja_MaxXPHelper_XPNPCLocatorHostileColor = 0;
+const int Ninja_MaxXPHelper_XPNPCLocatorNonHostileColor = 0;
+
+const int Ninja_MaxXPHelper_IconSize = 0;
+
+const int Ninja_MaxXPHelper_SystemAlertDurationInMillis = 0;
+
 
 func int Ninja_MaxXPHelper_GetKeyCodeOptOrSetDefault(var string optionKey, var string defaultKeyName) {
     var int keyCode; keyCode = 0;
@@ -120,12 +127,10 @@ func int Ninja_MaxXPHelper_GetRGBColorOptOrSetDefault(var string optionKey, var 
 
 func string Ninja_MaxXPHelper_ReadFileOrSetDefault(var string filename, var string default) {
     var string value; value = default;
-    if BR_OpenFile(filename)
-    { 
+    if BR_OpenFile(filename) { 
         value = BR_TextLine();
         BR_Close();           
-    } else if BW_NewFile(filename) 
-    { 
+    } else if BW_NewFile(filename) { 
         BW_Text(default);
         BW_NextLine();
         BW_Close();

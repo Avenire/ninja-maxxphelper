@@ -118,7 +118,7 @@ func void _Ninja_MaxXPHelper_Trackers_HandleToggleUseZBuffer() {
         };
         Ninja_MaxXPHelper_TextAlerts_Create(
             msg, 
-            Ninja_MaxXPHelper_SystemAlertDuration, 
+            Ninja_MaxXPHelper_SystemAlertDurationInMillis, 
             Ninja_MaxXPHelper_SystemNotificationsColor,
             TRUE
         );
@@ -134,7 +134,7 @@ func void _Ninja_MaxXPHelper_Trackers_HandleToggleMaxRenderingLevel() {
         };
         Ninja_MaxXPHelper_TextAlerts_Create(
             msg, 
-            Ninja_MaxXPHelper_SystemAlertDuration, 
+            Ninja_MaxXPHelper_SystemAlertDurationInMillis, 
             Ninja_MaxXPHelper_SystemNotificationsColor,
             TRUE
         );

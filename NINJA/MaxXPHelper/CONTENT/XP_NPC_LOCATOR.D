@@ -22,9 +22,9 @@ func string _Ninja_MaxXPHelper_XPNPCLocator_NpcToTexture(var c_npc npc) {
 func int _Ninja_MaxXPHelper_XPNPCLocator_NpcToColor(var c_npc npc) {
     var int att; att = Npc_GetPermAttitude(hero, npc);
     if att != ATT_HOSTILE { 
-        return COL_WHITE; 
+        return Ninja_MaxXPHelper_XPNPCLocatorNonHostileColor; 
     } else { 
-        return COL_RED; 
+        return Ninja_MaxXPHelper_XPNPCLocatorHostileColor; 
     };
 };
 
@@ -155,7 +155,7 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int proce
         Ninja_MaxXPHelper_Trackers_GetHeroDistanceBasedPriority(x, y, z);
         priority = Ninja_MaxXPHelper_Trackers_DistancePriority_Result[1];
     };
-     Ninja_MaxXPHelper_Trackers_Show(
+    Ninja_MaxXPHelper_Trackers_Show(
         trackerHandle, 
         x, 
         y,
@@ -207,14 +207,14 @@ func void _Ninja_MaxXPHelper_XPNPCLocator_ReadInput() {
         if !_Ninja_MaxXPHelper_XPNPCLocator_Enabled {
             msg = Ninja_MaxXPHelper_LOC_LocatorOff;
             _Ninja_MaxXPHelper_XPNPCLocator_NPCFullPassCycle = 0;
-           Ninja_MaxXPHelper_HT_ForEach(
+            Ninja_MaxXPHelper_HT_ForEach(
                 _Ninja_MaxXPHelper_XPNPCLocator_HandlesHT, 
                 _Ninja_MaxXPHelper_XPNPCLocator_HideHandle
             );
         };
         Ninja_MaxXPHelper_TextAlerts_Create(
             msg, 
-            Ninja_MaxXPHelper_SystemAlertDuration, 
+            Ninja_MaxXPHelper_SystemAlertDurationInMillis, 
             Ninja_MaxXPHelper_SystemNotificationsColor,
             TRUE
         );

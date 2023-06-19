@@ -194,7 +194,7 @@ func int _Ninja_MaxXPHelper_TrackerSprite_UpdateSprite(
         yfcenter, 
         zfcenter, 
         iconSize, 
-        Ninja_MaxXPHelper_MinIconSize,
+        mkf(5),
         zBufferBias
     ) {
         return FALSE;
