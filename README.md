@@ -20,21 +20,21 @@ Shows a text alert when NPC dies and hero misses out XP ([showcase video](https:
     - [`considerG1DoubleXPGlitch=1` only] Player or party member killed NPC without beating them up first;
     - [`considerLevelZeroNPC=0`] Level 0 NPCs are ignored;
 
-In addition fail tracker can be displayed at the position of the NPC (`showTrackerOnDeathAlert=1`).
+In addition fail tracker can be displayed at the position of the NPC which trigger the alert (`showTrackerOnDeathAlert=1`).
 
+
+Enabled with `considerPickpocketing=1`, implemented only for Gothic 2.
 ### Future enhancements ideas
 - inverse mode for `considerG1DoubleXPGlitch` that is - warn player if they receive double XP and they don't want to
 
 # XP NPC Locator: 
+**Usage**: press a key configured by `toggleXPNPCLocatorKey` ini option (by default `V`) to toggle rendering on and off.
+
 Draws trackers at position of NPCs which hero can still beat up to gain more XP ([showcase video](https://youtu.be/Gu6wjjwf4C4)).
 - Filters out NPCs with immortality flag set;
 - Takes `considerG1DoubleXPGlitch` into account (if NPC was beaten before, tracker will display an icon suggesting a ranged kill);
 - Takes `considerLevelZeroNPC` into account;
-    
-     **Warning**: framerate may suffer if enabled. Flickering and visual glitches of the trackers are possible. Was **not** tested with custom renderes like GD3D11 yet.
-     
-     **Usage**: press a key configured by `toggleXPNPCLocatorKey` ini option (by default `V`) to toggle rendering on and off.
-    
+
 ### How it works
 You can read the source of `XP_NPC_LOCATOR.D` to understand this in detail. 
 
@@ -46,8 +46,32 @@ NPCs are divided into "buckets" based on their distance to the Hero. Only first 
 It would be possible to render all NPCs but this would likely lower framerate too much and cause significant visual clutter. The primary purpose of this feature is to show player if they forgot about a monster or two while clearing an area and, if so, point to the nearest one. Rendering everything, especially at the start of the game, makes very little sense.
     
 
-### Future enhancements ideas
-- render trackers for pickpocketable NPCs
+### Performance Note
+
+Framerate will suffer with locator enabled, especially if max rendering level (toggled by pressing key set at `toggleTrackersMaxRenderingLevelKey`) is on or in crowded areas such as Khorinis. At the current state, optimizing the performance further would require significant effort which is probabably not worth it. The use case for this feature is not to run around the map with locator being constantly on. It's only supposed to help track down any missing monsters/pickpocket opportunities. 
+
+**Note**: As of today this was **NOT** tested with GD3D11 or anything similar yet.
+
+Potential improvements which come to my mind are:
+- transform vertices on GPU (vertex shader?) instead of CPU for more parallelism, faster floating point arithmetics and shorter time when main game's thread is blocked; 
+    Note: I'm no 3D Graphics expert but I believe game uses an old DirectX 7 renderer so doing the above in a way that leaves the plugin compatible with both vanilla game and custom renderers (GD3D11) might be tough;
+- batch the draw calls to DirectX device (draw primitive indexed or similar, not sure if it's even available with DX7);
+- use a BSP Tree and do the frustum culling properly so not all trackers are iterated each frame (which is slow if there's a lot of them active); alternatively - turn trackers into actual VOBs and have game engine do it...
+- Process NPCs on a separate thread; This would require a rewrite to Union and C++ as calling Daedelus scripts from separate thread is not a feasible solution; Also I doubt this particular enhancement will make a dramatic difference;
+
+I believe none of the above are low hanging fruits.
+
+# Thief Scanner
+Enabled with `considerPickpocketing=1` ini option. Videos showcasing the feature are [here](https://youtu.be/HmdfoVVA32E), [here](https://youtu.be/VoiYJIP8H-I) and [here](https://youtu.be/Rfctm-ixfj0).
+
+Integrates with XPNPCLocator to display a pickpocket tracker if NPC hasn't been pickpocketed yet (and it is possible at all). Color of the tracker reflects whether hero can or cannot pickpocket NPC yet however for some edge cases it's indeterminable, hence there're ini options for 3 colors (`pickpocketSeemsEnoughDexColor`, `pickpocketSeemsNotEnoughDexColor`, `pickpocketIndeterminableColor`).
+
+In addition, pickpocketable NPCs are continuously scanned to show a text alert whenever NPC cannot be pickpocketed anymore because:
+- NPC died
+- pickpocket dialogue choice become permanently unavailable (currently should work if player loots the pickpocketable item)
+
+**This feature is not bulletproof** due to the implementation details of pickpocketing.  You can read [this](/THIEF_SCANNER.md) for more details.
+
 
 # How to install pre-built plugin
 1. Have [Ninja](https://github.com/szapp/Ninja) installed.
@@ -93,6 +117,24 @@ deathAlertTextDurationInMillis=5000
 deathAlertsFailColor=#FF3232
 ; ... Hex string (RBG) of a color for system notifications (i.e. when XPNPCLocator is toggled). Default is green #32FF32.
 systemNotificationsColor=#32FF32
+; ... Enables thief scanner,  1 - on, 0 - off, default - on in Gothic 2.
+considerPickpocketing=1
+; ... Color of the text alert if thief scanner determined NPC to become not-pickpocketable.
+pickpocketAlertsWarningColor=#FF5F15
+; ... Color of XPNPCLocator pickpocket tracker when thief scanner thinks pickpocketing attempt will succeed.
+pickpocketSeemsEnoughDexColor=#32FF32
+; ... Color of XPNPCLocator pickpocket tracker when thief scanner thinks pickpocketing attempt will fail.
+pickpocketSeemsNotEnoughDexColor=#FF3232
+; ... Color of XPNPCLocator pickpocket tracker when thief scanner cannot determine if pickpocketing will succeed or is currently unavailable (NPC doesn't have the item yet etc).
+pickpocketIndeterminableColor=#FF5F15
+; ... Color of XPNPCLocator tracker if NPC is hostile towards player (like monster).
+locatorHostileNPCColor=#FF3232
+; ... How long system notifications (i.e. when XPNPCLocator is toggled) are displayed.
+locatorIconSize=50
+; ... XPNPCLocator trackers size.
+systemNotificationDurationInMillis=2000
+; ... Color of XPNPCLocator tracker if NPC is not hostile towards player (like Khorinis citizen).
+locatorNonHostileNPCColor=#FFFFFF
 ```
 ### Dead on arrival defaults
 Following is the default for Gothic 2 NotR. See "tools/g2notr_print_doa_npcs.py" for more details how it was extracted. For Gothic 1 its empty as there're no cases where a seemingly normal NPC gets killed off-screen by game's scripts pretty much the first time player arrives in new location. **Note:** list **must end with newline** or it won't be parsed correctly and game may crash during loading.
@@ -101,7 +143,6 @@ VLK_4304_Addon_William;Stoneguardian_MineDead4;;VLK_4103_Waffenknecht;YGiant_Bug
 ```
 # Known Issues 
 - [`considerG1DoubleXPGlitch=1`][Death Alerts] Killing NPC too fast after they got up from unconscious may not detect lost XP
-- hostile enemy sprite texture has a few glitchy pixels
 
 # Build Instructions
 ## First time set up

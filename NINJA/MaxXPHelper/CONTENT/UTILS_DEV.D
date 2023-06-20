@@ -8,6 +8,16 @@ func string Ninja_MaxXPHelper_GetInstanceName(var oCNPC npc) {
     return symbol.name;
 };
 
+func void Ninja_MaxXPHelper_PrintBinary(var int bitfield) {
+    repeat(i, 32); var int i;
+        if (bitfield & (1 << i)) {
+            SB("1");
+        } else {
+            SB("0");
+        };
+    end;
+};
+
 func void Ninja_MaxXPHelper_oCNPCDebug(var oCNPC npc, var string prefix) {
     var int symbolPtr; symbolPtr = MEM_GetSymbolByIndex(Hlp_GetInstanceID(npc));
     var zCPar_Symbol symbol; symbol = _^(symbolPtr);
@@ -33,14 +43,4 @@ func void Ninja_MaxXPHelper_oCNPCDebug(var oCNPC npc, var string prefix) {
     Ninja_MaxXPHelper_LogInfo(SB_ToString());
     SB_Clear();
     SB_Destroy();
-};
-
-func void Ninja_MaxXPHelper_PrintBinary(var int bitfield) {
-    repeat(i, 32); var int i;
-        if (bitfield & (1 << i)) {
-            SB("1");
-        } else {
-            SB("0");
-        };
-    end;
 };

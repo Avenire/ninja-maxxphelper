@@ -7,7 +7,6 @@ const int _Ninja_MaxXPHelper_XPNPCLocator_NPCFullPassCycle = 0;
 const int _Ninja_MaxXPHelper_XPNPCLocator_NPCToCycle_HT = 0;
 const int _Ninja_MaxXPHelper_XPNPCLocator_NPCToAlternativeTrackerLocation_HT = 0;
 
-
 func string _Ninja_MaxXPHelper_XPNPCLocator_NpcToTexture(var c_npc npc) {
     if Ninja_MaxXPHelper_IsKnockable(hero, npc) {
         if Ninja_MaxXPHelper_ConsiderG1DoubleXPGlitch && Ninja_MaxXPHelper_VictoryXPReceived(npc) {
@@ -84,9 +83,7 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_TryGetLocation(var oCNPC npc) {
         y = npc._zCVob_trafoObjToWorld[zCVob_trafoObjToWorld_Y];
         z = npc._zCVob_trafoObjToWorld[zCVob_trafoObjToWorld_Z];
     };
-    if x == FLOATNULL && y == FLOATNULL && z == FLOATNULL {
-        return FALSE;
-    };
+
     _Ninja_MaxXPHelper_XPNPCLocator_TryGetLocation_Result[0] = x;
     _Ninja_MaxXPHelper_XPNPCLocator_TryGetLocation_Result[1] = y;
     _Ninja_MaxXPHelper_XPNPCLocator_TryGetLocation_Result[2] = z;
@@ -155,6 +152,7 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int proce
         Ninja_MaxXPHelper_Trackers_GetHeroDistanceBasedPriority(x, y, z);
         priority = Ninja_MaxXPHelper_Trackers_DistancePriority_Result[1];
     };
+
     Ninja_MaxXPHelper_Trackers_Show(
         trackerHandle, 
         x, 
@@ -211,6 +209,9 @@ func void _Ninja_MaxXPHelper_XPNPCLocator_ReadInput() {
                 _Ninja_MaxXPHelper_XPNPCLocator_HandlesHT, 
                 _Ninja_MaxXPHelper_XPNPCLocator_HideHandle
             );
+        } else if Ninja_MaxXPHelper_ConsiderPickpocketing {
+            msg = ConcatStrings(msg, " ");
+            msg = ConcatStrings(msg, Ninja_MaxXPHelper_LOC_ConsiderPickpocketingEnabled);
         };
         Ninja_MaxXPHelper_TextAlerts_Create(
             msg, 
@@ -224,7 +225,7 @@ func void _Ninja_MaxXPHelper_XPNPCLocator_ReadInput() {
 func void _Ninja_MaxXPHelper_XPNPCLocator_ProcessGlobalNPCs() {
     var int processed; processed = 0;
     while (TRUE);
-        var int npcPtr; npcPtr = _Ninja_MaxXPHelper_zCListSort_Cycle(_@(_Ninja_MaxXPHelper_ThiefScanner_NextGlobalNpcPtr), MEM_World.voblist_npcs);
+        var int npcPtr; npcPtr = _Ninja_MaxXPHelper_zCListSort_Cycle(_@(_Ninja_MaxXPHelper_XPNPCLocator_NextGlobalNpcPtr), MEM_World.voblist_npcs);
         if !npcPtr {
             _Ninja_MaxXPHelper_XPNPCLocator_NPCFullPassCycle = _Ninja_MaxXPHelper_XPNPCLocator_NPCFullPassCycle + 1;
         };
@@ -233,8 +234,7 @@ func void _Ninja_MaxXPHelper_XPNPCLocator_ProcessGlobalNPCs() {
             _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(npc, FALSE);
         };
         processed = processed + 1;
-        if
-            processed > Ninja_MaxXPHelper_XPNPCLocator_MaxNPCToProcessEachFrameBeforeYield {
+        if processed > Ninja_MaxXPHelper_XPNPCLocator_MaxNPCToProcessEachFrameBeforeYield {
             // yield so the main thread isn't blocked for too long    
             break;
         };
