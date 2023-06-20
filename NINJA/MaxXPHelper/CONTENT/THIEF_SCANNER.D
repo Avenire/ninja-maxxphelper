@@ -74,65 +74,6 @@ func int Ninja_MaxXPHelper_ThiefScanner_EnoughDexToPickpocket(var C_NPC npc) {
     return pickpocketable;
 };
 
-func void _Ninja_MaxXPHelper_ThiefScanner_ProcessNPC(var C_NPC npc) {
-    if !_Ninja_MaxXPHelper_ThiefScanner_CanPickpocketNpc(npc, FALSE) {
-        return;
-    };
-    var int instanceId; instanceId = Hlp_GetInstanceID(npc);
-     // Magic time
-    var int infoPtr; infoPtr = Ninja_MaxXPHelper_HT_Get(Ninja_MaxXPHelper_ThiefScanner_NPC_2_PickpocketInfo, instanceId);
-    var oCInfo info; info = _^(infoPtr);
-    var int isDead; isDead = Npc_IsDead(npc);
-    var int pickpocketable; pickpocketable = !isDead;
-    if pickpocketable {
-        pickpocketable = _Ninja_MaxXPHelper_ThiefScanner_CallCondition(info.conditions, npc);
-    };
-    // If we're checking NPC for the first time then remember if they are pickpocketable at this point (they might become later).
-    if !_Ninja_MaxXPHelper_ThiefScanner_FullyScanned {
-        Ninja_MaxXPHelper_HT_InsertOrChange(Ninja_MaxXPHelper_ThiefScanner_NotPickpocktableOnLoadHT, instanceId, !pickpocketable);
-        continue;
-    };
-    // Skip if NPC just become pickpocketable (since last scan).
-    if  pickpocketable && 
-        Ninja_MaxXPHelper_HT_Get(Ninja_MaxXPHelper_ThiefScanner_NotPickpocktableOnLoadHT, instanceId) {
-        Ninja_MaxXPHelper_HT_InsertOrChange(Ninja_MaxXPHelper_ThiefScanner_NotPickpocktableOnLoadHT, instanceId, FALSE);
-        HT_Remove(Ninja_MaxXPHelper_ThiefScanner_PickpocketAlertsHT_Handle, instanceId);
-        continue;
-    };
-    // Skip if NPC is alive and wasn't observed to be pickpocketable since last load or was failure was already alerted.
-    if (
-        (!isDead && Ninja_MaxXPHelper_HT_Get(Ninja_MaxXPHelper_ThiefScanner_NotPickpocktableOnLoadHT, instanceId)) ||
-        HT_Has(Ninja_MaxXPHelper_ThiefScanner_PickpocketAlertsHT_Handle, instanceId) ||
-        pickpocketable
-    ) {
-        continue;
-    };
-    var int color;
-    var string msg; msg = "";
-    if isDead {
-        color = Ninja_MaxXPHelper_DeathAlertsFailColor;
-        msg = Ninja_MaxXPHelper_LOC_PickpocketWarningDeath;
-    } else {
-        color = Ninja_MaxXPHelper_PickpocketAlertsWarningColor;
-        msg = Ninja_MaxXPHelper_LOC_PickpocketWarningOther;
-    };
-    if STR_Len(msg) {
-        var int s; s = SB_New();
-        SB(npc.name);
-        SB(" - ");
-        SB(msg);
-        Ninja_MaxXPHelper_TextAlerts_Create(
-            SB_ToString(),  
-            Ninja_MaxXPHelper_DeathAlertTextDurationInMillis, 
-            color, 
-            FALSE
-        );
-        SB_Clear();
-        SB_Destroy();
-        HT_Insert(Ninja_MaxXPHelper_ThiefScanner_PickpocketAlertsHT_Handle, TRUE, instanceId);
-    };
-};
-
 const int _Ninja_MaxXPHelper_ThiefScanner_FullyScanned = FALSE;
 func void _Ninja_MaxXPHelper_ThiefScanner_RefreshLoop() {
     if !Ninja_MaxXPHelper_ShouldRunHook() {
@@ -165,8 +106,60 @@ func void _Ninja_MaxXPHelper_ThiefScanner_RefreshLoop() {
         processed = processed + 1;
 
         var C_NPC npc; npc = Hlp_GetNpc(instanceId);
-        if Hlp_IsValidNpc(npc) {
-           _Ninja_MaxXPHelper_ThiefScanner_ProcessNPC(npc);
+        if Hlp_IsValidNpc(npc) && _Ninja_MaxXPHelper_ThiefScanner_CanPickpocketNpc(npc, FALSE) {
+            var int instanceId; instanceId = Hlp_GetInstanceID(npc);
+            // Magic time
+            var int infoPtr; infoPtr = Ninja_MaxXPHelper_HT_Get(Ninja_MaxXPHelper_ThiefScanner_NPC_2_PickpocketInfo, instanceId);
+            var oCInfo info; info = _^(infoPtr);
+            var int isDead; isDead = Npc_IsDead(npc);
+            var int pickpocketable; pickpocketable = !isDead;
+            if pickpocketable {
+                pickpocketable = _Ninja_MaxXPHelper_ThiefScanner_CallCondition(info.conditions, npc);
+            };
+            // If we're checking NPC for the first time then remember if they are pickpocketable at this point (they might become later).
+            if !_Ninja_MaxXPHelper_ThiefScanner_FullyScanned {
+                Ninja_MaxXPHelper_HT_InsertOrChange(Ninja_MaxXPHelper_ThiefScanner_NotPickpocktableOnLoadHT, instanceId, !pickpocketable);
+                continue;
+            };
+            // Skip if NPC just become pickpocketable (since last scan).
+            if  pickpocketable && 
+                Ninja_MaxXPHelper_HT_Get(Ninja_MaxXPHelper_ThiefScanner_NotPickpocktableOnLoadHT, instanceId) {
+                Ninja_MaxXPHelper_HT_InsertOrChange(Ninja_MaxXPHelper_ThiefScanner_NotPickpocktableOnLoadHT, instanceId, FALSE);
+                HT_Remove(Ninja_MaxXPHelper_ThiefScanner_PickpocketAlertsHT_Handle, instanceId);
+                continue;
+            };
+            // Skip if NPC is alive and wasn't observed to be pickpocketable since last load or was failure was already alerted.
+            if (
+                (!isDead && Ninja_MaxXPHelper_HT_Get(Ninja_MaxXPHelper_ThiefScanner_NotPickpocktableOnLoadHT, instanceId)) ||
+                HT_Has(Ninja_MaxXPHelper_ThiefScanner_PickpocketAlertsHT_Handle, instanceId) ||
+                pickpocketable
+            ) {
+                continue;
+            };
+            var int color;
+            var string msg; msg = "";
+            if isDead {
+                color = Ninja_MaxXPHelper_DeathAlertsFailColor;
+                msg = Ninja_MaxXPHelper_LOC_PickpocketWarningDeath;
+            } else {
+                color = Ninja_MaxXPHelper_PickpocketAlertsWarningColor;
+                msg = Ninja_MaxXPHelper_LOC_PickpocketWarningOther;
+            };
+            if STR_Len(msg) {
+                var int s; s = SB_New();
+                SB(npc.name);
+                SB(" - ");
+                SB(msg);
+                Ninja_MaxXPHelper_TextAlerts_Create(
+                    SB_ToString(),  
+                    Ninja_MaxXPHelper_DeathAlertTextDurationInMillis, 
+                    color, 
+                    FALSE
+                );
+                SB_Clear();
+                SB_Destroy();
+                HT_Insert(Ninja_MaxXPHelper_ThiefScanner_PickpocketAlertsHT_Handle, TRUE, instanceId);
+            };
         };
     end;
     self = Hlp_GetNpc(selfBak);
@@ -184,10 +177,24 @@ func void _Ninja_MaxXPHelper_ThiefScanner_InitTheftDiff() {
     };
 };
 
+func int _Ninja_MaxXPHelper_ThiefScanner_CreateBlacklistHT() {
+    var int blacklist; blacklist = Ninja_MaxXPHelper_HT_Create();
+    STRINT_SplitReset();
+    var int count; count = STR_SplitCount(Ninja_MaxXPHelper_PickpocketBlacklist, ";");
+    repeat(i, count); var int i;
+        var string npcCode; npcCode = STRINT_SplitGet(i);
+        var int instanceId; instanceId = MEM_GetSymbolIndex(npcCode);
+        Ninja_MaxXPHelper_HT_InsertOrChange(blacklist, instanceId, TRUE);
+    end;
+    return blacklist;
+};
+
 func void _Ninja_MaxXPHelper_ThiefScanner_InsertIntoPickpocketableNPCArray(var int npc, var int value) {
     MEM_ArrayInsert(Ninja_MaxXPHelper_ThiefScanner_PickpocketableNPCArray, npc);
 };
 func void _Ninja_MaxXPHelper_ThiefScanner_LoadPickpocketInfos() {
+    var int blacklist; 
+    blacklist = _Ninja_MaxXPHelper_ThiefScanner_CreateBlacklistHT();
     const string pickpocketSuffix = "_PICKPOCKET";
     const string altPickpocketSuffix = "_PICKME"; // Cassia...
     var int pickpocketSuffixLen; pickpocketSuffixLen = STR_Len(pickpocketSuffix);
@@ -195,8 +202,9 @@ func void _Ninja_MaxXPHelper_ThiefScanner_LoadPickpocketInfos() {
     while (listPtr);
         var zCListSort list; list = _^(listPtr);
         listPtr = list.next;
-        if list.data {
+        if list.data {            
             var oCInfo info; info = _^(list.data);
+            if Ninja_MaxXPHelper_HT_Has(blacklist, info.npc) { continue; };
             if Ninja_MaxXPHelper_EndsWith(info.name, altPickpocketSuffix) {
                 Ninja_MaxXPHelper_HT_InsertOrChange(Ninja_MaxXPHelper_ThiefScanner_NPC_2_PickpocketInfo, info.npc, _@(info));
                 continue;
@@ -208,7 +216,7 @@ func void _Ninja_MaxXPHelper_ThiefScanner_LoadPickpocketInfos() {
             };
         };
     end;
-     
+    Ninja_MaxXPHelper_HT_Destroy(blacklist);
     Ninja_MaxXPHelper_HT_ForEach(
         Ninja_MaxXPHelper_ThiefScanner_NPC_2_PickpocketInfo,
         _Ninja_MaxXPHelper_ThiefScanner_InsertIntoPickpocketableNPCArray

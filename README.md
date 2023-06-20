@@ -15,7 +15,7 @@ Shows a text alert when NPC dies and hero misses out XP ([showcase video](https:
         - Carristo's death in Gothic 1 CH4 is ignored, however death of other fire magicians won't ([showcase video](https://youtu.be/y2wn8b_o3VU)); 
         - Stone guardians killed next to the Jharkendar portal on our first arrival in G2 NotR should be ignored, however deaths of any remaining stone guardians on Raven defeat won't; 
     
-        A lot of G2 NotR deaths cannot be detected in any other way than by than maintaing a curated list of such NPCs. In case the provided list is incorrect or non-exhaustive, it can be overriden by providing a custom filter. Game reads a line of text from a file located at `deadOnArrivalNPCListPath` (default `system\deadOnArrivalNPCList.txt`) which is parsed as a semicolon separated & **terminated** list of NPC instance names (basically what you'd type in `insert` console command/cheat to spawn given npc);
+        A lot of G2 NotR deaths cannot be detected in any other way than by than maintaing a curated list of such NPCs. In case the provided list is incorrect or non-exhaustive, it can be overriden by providing a custom filter. Game reads a line of text from a file located at `deadOnArrivalNPCListPath` (default `system\maxxphelper_deadOnArrivalNPCList.txt`) which is parsed as a semicolon separated & **terminated** list of NPC instance names (basically what you'd type in `insert` console command/cheat to spawn given npc);
     - [`considerG1DoubleXPGlitch=1` only] Player or party member killed NPC with melee finisher ([showcase video](https://youtu.be/dADHo9kF3O0));
     - [`considerG1DoubleXPGlitch=1` only] Player or party member killed NPC without beating them up first;
     - [`considerLevelZeroNPC=0`] Level 0 NPCs are ignored;
@@ -72,6 +72,11 @@ In addition, pickpocketable NPCs are continuously scanned to show a text alert w
 
 **This feature is not bulletproof** due to the implementation details of pickpocketing.  You can read [this](/THIEF_SCANNER.md) for more details.
 
+Some NPCs are never pickpocketable (no way to start dialogue like Skinner or bugged like Edda). To ignore those NPCs `pickpocketBlacklist` ini option can be used. By default it looks as following:
+```
+VLK_491_Vanja;VLK_471_Edda;BDT_1082_Addon_Skinner;VLK_436_Sonja;
+```
+Note: Vanja can be pickpocketed if Hero joins Militia during the weed quest. Just delete her from the ini option in such case.
 
 # How to install pre-built plugin
 1. Have [Ninja](https://github.com/szapp/Ninja) installed.
@@ -94,7 +99,7 @@ considerLevelZeroNPC=0
 showDeathAlerts=1
 ; ... Semicolon separated list of NPC instance names to ignore if they got killed by game scripts (rather than usual gameplay) because they are effectively... "dead on (player's) arrival". 
 ; ... Path to the file from which the script should read deadOnArrivalNPCList (see section below for defaults.)
-deadOnArrivalNPCListPath=system\deadOnArrivalNPCList.txt
+deadOnArrivalNPCListPath=system\maxxphelper_deadOnArrivalNPCList.txt
 ; ... Easter egg "feature" triggering on death alerts. Set it as empty to disable...
 ; ... ...or you can tinker with it by setting the value to ID of your favourite dialogue line.
 deathAlertsSVM=
@@ -135,6 +140,8 @@ locatorIconSize=50
 systemNotificationDurationInMillis=2000
 ; ... Color of XPNPCLocator tracker if NPC is not hostile towards player (like Khorinis citizen).
 locatorNonHostileNPCColor=#FFFFFF
+; ... Semicolon separated list of NPC instance names for Thief Scanner to ignore. Intended to be used for NPCs that can never be talked to.
+pickpocketBlacklist=
 ```
 ### Dead on arrival defaults
 Following is the default for Gothic 2 NotR. See "tools/g2notr_print_doa_npcs.py" for more details how it was extracted. For Gothic 1 its empty as there're no cases where a seemingly normal NPC gets killed off-screen by game's scripts pretty much the first time player arrives in new location. **Note:** list **must end with newline** or it won't be parsed correctly and game may crash during loading.
@@ -143,6 +150,7 @@ VLK_4304_Addon_William;Stoneguardian_MineDead4;;VLK_4103_Waffenknecht;YGiant_Bug
 ```
 # Known Issues 
 - [`considerG1DoubleXPGlitch=1`][Death Alerts] Killing NPC too fast after they got up from unconscious may not detect lost XP
+- [XPNPCLocator] players may experience invalid trackers at world's origin position 0,0,0 (where `goto pos` command teleports if no coords are provided)
 
 # Build Instructions
 ## First time set up

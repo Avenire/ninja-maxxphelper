@@ -1,13 +1,4 @@
 // Bunch of code for tracing issues which should not ever be needed in release builds.
-func string Ninja_MaxXPHelper_GetInstanceName(var oCNPC npc) {
-    var int symbolPtr; symbolPtr = MEM_GetSymbolByIndex(Hlp_GetInstanceID(npc));
-    if !symbolPtr {
-        return "";
-    };
-    var zCPar_Symbol symbol; symbol = _^(symbolPtr);
-    return symbol.name;
-};
-
 func void Ninja_MaxXPHelper_PrintBinary(var int bitfield) {
     repeat(i, 32); var int i;
         if (bitfield & (1 << i)) {

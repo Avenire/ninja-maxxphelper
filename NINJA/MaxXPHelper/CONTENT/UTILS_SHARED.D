@@ -53,6 +53,15 @@ func int Ninja_MaxXPHelper_CanNpcSpawn(var oCNPC npc) {
     return npc.bitfield[0] & oCNpc_bitfield0_spawnInRange;        
 };
 
+func string Ninja_MaxXPHelper_GetInstanceName(var oCNPC npc) {
+    var int symbolPtr; symbolPtr = MEM_GetSymbolByIndex(Hlp_GetInstanceID(npc));
+    if !symbolPtr {
+        return "";
+    };
+    var zCPar_Symbol symbol; symbol = _^(symbolPtr);
+    return symbol.name;
+};
+
 // Don't want handles from Hashtables to be persisted in Save Game file so
 // workarounding that by calling Lego "private" hashtable API working on pointers
 func int Ninja_MaxXPHelper_HT_Create() {

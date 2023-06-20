@@ -47,10 +47,12 @@ To detect such cases and keep the feature as generic as possible (no hard coding
         - Otherwise plugin assumes NPC was looted and issues a warning alert (unless the lookup above contains the NPC)
 5. Hero's dexterity is restored back to where it was.
 
-The special lookup is needed because of exceptional NPCs like Edda who must be given an item first (Innos Status) in order to become pickpocketable (the very same statue player gives back to Edda can then be pickpocketed which is so evil).
+The special lookup is used because of some exceptional/bugged NPCs like Edda who must be given an item first (Edda's Innos Status) in order to become pickpocketable (however, in the vanilla game that statue cannot be obtained) or Igaraz who can have chest key pickpocketed during the quest to retrieve Babo's pictures.
 
 One may wonder if tampering with player's dexterity won't cause any issues. 
 My thinking is it should be fine because zEngine processes all logic on a single thread and parser doesn't interrupt execution of scripts (unless they explicitly yield). Hence the temporarly set state should never leak outside of the plugin's function call.
 
-## What about NPCs player can no longer talk to?
-Cases like when Ehnim/Egil are turned against each other and later refuse to speak with Hero are currently **not supported**. I am not sure if this can be done by any other way than collecting a full list of all cases when this can happen (*insert sad face here*).
+## What about NPCs player can no longer/never talk to?
+Cases like when Ehnim/Egil are turned against each other and later refuse to speak with Hero are currently **not supported**. I am not sure if this can be done by any other way than collecting a full list of all cases when this can happen (*insert sad face here*). And even that is not straightforward because conditions for those infos require NPCs being in ZS_Talk state and I'd rather not tamper with temporarly setting NPCs state (might interrupt want they're currently doing and lead to bugs).
+
+There're NPCs that cannot be talked to at all like Sonja, Vanja (unless Hero joins the militia and does the weed quest), Skinner, Edda (bugged). For those NPCs blacklist is used.

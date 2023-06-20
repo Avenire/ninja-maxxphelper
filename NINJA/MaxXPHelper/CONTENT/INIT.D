@@ -5,7 +5,7 @@ func void Ninja_MaxXPHelper_SetOpts() {
     );
     var string filename; filename = Ninja_MaxXPHelper_GetStrOptOrSetDefault(
         "deadOnArrivalNPCListPath",
-        "system\deadOnArrivalNPCList.txt"
+        "system\maxxphelper_deadOnArrivalNPCList.txt"
     );
     Ninja_MaxXPHelper_DeadOnArrivalNPCList = Ninja_MaxXPHelper_ReadFileOrSetDefault(
         filename, 
@@ -100,6 +100,10 @@ func void Ninja_MaxXPHelper_SetOpts() {
     Ninja_MaxXPHelper_SystemAlertDurationInMillis = Ninja_MaxXPHelper_GetIntOptOrSetDefault(
         "systemNotificationDurationInMillis",
         2000
+    );
+    Ninja_MaxXPHelper_PickpocketBlacklist = Ninja_MaxXPHelper_GetStrOptOrSetDefault(
+        "pickpocketBlacklist", 
+        Ninja_MaxXPHelper_PickpocketBlacklist
     );
 };
 
