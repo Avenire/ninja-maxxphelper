@@ -178,7 +178,8 @@ func int _Ninja_MaxXPHelper_DeathAlerts_Handler_StoryScriptedDeath(var int npcIn
     var c_npc cnpc; cnpc = Hlp_GetNpc(npcInstance);
     // todo: handle G2 cases where mortal NPCs travel worlds between chapters (Diego CH2->CH3, Gorn CH2, CH3, CH4...)
     if  // testing note: Should be false only for off-screen kill? Would need to check range otherwise.
-        !npc.percActive && 
+        !npc.percActive && // <- skip this if NPC who's "B_KillNpc"'ed is also in processing range (or there's double ZS_Dead alert bug) 
+        !Npc_IsDead(cnpc) && // NPC is lying dead on the ground like some Free Mine NPCs - we'd get false alert
         // Skip immortal NPC
         !( cnpc.flags & NPC_FLAG_IMMORTAL) {
         Ninja_MaxXPHelper_LogInfo(ConcatStrings("_Ninja_MaxXPHelper_DeathAlerts_Handler_StoryScriptedDeath active ", npc.name));
@@ -243,7 +244,7 @@ func void Ninja_MaxXPHelper_B_KillNpc_Hook(var int npcInstance) {
         handled = _Ninja_MaxXPHelper_DeathAlerts_Handler_SkipIfDefeatedAndNoDoubleXPMode(cnpc);
     };
     if !handled {
-        //handled = _Ninja_MaxXPHelper_DeathAlerts_Handler_SkipIfNpcWasAlreadyDead(cnpc);
+        handled = _Ninja_MaxXPHelper_DeathAlerts_Handler_SkipIfNpcWasAlreadyDead(cnpc);
     };
     if !handled {
         handled = _Ninja_MaxXPHelper_DeathAlerts_Handler_SkipLevelZeroNPC(cnpc);
