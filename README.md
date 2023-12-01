@@ -1,29 +1,35 @@
 # Features
 ### TLDR Version
-### No NPC will steal your XP quietly ever again!
-![alt No NPC will steal your XP quietly ever again!](death_alerts.png "No NPC will steal your XP quietly ever again!")
-### No NPC can hide their XP from you now!
-![alt No NPC can hide their XP from you now!](xpnpclocator.png "No NPC can hide their XP from you now!")
+### No NPC steals your XP without you realizing ever again
+![alt No NPC steals your XP without you realizing ever again](death_alerts.png "No NPC steals your XP without you realizing ever again")
+### You won't forget to beat up an NPC
+![alt You won't forget to beat up an NPC](xpnpclocator.png "You won't forget to beat up an NPC")
 
 Additional showcase videos can be found in the playlist [here](https://www.youtube.com/playlist?list=PLZRX_6sT4MzlLyzBTLnNPSoPWPW7Dlj2K).
+
+
+# How to install the pre-built plugin
+1. Have [Ninja](https://github.com/szapp/Ninja) installed.
+2. Drop `MaxXPHelper.vdf` file into `<gothic-main-dir>/Data`
+
 # Death Alerts: 
-Shows a text alert when NPC dies and hero misses out XP ([showcase video](https://youtu.be/C4gkmvgOq8g)), following the below rules:
-- NPC got killed by non-party member NPC and XP haven't been claimed yet (or `considerG1DoubleXPGlitch=1`);
-- NPC got killed by game scripts (B_KillNpc/B_RemoveNpc) and player **could** have beaten them but haven't, which is: 
-    - NPC haven't got immortality flag before getting killed/removed;
+Shows a text alert if XP is lost when NPC dies ([showcase video](https://youtu.be/C4gkmvgOq8g)), following the below rules:
+- NPC got killed by non-party-member NPC and XP haven't been received before (or `considerG1DoubleXPGlitch=1` in which case player must finish everyone off with a bow or magic);
+- NPC got killed by game scripts (B_KillNpc/B_RemoveNpc) and player **could** have beaten them but hadn't, which is: 
+    - NPC wasn't immortal just before getting killed/removed;
     - NPC death wasn't scripted in a way that player couldn't have done anything about it. For example: 
-        - Carristo's death in Gothic 1 CH4 is ignored, however death of other fire magicians won't ([showcase video](https://youtu.be/y2wn8b_o3VU)); 
-        - Stone guardians killed next to the Jharkendar portal on our first arrival in G2 NotR should be ignored, however deaths of any remaining stone guardians on Raven defeat won't; 
+        - Carristo's death in Gothic 1 CH4 is ignored, however death of other fire magicians won't be ([showcase video](https://youtu.be/y2wn8b_o3VU)); 
+        - Stone guardians next to the Jharkendar portal in G2 NotR which get killed by a script run on the first visit are ignored, however, deaths of any remaining guardians after Raven is defeated won't be; 
     
-        A lot of G2 NotR deaths cannot be detected in any other way than by than maintaing a curated list of such NPCs. In case the provided list is incorrect or non-exhaustive, it can be overriden by providing a custom filter. Game reads a line of text from a file located at `deadOnArrivalNPCListPath` (default `system\maxxphelper_deadOnArrivalNPCList.txt`) which is parsed as a semicolon separated & **terminated** list of NPC instance names (basically what you'd type in `insert` console command/cheat to spawn given npc);
+        A lot of G2 NotR deaths cannot be detected in any other way than by having a list of such NPCs. In case the one shipped by default is incorrect or non-exhaustive, it can be easily overriden. 
+        
+        Plugin expects the blacklist to be provided in a file located at a path from `deadOnArrivalNPCListPath` config option (default `system\maxxphelper_deadOnArrivalNPCList.txt`). This should be just a single line of semicolon separated list of NPC instance names (i.e. what you type in `insert vob <code>` console command to spawn an npc). The file should end with a semicolon folowed by a newline (because of "reasons").
     - [`considerG1DoubleXPGlitch=1` only] Player or party member killed NPC with melee finisher ([showcase video](https://youtu.be/dADHo9kF3O0));
     - [`considerG1DoubleXPGlitch=1` only] Player or party member killed NPC without beating them up first;
-    - [`considerLevelZeroNPC=0`] Level 0 NPCs are ignored;
+    - [`considerLevelZeroNPC=0`] Level 0 NPCs are ignored (they give no XP with vanilla game's formula - `npc_level * 10`);
 
-In addition fail tracker can be displayed at the position of the NPC which trigger the alert (`showTrackerOnDeathAlert=1`).
+In addition, a failure tracker can be displayed at the position of the NPC which triggered the alert (`showTrackerOnDeathAlert=1`).
 
-
-Enabled with `considerPickpocketing=1`, implemented only for Gothic 2.
 ### Future enhancements ideas
 - inverse mode for `considerG1DoubleXPGlitch` that is - warn player if they receive double XP and they don't want to
 
@@ -45,46 +51,23 @@ NPCs are divided into "buckets" based on their distance to the Hero. Only first 
 
 It would be possible to render all NPCs but this would likely lower framerate too much and cause significant visual clutter. The primary purpose of this feature is to show player if they forgot about a monster or two while clearing an area and, if so, point to the nearest one. Rendering everything, especially at the start of the game, makes very little sense.
     
-
-### Performance Note
-
-Framerate will suffer with locator enabled, especially if max rendering level (toggled by pressing key set at `toggleTrackersMaxRenderingLevelKey`) is on or in crowded areas such as Khorinis. At the current state, optimizing the performance further would require significant effort which is probabably not worth it. The use case for this feature is not to run around the map with locator being constantly on. It's only supposed to help track down any missing monsters/pickpocket opportunities. 
-
-**Note**: As of today this was **NOT** tested with GD3D11 or anything similar yet.
-
-Potential improvements which come to my mind are:
-- transform vertices on GPU (vertex shader?) instead of CPU for more parallelism, faster floating point arithmetics and shorter time when main game's thread is blocked; 
-    Note: I'm no 3D Graphics expert but I believe game uses an old DirectX 7 renderer so doing the above in a way that leaves the plugin compatible with both vanilla game and custom renderers (GD3D11) might be tough;
-- batch the draw calls to DirectX device (draw primitive indexed or similar, not sure if it's even available with DX7);
-- use a BSP Tree and do the frustum culling properly so not all trackers are iterated each frame (which is slow if there's a lot of them active); alternatively - turn trackers into actual VOBs and have game engine do it...
-- Process NPCs on a separate thread; This would require a rewrite to Union and C++ as calling Daedelus scripts from separate thread is not a feasible solution; Also I doubt this particular enhancement will make a dramatic difference;
-
-I believe none of the above are low hanging fruits.
-
 # Thief Scanner
 Enabled with `considerPickpocketing=1` ini option. Videos showcasing the feature are [here](https://youtu.be/HmdfoVVA32E), [here](https://youtu.be/VoiYJIP8H-I) and [here](https://youtu.be/Rfctm-ixfj0).
 
-Integrates with XPNPCLocator to display a pickpocket tracker if NPC hasn't been pickpocketed yet (and it is possible at all). Color of the tracker reflects whether hero can or cannot pickpocket NPC yet however for some edge cases it's indeterminable, hence there're ini options for 3 colors (`pickpocketSeemsEnoughDexColor`, `pickpocketSeemsNotEnoughDexColor`, `pickpocketIndeterminableColor`).
+This integrates with XPNPCLocator to display a pickpocket tracker if NPC hasn't been pickpocketed yet (and is possible to). Color of the tracker depends on whether dexterity requirements are met or not. For some edge cases, it's not possible to tell (at least using the approach I chose) so there're 3 colors in total - `pickpocketSeemsEnoughDexColor`, `pickpocketSeemsNotEnoughDexColor` and `pickpocketIndeterminableColor`.
 
-In addition, pickpocketable NPCs are continuously scanned to show a text alert whenever NPC cannot be pickpocketed anymore because:
+In addition, pickpocketable NPCs are continuously scanned and a text alert (similar to DeathAlerts) will pop up when NPC can no longer be pickpocketed which could happen if:
 - NPC died
-- pickpocket dialogue choice become permanently unavailable (currently should work if player loots the pickpocketable item)
+- pickpocket dialogue choice become permanently unavailable. This **should** work in cases like item is looted or Ehnim no longer can be talked to. Likely, this is not 100% bulletproof though. You can read [this](/THIEF_SCANNER.md) if you want more details how this insanity works under the hood.
 
-**This feature is not bulletproof** due to the implementation details of pickpocketing.  You can read [this](/THIEF_SCANNER.md) for more details.
-
-Some NPCs are never pickpocketable (no way to start dialogue like Skinner or bugged like Edda). To ignore those NPCs `pickpocketBlacklist` ini option can be used. By default it looks as following:
+Some NPCs are never pickpocketable (no way to start a dialogue, like Skinner, or bugged, like Edda). To ignore those NPCs use `pickpocketBlacklist` ini option. By default it's set to:
 ```
-VLK_491_Vanja;VLK_471_Edda;BDT_1082_Addon_Skinner;VLK_436_Sonja;
+VLK_491_Vanja;VLK_471_Edda;BDT_1082_Addon_Skinner;VLK_436_Sonja;VLK_4201_Wirt;
 ```
-Note: Vanja can be pickpocketed if Hero joins Militia during the weed quest. Just delete her from the ini option in such case.
-
-# How to install pre-built plugin
-1. Have [Ninja](https://github.com/szapp/Ninja) installed.
-2. Drop `MaxXPHelper.vdf` file into `<gothic-main-dir>/Data`
-
+which should be accurate for a mercenary/dragon hunter playthrough.
 
 # Gothic.ini options explained
-After installing, start new game or load existing save to get the defaults set in Gothic.ini in `[MaxXPHelper-V1]` section (todo: init those options in the menu init function).
+After installing, start a new game or load a save to get the defaults auto-set in `system/Gothic.ini` file. The section is called `[MaxXPHelper-V1]`. No UI available, sorry, I can't be bothered. Most defaults should be good enough so no need to go through all of the below.
 
 ```
 [MAXXPHELPER-V1]
@@ -100,15 +83,14 @@ showDeathAlerts=1
 ; ... Semicolon separated list of NPC instance names to ignore if they got killed by game scripts (rather than usual gameplay) because they are effectively... "dead on (player's) arrival". 
 ; ... Path to the file from which the script should read deadOnArrivalNPCList (see section below for defaults.)
 deadOnArrivalNPCListPath=system\maxxphelper_deadOnArrivalNPCList.txt
-; ... Easter egg "feature" triggering on death alerts. Set it as empty to disable...
-; ... ...or you can tinker with it by setting the value to ID of your favourite dialogue line.
+; ... Easter egg, you can disable this by setting to an empty string.
 deathAlertsSVM=
 ; ... Whether trackers should use z buffer (depth buffer) i.e. be occluded by objects in front or not (be drawn on top of everything). 1 - on, 0 - off, default - off.
 trackersUseZBuffer=0
 ; ... Key constant name to toggle `trackersUseZBuffer` option, not set by default.
 toggleTrackersUseZBufferKeyCode=
 ; ... How many "buckets" of trackers should be rendered at most. XPNPCLocator sorts inactive (far) NPCs into "buckets" based on the distance from the hero.
-; ... Maximum is hardcoded to 100, if set at that value, all trackers are display. Expect low performance and ton of visual clutter, especially in z buffer is not in use.
+; ... Maximum is hardcoded to 100, if set at that value, all trackers are display. Recommend not to increase this or performance will drop.
 trackersRenderingLevel=2
 ; ... Key constant name for toggling max rendering level (100) on and off, not set by default (because it hurts performance a lot), value NOT persisted.
 toggleTrackersMaxRenderingLevelKey=
@@ -140,17 +122,19 @@ locatorIconSize=50
 systemNotificationDurationInMillis=2000
 ; ... Color of XPNPCLocator tracker if NPC is not hostile towards player (like Khorinis citizen).
 locatorNonHostileNPCColor=#FFFFFF
-; ... Semicolon separated list of NPC instance names for Thief Scanner to ignore. Intended to be used for NPCs that can never be talked to.
-pickpocketBlacklist=
+; ... list of NPC instances to be ignored by Thief Scanner.
+pickpocketBlacklist=A;B;C;
 ```
 ### Dead on arrival defaults
-Following is the default for Gothic 2 NotR. See "tools/g2notr_print_doa_npcs.py" for more details how it was extracted. For Gothic 1 its empty as there're no cases where a seemingly normal NPC gets killed off-screen by game's scripts pretty much the first time player arrives in new location. **Note:** list **must end with newline** or it won't be parsed correctly and game may crash during loading.
+Following is the default for Gothic 2 NotR. I extracted this by running a script located at `tools/g2notr_print_doa_npcs.py` against the scripts from [here](https://github.com/IDizor/GothicScripts). For Gothic 1 its empty as there're no cases where a seemingly normal NPC gets killed off-screen by game's scripts pretty much the first time player arrives in new location. **Note:** this must be terminated by a semicolon and end with a new line.
 ```
-VLK_4304_Addon_William;Stoneguardian_MineDead4;;VLK_4103_Waffenknecht;YGiant_Bug_VinoRitual1;PAL_297_Ritter;VLK_Leiche1;STRF_Leiche2;NOV_653_ToterNovize;Stoneguardian_MineDead2;STRF_1143_Addon_Sklave;NONE_Addon_114_Lance_ADW;STRF_1132_Addon_Sklave;DJG_731_ToterDrachenjaeger;VLK_4105_Waffenknecht;NOV_656_ToterNovize;YGiant_Bug_VinoRitual2;PAL_Leiche4;Stoneguardian_Dead3;STRF_1141_Addon_Sklave;STRF_Leiche7;STRF_1135_Addon_Sklave;Stoneguardian_MineDead3;PIR_1370_Addon_Angus;BDT_10401_Addon_DeadBandit;VLK_4147_Waffenknecht;STRF_Leiche8;DJG_738_ToterDrachenjaeger;DJG_730_ToterDrachenjaeger;NOV_654_ToterNovize;STRF_1142_Addon_Sklave;NOV_652_ToterNovize;VLK_Leiche2;VLK_4145_Waffenknecht;PIR_1371_Addon_Hank;Stoneguardian_Dead1;PAL_Leiche5;STRF_1144_Addon_Sklave;DJG_740_ToterDrachenjaeger;STRF_1131_Addon_Sklave;STRF_Leiche5;VLK_Leiche3;STRF_1134_Addon_Sklave;Stoneguardian_MineDead1;Bruder;DJG_739_ToterDrachenjaeger;STRF_Leiche3;VLK_4152_Olav;STRF_Leiche4;DJG_737_ToterDrachenjaeger;NOV_655_ToterNovize;PAL_298_Ritter;VLK_4104_Waffenknecht;DJG_735_ToterDrachenjaeger;STRF_Leiche1;STRF_Leiche6;Stoneguardian_Dead2;NOV_650_ToterNovize;DJG_734_ToterDrachenjaeger;BDT_10400_Addon_DeadBandit;VLK_4101_Waffenknecht;VLK_4102_Waffenknecht;PAL_Leiche3;DJG_732_ToterDrachenjaeger;PAL_Leiche1;VLK_4146_Waffenknecht;DJG_733_ToterDrachenjaeger;PAL_Leiche2;NOV_651_ToterNovize;DJG_736_ToterDrachenjaeger;STRF_1133_Addon_Sklave
+VLK_4304_Addon_William;Stoneguardian_MineDead4;;VLK_4103_Waffenknecht;YGiant_Bug_VinoRitual1;PAL_297_Ritter;VLK_Leiche1;STRF_Leiche2;NOV_653_ToterNovize;Stoneguardian_MineDead2;STRF_1143_Addon_Sklave;NONE_Addon_114_Lance_ADW;STRF_1132_Addon_Sklave;DJG_731_ToterDrachenjaeger;VLK_4105_Waffenknecht;NOV_656_ToterNovize;YGiant_Bug_VinoRitual2;PAL_Leiche4;Stoneguardian_Dead3;STRF_1141_Addon_Sklave;STRF_Leiche7;STRF_1135_Addon_Sklave;Stoneguardian_MineDead3;PIR_1370_Addon_Angus;BDT_10401_Addon_DeadBandit;VLK_4147_Waffenknecht;STRF_Leiche8;DJG_738_ToterDrachenjaeger;DJG_730_ToterDrachenjaeger;NOV_654_ToterNovize;STRF_1142_Addon_Sklave;NOV_652_ToterNovize;VLK_Leiche2;VLK_4145_Waffenknecht;PIR_1371_Addon_Hank;Stoneguardian_Dead1;PAL_Leiche5;STRF_1144_Addon_Sklave;DJG_740_ToterDrachenjaeger;STRF_1131_Addon_Sklave;STRF_Leiche5;VLK_Leiche3;STRF_1134_Addon_Sklave;Stoneguardian_MineDead1;Bruder;DJG_739_ToterDrachenjaeger;STRF_Leiche3;VLK_4152_Olav;STRF_Leiche4;DJG_737_ToterDrachenjaeger;NOV_655_ToterNovize;PAL_298_Ritter;VLK_4104_Waffenknecht;DJG_735_ToterDrachenjaeger;STRF_Leiche1;STRF_Leiche6;Stoneguardian_Dead2;NOV_650_ToterNovize;DJG_734_ToterDrachenjaeger;BDT_10400_Addon_DeadBandit;VLK_4101_Waffenknecht;VLK_4102_Waffenknecht;PAL_Leiche3;DJG_732_ToterDrachenjaeger;PAL_Leiche1;VLK_4146_Waffenknecht;DJG_733_ToterDrachenjaeger;PAL_Leiche2;NOV_651_ToterNovize;DJG_736_ToterDrachenjaeger;STRF_1133_Addon_Sklave;
 ```
 # Known Issues 
 - [`considerG1DoubleXPGlitch=1`][Death Alerts] Killing NPC too fast after they got up from unconscious may not detect lost XP
-- [XPNPCLocator] players may experience invalid trackers at world's origin position 0,0,0 (where `goto pos` command teleports if no coords are provided)
+- [XPNPCLocator] some trackers may appear at invalid locations (often happens NPC routine changes and they are despawned)
+- [XPNPCLocator] transforming into a monster and then back may add an invalid tracker at the location
+
 
 # Build Instructions
 ## First time set up
@@ -160,6 +144,19 @@ VLK_4304_Addon_William;Stoneguardian_MineDead4;;VLK_4103_Waffenknecht;YGiant_Bug
     - [Optional] set `SEMICOLON_SEPARATED_EXTRA_OUTPUT_PATHS` to your Gothic/Gothic 2 Data folder
 ## Actual building
 Assuming `GOTHIC_VDFS_PATH` is set and your working directory is the repo root - run `.\build.bat`. `MaxXPHelper.vdf` will be at `.\build\` and paths set in `SEMICOLON_SEPARATED_EXTRA_OUTPUT_PATHS` variable
+
+# XPNPCLocator Performance Notes
+
+Framerate will suffer with the locator enabled, especially if max rendering level (toggled by pressing key set at `toggleTrackersMaxRenderingLevelKey`) is on or in crowded areas such as Khorinis. At the current state, optimizing the performance further would require significant effort which is probabably not worth it. The use case for this feature is not to run around the map with locator being constantly on. It's only supposed to help track down any missing monsters/pickpocket opportunities. 
+
+Potential improvements which come to my mind are:
+- transform vertices on GPU (vertex shader?) instead of CPU for more parallelism, faster floating point arithmetics and shorter time when main game's thread is blocked; 
+    Note: I'm no 3D Graphics expert but I believe game uses an old DirectX 7 renderer so doing the above in a way that leaves the plugin compatible with both vanilla game and custom renderers (GD3D11) might be tough;
+- batch the draw calls to DirectX device (draw primitive indexed or similar, not sure if it's even available with DX7);
+- use a BSP Tree and do the frustum culling properly so not all trackers are iterated each frame (which is slow if there's a lot of them active); alternatively - turn trackers into actual VOBs and have game engine do it...
+- Process NPCs on a separate thread; This would require a rewrite to Union and C++ as calling Daedelus scripts from separate thread is not a feasible solution; Also I doubt this particular enhancement will make a dramatic difference;
+
+I believe none of the above are low hanging fruits and I have no time to explore the above so sorry, it'll run like crap :(.
 
 # Attributions
 The following CC0 License icons are used (some with slightl modifications):
