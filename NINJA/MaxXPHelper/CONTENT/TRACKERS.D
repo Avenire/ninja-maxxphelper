@@ -118,7 +118,7 @@ func void _Ninja_MaxXPHelper_Trackers_HandleToggleUseZBuffer() {
         };
         Ninja_MaxXPHelper_TextAlerts_Create(
             msg, 
-            Ninja_MaxXPHelper_SystemAlertDuration, 
+            Ninja_MaxXPHelper_SystemAlertDurationInMillis, 
             Ninja_MaxXPHelper_SystemNotificationsColor,
             TRUE
         );
@@ -134,7 +134,7 @@ func void _Ninja_MaxXPHelper_Trackers_HandleToggleMaxRenderingLevel() {
         };
         Ninja_MaxXPHelper_TextAlerts_Create(
             msg, 
-            Ninja_MaxXPHelper_SystemAlertDuration, 
+            Ninja_MaxXPHelper_SystemAlertDurationInMillis, 
             Ninja_MaxXPHelper_SystemNotificationsColor,
             TRUE
         );
@@ -193,7 +193,6 @@ func void _Ninja_MaxXPHelper_Trackers_Hook() {
         if !_Ninja_MaxXPHelper_Trackers_MaxRenderingLevelEnabled && 
             bucketsRendered >= Ninja_MaxXPHelper_TrackersRenderingLevel { break; };
     end;
-
     if Ninja_MaxXPHelper_TrackersUseZBuffer {
         // I saw 0xb0 (184) somewhere in G1 assembly so I just naively set that here (could use the actual "on function entered" value but meh).
         zRND_XD3D_SetRenderState(Ninja_MaxXPHelper_D3DRENDERSTATE_D3DRS_ALPHAREF, 184);

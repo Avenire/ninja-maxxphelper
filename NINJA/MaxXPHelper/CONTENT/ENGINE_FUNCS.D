@@ -17,6 +17,29 @@ func int Ninja_MaxXPHelper_IsVobAheadOfCamera(var zCVob vob) {
     return CALL_RetValAsInt() != 1;
 };
 
+func int Ninja_MaxXPHelper_IsPointAhead(var int xf, var int yf, var int zf) {
+    const int call = 0;
+    var int bbox[6];
+    bbox[0] = xf;
+    bbox[1] = yf;
+    bbox[2] = zf;
+    bbox[3] = xf;
+    bbox[4] = yf;
+    bbox[5] = zf;
+    var int camera; camera = _@(MEM_Camera);
+    var int bboxPtr; bboxPtr = _@(bbox);
+    const int clip = 15; // No far clip
+    var int clipPtr; clipPtr = _@(clip);
+    if (CALL_Begin(call))
+    {
+        CALL_IntParam(_@(clipPtr));
+        CALL_IntParam(_@(bboxPtr));
+        CALL__thiscall(_@(camera), MEMINT_SwitchG1G2(5467888, 5551120));
+        call = CALL_End();
+    };
+    return CALL_RetValAsInt() != 1; // ZTCAM_CLIPTYPE_OUT
+};
+
 func void Ninja_MaxXPHelper_oCNPCSearchVobList(var int bufferArrayPtr) {
 	var int worldPtrArg; worldPtrArg = _@(MEM_World);
     var int bufferArrayPtrArg; bufferArrayPtrArg = bufferArrayPtr;

@@ -1,5 +1,6 @@
 const string Ninja_MaxXPHelper_DeadOnArrivalNPCDefaultList = "";
 const string Ninja_MaxXPHelper_DeathAlertsSVM_Default = "Info_BaalLukor_ALTAR_13_05"; // the infamous "NOOOOO" ;)
+const string Ninja_MaxXPHelper_PickpocketBlacklist = "";
 
 func int Ninja_MaxXPHelper_VictoryXPReceived(var c_npc npc) {
     return npc.aivar[AIV_WASDEFEATEDBYSC];

@@ -1,6 +1,7 @@
 class Ninja_MaxXPHelper_TrackerSprite {
     var int texture;
     var int buffer;
+    var int lastUpdate;
 };
 instance Ninja_MaxXPHelper_TrackerSprite@(Ninja_MaxXPHelper_TrackerSprite) {
     buffer = 0;
@@ -193,7 +194,7 @@ func int _Ninja_MaxXPHelper_TrackerSprite_UpdateSprite(
         yfcenter, 
         zfcenter, 
         iconSize, 
-        Ninja_MaxXPHelper_MinIconSize,
+        mkf(5),
         zBufferBias
     ) {
         return FALSE;
@@ -221,6 +222,7 @@ func void Ninja_MaxXPHelper_TrackerSprite_Draw(
 ) {
     if this.buffer && this.texture {
         var int verticesPtr; verticesPtr = MEM_ReadInt(this.buffer);
+        if !Ninja_MaxXPHelper_IsPointAhead(xfcenter, yfcenter, zfcenter) { return; };
         if _Ninja_MaxXPHelper_TrackerSprite_UpdateSprite(
             verticesPtr, 
             xfcenter, 
