@@ -62,13 +62,15 @@ You can also opt in for XPNPCLocator to show only pickpocket trackers with `show
 
 In addition, pickpocketable NPCs are continuously scanned and a text alert (similar to DeathAlerts) will pop up when NPC can no longer be pickpocketed which could happen if:
 - NPC died
-- pickpocket dialogue choice become permanently unavailable. This **should** work in cases like item is looted or Ehnim no longer can be talked to. Likely, this is not 100% bulletproof though. You can read [this](/THIEF_SCANNER.md) if you want more details how this insanity works under the hood.
+- pickpocket dialogue choice become permanently unavailable. This **should** work in cases like the item is looted, for example Lehmar. 
 
 Some NPCs are never pickpocketable (no way to start a dialogue, like Skinner, or bugged, like Edda). To ignore those NPCs use `pickpocketBlacklist` ini option. By default it's set to:
 ```
 VLK_491_Vanja;VLK_471_Edda;BDT_1082_Addon_Skinner;VLK_436_Sonja;VLK_4201_Wirt;
 ```
 which should be accurate for a mercenary/dragon hunter playthrough.
+
+You can read [this](/THIEF_SCANNER.md) if you want more details how this insanity works under the hood.
 
 # Gothic.ini options explained
 After installing, start a new game or load a save to get the defaults auto-set in `system/Gothic.ini` file. The section is called `[MaxXPHelper-V1]`. No UI available, sorry, I can't be bothered. Most defaults should be good enough so no need to go through all of the below.

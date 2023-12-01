@@ -6,7 +6,7 @@ const int _Ninja_MaxXPHelper_ThiefScanner_NextGlobalNpcPtr = 0;
 const int _Ninja_MaxXPHelper_ThiefScanner_InitOnce = FALSE;
 const int _Ninja_MaxXPHelper_ThiefScanner_NPC_IsInState_HookPtr = 0;
 const int _Ninja_MaxXPHelper_ThiefScanner_HackIsState = FALSE;
-const int _Ninja_MaxXPHelper_ThiefScanner_FakeIsInStateReturn = TRUE;
+const int _Ninja_MaxXPHelper_ThiefScanner_FakeIsInStateReturn = FALSE;
 
 func int _Ninja_MaxXPHelper_ThiefScanner_CallCondition(var int condition, var C_NPC npc) {
     const int pickpocketable = 0; pickpocketable = FALSE;
@@ -63,8 +63,9 @@ func int Ninja_MaxXPHelper_ThiefScanner_EnoughDexToPickpocket(var C_NPC npc) {
     const int heroDex = 0; heroDex = hero.attribute[ATR_DEXTERITY];
     Npc_SetTalentSkill(hero, NPC_TALENT_PICKPOCKET, TRUE);
     hero.attribute[ATR_DEXTERITY] = hero.attribute[ATR_DEXTERITY] - Theftdiff;
+    // C_Beklauen does side effects if NPC is in ZS_Talk state so pretend they aren't.
     _Ninja_MaxXPHelper_ThiefScanner_HackIsState = TRUE;
-    _Ninja_MaxXPHelper_ThiefScanner_FakeIsInStateReturn = TRUE;
+    _Ninja_MaxXPHelper_ThiefScanner_FakeIsInStateReturn = FALSE;
     const int pickpocketable = 0; pickpocketable = _Ninja_MaxXPHelper_ThiefScanner_CallCondition(info.conditions, npc);
     _Ninja_MaxXPHelper_ThiefScanner_HackIsState = FALSE;
     if pickpocketable {
@@ -79,38 +80,10 @@ func int Ninja_MaxXPHelper_ThiefScanner_EnoughDexToPickpocket(var C_NPC npc) {
     return pickpocketable;
 };
 
-// why it returns true when I hack state even though permkap is not tru
-func void Ninja_MaxXPHelper_ThiefScanner_Tezt() {
-    var c_npc selfBak; selfBak = Hlp_GetNpc(self);
-
-
-    var c_npc otherBak; otherBak = Hlp_GetNpc(other);
-    self = Hlp_GetNpc(BAU_944_Ehnim);
-    other = Hlp_GetNpc(hero);
-    const int f = 0;
-    Ninja_MaxXPHelper_LogInfo(ConcatStrings("DIA_Ehnim_STREIT5_noPerm ", inttostring(DIA_Ehnim_STREIT5_noPerm)));
-    _Ninja_MaxXPHelper_ThiefScanner_HackIsState = TRUE;
-    _Ninja_MaxXPHelper_ThiefScanner_FakeIsInStateReturn = TRUE;
-    f = FALSE;
-    f;
-    f = DIA_Ehnim_PERMKAP1_Condition();
-    _Ninja_MaxXPHelper_ThiefScanner_HackIsState = FALSE;
-    
-    if f {
-        Ninja_MaxXPHelper_LogInfo(ConcatStrings("Oh no it iz tru ", inttostring(f)));
-    };
-    self = Hlp_GetNpc(selfBak);
-    other = Hlp_GetNpc(otherBak);
-    
-};
 const int _Ninja_MaxXPHelper_ThiefScanner_FullyScanned = FALSE;
 func void _Ninja_MaxXPHelper_ThiefScanner_RefreshLoop() {
     if !Ninja_MaxXPHelper_ShouldRunHook() {
         return;
-    };
-
-    if MEM_KeyState(KEY_Y) == KEY_PRESSED {
-        Ninja_MaxXPHelper_ThiefScanner_Tezt();
     };
 
     if !Ninja_MaxXPHelper_ConsiderPickpocketing { return; };
@@ -148,7 +121,11 @@ func void _Ninja_MaxXPHelper_ThiefScanner_RefreshLoop() {
             const int isDead = 0; isDead = Npc_IsDead(npc);
             const int pickpocketable = 0; pickpocketable = !isDead;
             if pickpocketable {
-                pickpocketable = _Ninja_MaxXPHelper_ThiefScanner_CallCondition(info.conditions, npc);
+                // C_Beklauen does side effects if NPC is in ZS_Talk state so pretend they aren't.
+                _Ninja_MaxXPHelper_ThiefScanner_HackIsState = TRUE;
+                _Ninja_MaxXPHelper_ThiefScanner_FakeIsInStateReturn = FALSE;
+                const int pickpocketable = 0; pickpocketable = _Ninja_MaxXPHelper_ThiefScanner_CallCondition(info.conditions, npc);
+                _Ninja_MaxXPHelper_ThiefScanner_HackIsState = FALSE;
             };
             // If we're checking NPC for the first time then remember if they are pickpocketable at this point (they might become later).
             if !_Ninja_MaxXPHelper_ThiefScanner_FullyScanned {
@@ -320,5 +297,4 @@ func void Ninja_MaxXPHelper_ThiefScanner_Init() {
     
     _Ninja_MaxXPHelper_ThiefScanner_Hook_NPC_IsInState_External();
     FF_ApplyOnceGT(_Ninja_MaxXPHelper_ThiefScanner_RefreshLoop);
-    //HookDaedalusFuncS("DIA_Ehnim_PERMKAP1_Condition", "DIA_Ehnim_PERMKAP1_Condition_");
 };

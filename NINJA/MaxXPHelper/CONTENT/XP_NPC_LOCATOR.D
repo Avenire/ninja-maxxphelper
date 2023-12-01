@@ -193,11 +193,6 @@ func void _Ninja_MaxXPHelper_XPNPCLocator_ProcessNearbyNPCs()
         idx = idx + 1;
         if processed > Ninja_MaxXPHelper_XPNPCLocator_MaxNPCToProcessEachFrameBeforeYield {
             break;
-            processed = processed + 1;
-        };
-        idx = idx + 1;
-        if processed > Ninja_MaxXPHelper_XPNPCLocator_MaxNPCToProcessEachFrameBeforeYield {
-            break;
         };
 	end;
 };

@@ -1,7 +1,6 @@
 class Ninja_MaxXPHelper_TrackerSprite {
     const int texture = 0;
     const int buffer = 0;
-    const int lastUpdate = 0;
 };
 instance Ninja_MaxXPHelper_TrackerSprite@(Ninja_MaxXPHelper_TrackerSprite) {
     buffer = 0;
