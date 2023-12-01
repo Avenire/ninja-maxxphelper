@@ -16,7 +16,7 @@ func int Ninja_MaxXPHelper_IsKnockable(var c_npc _self, var c_npc _other) {
     var c_npc otherBak; otherBak = Hlp_GetNpc (other);
     self = Hlp_GetNpc (_self);
     other = Hlp_GetNpc (_other);
-    var int res; res = C_DropUnconscious();
+    const int res = 0; res = C_DropUnconscious();
     self = Hlp_GetNpc (selfBak);
     other = Hlp_GetNpc (otherBak);
     return res;

@@ -34,11 +34,11 @@ const int Ninja_MaxXPHelper_SystemAlertDurationInMillis = 0;
 
 
 func int Ninja_MaxXPHelper_GetKeyCodeOptOrSetDefault(var string optionKey, var string defaultKeyName) {
-    var int keyCode; keyCode = 0;
+    const int keyCode = 0; keyCode = 0;
     var zCPar_Symbol symb;
     if MEM_GothOptExists(Ninja_MaxXPHelper_SectionName, optionKey) {
         var string configuredKey; configuredKey = MEM_GetGothOpt(Ninja_MaxXPHelper_SectionName, optionKey);
-        var int symbolPtr; symbolPtr = MEM_GetSymbol(configuredKey);
+        const int symbolPtr = 0; symbolPtr = MEM_GetSymbol(configuredKey);
         if symbolPtr {
             symb = _^(symbolPtr);
             if symb.content && 
@@ -68,7 +68,7 @@ func void Ninja_MaxXPHelper_SetIntOpt(var string optionKey, var int value) {
 };
 
 func int Ninja_MaxXPHelper_GetIntOptOrSetDefault(var string optionKey, var int defaultValue) {
-    var int value; value = defaultValue;
+    const int value = 0; value = defaultValue;
     if MEM_GothOptExists(Ninja_MaxXPHelper_SectionName, optionKey) {
         value = STR_ToInt(
             MEM_GetGothOpt(
@@ -95,7 +95,7 @@ func string Ninja_MaxXPHelper_GetStrOptOrSetDefault(var string optionKey, var st
 func int Ninja_MaxXPHelper_GetRGBColorOptOrSetDefault(var string optionKey, var int defaultValue) {
     if MEM_GothOptExists(Ninja_MaxXPHelper_SectionName, optionKey) {
         var string colorHex; colorHex = MEM_GetGothOpt(Ninja_MaxXPHelper_SectionName, optionKey);
-        var int colorHexLen; colorHexLen = STR_Len(colorHex);        
+        const int colorHexLen = 0; colorHexLen = STR_Len(colorHex);        
         // #RRGGBB is 7 chars
         if  colorHexLen == 7 && 
             STR_GetCharAt(colorHex, 0) == STR_ToChar("#") {
@@ -115,7 +115,7 @@ func int Ninja_MaxXPHelper_GetRGBColorOptOrSetDefault(var string optionKey, var 
             );
         };
     };
-    var int s; s = SB_New();
+    const int s = 0; s = SB_New();
     SB("#");
     SB(MEMINT_ByteToKeyHex(defaultValue>>16));
     SB(MEMINT_ByteToKeyHex(defaultValue>>8));

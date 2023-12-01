@@ -34,11 +34,11 @@ func int Ninja_MaxXPHelper_IsNpcSpawned(var oCNPC npc) {
 };
 
 func int _Ninja_MaxXPHelper_zCListSort_Cycle(var int zCListSort_currentPtr_Ptr, var int zCListSort_rootPtr) {
-    var int ptr; ptr = MEM_ReadInt(zCListSort_currentPtr_Ptr);
+    const int ptr = 0; ptr = MEM_ReadInt(zCListSort_currentPtr_Ptr);
     if !ptr {
         MEM_WriteInt(zCListSort_currentPtr_Ptr, zCListSort_rootPtr);
     };
-    var int listPtr; listPtr = ptr;
+    const int listPtr = 0; listPtr = ptr;
     var zCListSort list;
     if !listPtr {
         return 0;
@@ -54,7 +54,7 @@ func int Ninja_MaxXPHelper_CanNpcSpawn(var oCNPC npc) {
 };
 
 func string Ninja_MaxXPHelper_GetInstanceName(var oCNPC npc) {
-    var int symbolPtr; symbolPtr = MEM_GetSymbolByIndex(Hlp_GetInstanceID(npc));
+    const int symbolPtr = 0; symbolPtr = MEM_GetSymbolByIndex(Hlp_GetInstanceID(npc));
     if !symbolPtr {
         return "";
     };
@@ -99,7 +99,7 @@ func void Ninja_MaxXPHelper_HT_InsertOrChange(var int ptr, var int key, var int 
 
 func void Ninja_MaxXPHelper_HT_ClearAndCreate(var int htPtr, var int foreachFuncPtrMaybe) {
     if !htPtr { return; };
-    var int ptr; ptr = MEM_ReadInt(htPtr);
+    const int ptr = 0; ptr = MEM_ReadInt(htPtr);
     if ptr {
         if foreachFuncPtrMaybe {
             //Ninja_MaxXPHelper_HT_ForEach(htPtr, foreachFuncPtrMaybe);

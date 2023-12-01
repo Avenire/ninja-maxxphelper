@@ -20,7 +20,7 @@ const string Ninja_MaxXPHelper_LOC_PickpocketWarningDeath = "Not Pickpocketable 
 
 // https://github.com/szapp/Ninja/wiki/Inject-Changes#localization
 func int Ninja_MaxXPHelper_GuessLocalization() { // Adjust the name!
-    var int pan; pan = MEM_GetSymbol("MOBNAME_PAN");
+    const int pan = 0; pan = MEM_GetSymbol("MOBNAME_PAN");
     if (pan) {
         var zCPar_Symbol panSymb; panSymb = _^(pan);
         var string panName; panName = MEM_ReadString(panSymb.content);
@@ -36,6 +36,6 @@ func int Ninja_MaxXPHelper_GuessLocalization() { // Adjust the name!
 };
 
 func void Ninja_MaxXPHelper_Localization_Init() {
-    var int lang; lang = Ninja_MaxXPHelper_GuessLocalization();
+    const int lang = 0; lang = Ninja_MaxXPHelper_GuessLocalization();
     // todo
 };

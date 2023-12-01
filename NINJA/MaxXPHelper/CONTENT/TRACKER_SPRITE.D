@@ -1,7 +1,7 @@
 class Ninja_MaxXPHelper_TrackerSprite {
-    var int texture;
-    var int buffer;
-    var int lastUpdate;
+    const int texture = 0;
+    const int buffer = 0;
+    const int lastUpdate = 0;
 };
 instance Ninja_MaxXPHelper_TrackerSprite@(Ninja_MaxXPHelper_TrackerSprite) {
     buffer = 0;
@@ -24,7 +24,7 @@ func void _Ninja_MaxXPHelper_Trackers_UpdateVertex(
     var int zf,
     var int color
 ) {
-    var int resPtr; resPtr = verticesPtr + vertexIdx * sizeof_zTRndSimpleVertex;
+    const int resPtr = 0; resPtr = verticesPtr + vertexIdx * sizeof_zTRndSimpleVertex;
     MEM_WriteInt(resPtr, xf);
     MEM_WriteInt(resPtr + 4, yf);
     MEM_WriteInt(resPtr + 8, zf);
@@ -50,8 +50,8 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
     // zTBSphere3D::Draw, not sure if there's an engine call I could use, this seems to work fine.
     // Pretty much all ints here should be interpreted as 32bit floats.
 
-    var int halfside; halfside = mulf(sideSize, FLOATHALF);
-    var int xCamera; xCamera = addf(
+    const int halfside = 0; halfside = mulf(sideSize, FLOATHALF);
+    const int xCamera = 0; xCamera = addf(
         addf(
             mulf(MEM_Camera.trafoView[0], xfcenter),
             mulf(MEM_Camera.trafoView[1], yfcenter)
@@ -61,7 +61,7 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
             MEM_Camera.trafoView[3]
         )
     );
-    var int yCamera; yCamera = addf(
+    const int yCamera = 0; yCamera = addf(
         addf(
             mulf(MEM_Camera.trafoView[5], yfcenter),
             mulf(MEM_Camera.trafoView[4], xfcenter)
@@ -71,7 +71,7 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
             MEM_Camera.trafoView[7]
         )
     );
-    var int zCamera; zCamera = addf(
+    const int zCamera = 0; zCamera = addf(
         addf(
             mulf(MEM_Camera.trafoView[9], yfcenter),
             mulf(MEM_Camera.trafoView[8], xfcenter)
@@ -93,7 +93,7 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
     // Formula straight from wiki (Fixed-point representation, simplied). Works well so far.
     // https://en.wikipedia.org/wiki/Z-buffering
     // Values gets normalized to [0,1]
-    var int depthValue; depthValue = addf(
+    const int depthValue = 0; depthValue = addf(
         divf(MEM_Camera.farClipZ, subf(MEM_Camera.farClipZ, MEM_Camera.nearClipZ)),
         divf(
             divf(
@@ -112,7 +112,7 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
     };
     _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[3] = depthValue;
     
-    var int xCameraTranslatedByHalfSideInPerspective; 
+    const int xCameraTranslatedByHalfSideInPerspective = 0; 
     xCameraTranslatedByHalfSideInPerspective = subf(
         addf(
             mulf(
@@ -141,7 +141,7 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
             MEM_Camera.xcenter
         )
     );
-    var int yCameraTranslatedByHalfSideInPerspective; 
+    const int yCameraTranslatedByHalfSideInPerspective = 0; 
     yCameraTranslatedByHalfSideInPerspective = subf(
         subf(
             MEM_Camera.ycenter, 
@@ -164,14 +164,14 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
             )
         )
     );
-    var int px; var int py;
+    const int px = 0; var int py;
     Ninja_MaxXPHelper_ProjectCameraToPx(
         _@(_Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result), 
         _@(px), 
         _@(py)
     );
 
-    var int sideSizeShift; sideSizeShift = yCameraTranslatedByHalfSideInPerspective;
+    const int sideSizeShift = 0; sideSizeShift = yCameraTranslatedByHalfSideInPerspective;
     if gf(xCameraTranslatedByHalfSideInPerspective, sideSizeShift) {
         sideSizeShift = xCameraTranslatedByHalfSideInPerspective;        
     };
@@ -188,7 +188,7 @@ func int _Ninja_MaxXPHelper_TrackerSprite_UpdateSprite(
     var int verticesPtr, var int xfcenter, var int yfcenter, var int zfcenter, var int color, var int iconSize,
     var int zBufferBias
 ) {
-    var int px; var int py;
+    const int px = 0; var int py;
     if !_Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
         xfcenter, 
         yfcenter, 
@@ -199,15 +199,15 @@ func int _Ninja_MaxXPHelper_TrackerSprite_UpdateSprite(
     ) {
         return FALSE;
     };
-    var int px; px = _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[0];
-    var int py; py = _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[1];
-    var int wh; wh = _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[2];
+    const int px = 0; px = _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[0];
+    const int py = 0; py = _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[1];
+    const int wh = 0; wh = _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[2];
     if gf(wh, iconSize) {
         wh = iconSize;
     };
-    var int nwh; nwh = negf(wh);
-    var int d; d = FLOATONE;
-    var int depthValue; depthValue = _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[3];
+    const int nwh = 0; nwh = negf(wh);
+    const int d = 0; d = FLOATONE;
+    const int depthValue = 0; depthValue = _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[3];
     _Ninja_MaxXPHelper_Trackers_UpdateVertex(verticesPtr, 0, addf(px, nwh), addf(py, nwh), depthValue, color);
     _Ninja_MaxXPHelper_Trackers_UpdateVertex(verticesPtr, 1, addf(px, wh), addf(py, nwh), depthValue, color);
     _Ninja_MaxXPHelper_Trackers_UpdateVertex(verticesPtr, 2, addf(px, wh), addf(py, wh), depthValue, color);
@@ -221,7 +221,7 @@ func void Ninja_MaxXPHelper_TrackerSprite_Draw(
     var int zBufferBias
 ) {
     if this.buffer && this.texture {
-        var int verticesPtr; verticesPtr = MEM_ReadInt(this.buffer);
+        const int verticesPtr = 0; verticesPtr = MEM_ReadInt(this.buffer);
         if !Ninja_MaxXPHelper_IsPointAhead(xfcenter, yfcenter, zfcenter) { return; };
         if _Ninja_MaxXPHelper_TrackerSprite_UpdateSprite(
             verticesPtr, 
@@ -246,7 +246,7 @@ func int Ninja_MaxXPHelper_TrackerSprite_Create(var string textureName) {
     arr.numInArray = sizeof_zTRndSimpleVertex;
     arr.numAlloc = sizeof_zTRndSimpleVertex;
     arr.array = MEM_Alloc(4 * sizeof_zTRndSimpleVertex);
-    var int off; off = MEM_ReadInt(trackerSprite.buffer);
+    const int off = 0; off = MEM_ReadInt(trackerSprite.buffer);
     MEM_WriteInt(off + 12, FLOATNULL);
     MEM_WriteInt(off + 16, FLOATNULL);
     off += sizeof_zTRndSimpleVertex;

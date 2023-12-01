@@ -14,12 +14,12 @@ func string _Ninja_MaxXPHelper_XPNPCLocator_NpcToTexture(var c_npc npc) {
         };
         return "MAXXPHELPER_KNOCKOUT.tga";
     };
-    var int att; att = Npc_GetPermAttitude(hero, npc);
+    const int att = 0; att = Npc_GetPermAttitude(hero, npc);
     return "MAXXPHELPER_KILL.tga";
 }; 
 
 func int _Ninja_MaxXPHelper_XPNPCLocator_NpcToColor(var c_npc npc) {
-    var int att; att = Npc_GetPermAttitude(hero, npc);
+    const int att = 0; att = Npc_GetPermAttitude(hero, npc);
     if att != ATT_HOSTILE { 
         return Ninja_MaxXPHelper_XPNPCLocatorNonHostileColor; 
     } else { 
@@ -30,15 +30,15 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_NpcToColor(var c_npc npc) {
 const int _Ninja_MaxXPHelper_XPNPCLocator_TryGetLocation_Result[3] = {0,0,0}; 
 func int _Ninja_MaxXPHelper_XPNPCLocator_TryGetLocation(var oCNPC npc) {
     const int empty[3] = {0,0,0};
-    var int x; x = 0; 
-    var int y; y = 0; 
-    var int z; z = 0;
+    const int x = 0; x = 0; 
+    const int y = 0; y = 0; 
+    const int z = 0; z = 0;
     if !Ninja_MaxXPHelper_IsNpcSpawned(npc) {
         // todo: do all of this once per NPC?
         if !Ninja_MaxXPHelper_CanNpcSpawn(npc) {
             return FALSE;
         };
-        var int altLocationPtr; altLocationPtr = Ninja_MaxXPHelper_HT_Get(
+        const int altLocationPtr = 0; altLocationPtr = Ninja_MaxXPHelper_HT_Get(
             _Ninja_MaxXPHelper_XPNPCLocator_NPCToAlternativeTrackerLocation_HT,
             _@(npc)
         );
@@ -50,7 +50,7 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_TryGetLocation(var oCNPC npc) {
         } else {
             // Some NPCs in G2 seem to have incorrect waypoint set (lizard in NW_CITY_HARBOUR_01)
             // so need to check spawn position first
-            var int i; i = 0;
+            const int i = 0; i = 0;
             while (i < MEM_SpawnManager.spawnList_numInArray);
                 var oTSpawnNode node; node = _^(MEM_ArrayRead(_@(MEM_SpawnManager), i));
                 if node.npc == _@(npc) {
@@ -64,7 +64,7 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_TryGetLocation(var oCNPC npc) {
             end;
             // This can however still be world origin (0,0,0) so if that's the case then fallback to WP location...
             if x == FLOATNULL && y == FLOATNULL && z == FLOATNULL {
-                var int waypointPointer; waypointPointer = Ninja_MaxXPHelper_GetWaypointByName(npc.wpname);
+                const int waypointPointer = 0; waypointPointer = Ninja_MaxXPHelper_GetWaypointByName(npc.wpname);
                 if waypointPointer {
                     var zCWaypoint wp; wp = _^(waypointPointer);
                     x = wp.pos[0];
@@ -96,12 +96,12 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int proce
         return FALSE;
     };
 
-    var int x; x = 0; 
-    var int y; y = 0; 
-    var int z; z = 0;
+    const int x = 0; x = 0; 
+    const int y = 0; y = 0; 
+    const int z = 0; z = 0;
     
-    var int trackerKey; trackerKey = _@(npc);
-    var int trackerHandle; trackerHandle = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_XPNPCLocator_HandlesHT, trackerKey);
+    const int trackerKey = 0; trackerKey = _@(npc);
+    const int trackerHandle = 0; trackerHandle = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_XPNPCLocator_HandlesHT, trackerKey);
     if  Npc_IsDead(cnpc) {
         Ninja_MaxXPHelper_Trackers_Hide(trackerHandle, FALSE);
         return FALSE;
@@ -117,10 +117,10 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int proce
     );
     
     var string texture; texture = _Ninja_MaxXPHelper_XPNPCLocator_NpcToTexture(cnpc);
-    var int color; color = _Ninja_MaxXPHelper_XPNPCLocator_NpcToColor(cnpc);
+    const int color = 0; color = _Ninja_MaxXPHelper_XPNPCLocator_NpcToColor(cnpc);
     if Ninja_MaxXPHelper_ConsiderPickpocketing && Ninja_MaxXPHelper_ThiefScanner_CanPickpocketNpc(cnpc) {
         texture = "MAXXPHELPER_PICKPOCKET.tga";
-        var int enoughDex; enoughDex = Ninja_MaxXPHelper_ThiefScanner_EnoughDexToPickpocket(cnpc);
+        const int enoughDex = 0; enoughDex = Ninja_MaxXPHelper_ThiefScanner_EnoughDexToPickpocket(cnpc);
         if enoughDex == Ninja_MaxXPHelper_ThiefScanner_Unknown {
             color = Ninja_MaxXPHelper_PickpocketIndeterminableColor;
         } else if enoughDex == Ninja_MaxXPHelper_ThiefScanner_SeemsEnough {
@@ -148,7 +148,7 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int proce
         Ninja_MaxXPHelper_HT_Insert(_Ninja_MaxXPHelper_XPNPCLocator_HandlesHT, trackerHandle, trackerKey);
     };
 
-    var int priority; priority = Ninja_MaxXPHelper_Trackers_MaxPriority;
+    const int priority = 0; priority = Ninja_MaxXPHelper_Trackers_MaxPriority;
     if !processingNearby {
         Ninja_MaxXPHelper_Trackers_GetHeroDistanceBasedPriority(x, y, z);
         priority = Ninja_MaxXPHelper_Trackers_DistancePriority_Result[1];
@@ -174,9 +174,9 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int proce
 
 func void _Ninja_MaxXPHelper_XPNPCLocator_ProcessNearbyNPCs() 
 {
-    var int idx;
-    var int size;
-    var int processed; processed = 0;
+    const int idx = 0;
+    const int size = 0;
+    const int processed = 0; processed = 0;
     if idx == size {
         MEM_ArrayClear(_Ninja_MaxXPHelper_XPNPCLocator_NearbyNPCArray);
         Ninja_MaxXPHelper_oCNPCSearchVobList(_Ninja_MaxXPHelper_XPNPCLocator_NearbyNPCArray);
@@ -230,9 +230,9 @@ func void _Ninja_MaxXPHelper_XPNPCLocator_ReadInput() {
 };
 
 func void _Ninja_MaxXPHelper_XPNPCLocator_ProcessGlobalNPCs() {
-    var int processed; processed = 0;
+    const int processed = 0; processed = 0;
     while (TRUE);
-        var int npcPtr; npcPtr = _Ninja_MaxXPHelper_zCListSort_Cycle(_@(_Ninja_MaxXPHelper_XPNPCLocator_NextGlobalNpcPtr), MEM_World.voblist_npcs);
+        const int npcPtr = 0; npcPtr = _Ninja_MaxXPHelper_zCListSort_Cycle(_@(_Ninja_MaxXPHelper_XPNPCLocator_NextGlobalNpcPtr), MEM_World.voblist_npcs);
         if !npcPtr {
             _Ninja_MaxXPHelper_XPNPCLocator_NPCFullPassCycle = _Ninja_MaxXPHelper_XPNPCLocator_NPCFullPassCycle + 1;
         };

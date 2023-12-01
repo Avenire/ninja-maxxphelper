@@ -7,18 +7,18 @@ const int _Ninja_MaxXPHelper_Trackers_FrameTime = 0;
 const int _Ninja_MaxXPHelper_Trackers_MaxRenderingLevelEnabled = 0;
 
 class _Ninja_MaxXPHelper_Tracker {
-    var int xfcenter;
-    var int yfcenter;
-    var int zfcenter;
+    const int xfcenter = 0;
+    const int yfcenter = 0;
+    const int zfcenter = 0;
     var string textureName;
-    var int trackerSprite;
-    var int color;
-    var int priority;
-    var int next;
-    var int prev;
-    var int skip;
-    var int autoExpireAt;
-    var int zBufferBias;
+    const int trackerSprite = 0;
+    const int color = 0;
+    const int priority = 0;
+    const int next = 0;
+    const int prev = 0;
+    const int skip = 0;
+    const int autoExpireAt = 0;
+    const int zBufferBias = 0;
 };
 
 instance _Ninja_MaxXPHelper_Tracker@(_Ninja_MaxXPHelper_Tracker) {
@@ -36,13 +36,13 @@ func void _Ninja_MaxXPHelper_Tracker_Delete(var _Ninja_MaxXPHelper_Tracker this)
 const int Ninja_MaxXPHelper_Trackers_DistancePriority_Result[2] = {0,0};
 func void Ninja_MaxXPHelper_Trackers_GetHeroDistanceBasedPriority(var int xf, var int yf, var int zf) {
     var oCNPC heroNpc; heroNpc = Hlp_GetNpc(hero);
-    var int x; x = heroNpc._zCVob_trafoObjToWorld[zCVob_trafoObjToWorld_X];
-    var int y; y = heroNpc._zCVob_trafoObjToWorld[zCVob_trafoObjToWorld_Y];
-    var int z; z = heroNpc._zCVob_trafoObjToWorld[zCVob_trafoObjToWorld_Z];
-    var int dx; dx = subf(x, xf);
-    var int dy; dy = subf(y, yf);
-    var int dz; dz = subf(z, zf);
-    var int dist; dist = sqrtf(
+    const int x = 0; x = heroNpc._zCVob_trafoObjToWorld[zCVob_trafoObjToWorld_X];
+    const int y = 0; y = heroNpc._zCVob_trafoObjToWorld[zCVob_trafoObjToWorld_Y];
+    const int z = 0; z = heroNpc._zCVob_trafoObjToWorld[zCVob_trafoObjToWorld_Z];
+    const int dx = 0; dx = subf(x, xf);
+    const int dy = 0; dy = subf(y, yf);
+    const int dz = 0; dz = subf(z, zf);
+    const int dist = 0; dist = sqrtf(
         addf(
             mulf(dx, dx),
             addf(
@@ -56,7 +56,7 @@ func void Ninja_MaxXPHelper_Trackers_GetHeroDistanceBasedPriority(var int xf, va
 };
 
 func void Ninja_MaxXPHelper_Trackers_Release(var int trackerId) {
-    var int trackerPtr; trackerPtr = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
+    const int trackerPtr = 0; trackerPtr = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
     if !trackerPtr { return; };
     var _Ninja_MaxXPHelper_Tracker tracker; tracker = _^(trackerPtr);
     if trackerPtr == MEM_ReadIntArray(_Ninja_MaxXPHelper_Trackers_BucketsArray, tracker.priority) {
@@ -154,8 +154,8 @@ func void _Ninja_MaxXPHelper_Trackers_Hook() {
     _Ninja_MaxXPHelper_Trackers_HandleToggleUseZBuffer();
     _Ninja_MaxXPHelper_Trackers_HandleToggleMaxRenderingLevel();
 
-    var int bucketsRendered; bucketsRendered = 0;
-    var int zrendererPtr; zrendererPtr = MEM_ReadInt(zrenderer_adr);
+    const int bucketsRendered = 0; bucketsRendered = 0;
+    const int zrendererPtr = 0; zrendererPtr = MEM_ReadInt(zrenderer_adr);
     zRND_D3D_SetAlphaBlendFunc(zRND_ALPHA_FUNC_BLEND);
     if Ninja_MaxXPHelper_TrackersUseZBuffer {
         zRND_XD3D_SetRenderState(D3DRS_ZENABLE, true);
@@ -171,11 +171,11 @@ func void _Ninja_MaxXPHelper_Trackers_Hook() {
         zRND_XD3D_SetRenderState(D3DRS_ZENABLE, false);
     };
 
-    var int rendered; rendered = 0;
+    const int rendered = 0; rendered = 0;
     _Ninja_MaxXPHelper_Trackers_FrameTime = TimerGT();
-    var int maxBucketsToRender; maxBucketsToRender = Ninja_MaxXPHelper_TrackersRenderingLevel;
-    repeat(i, _Ninja_MaxXPHelper_Trackers_MaxBuckets - 2); var int i;
-        var int bucketRoot; bucketRoot = MEM_ReadIntArray(_Ninja_MaxXPHelper_Trackers_BucketsArray, i);
+    const int maxBucketsToRender = 0; maxBucketsToRender = Ninja_MaxXPHelper_TrackersRenderingLevel;
+    repeat(i, _Ninja_MaxXPHelper_Trackers_MaxBuckets - 2); const int i = 0;
+        const int bucketRoot = 0; bucketRoot = MEM_ReadIntArray(_Ninja_MaxXPHelper_Trackers_BucketsArray, i);
         if bucketRoot {
             while (bucketRoot);
                 var _Ninja_MaxXPHelper_Tracker curr; curr = _^(bucketRoot);
@@ -209,7 +209,7 @@ func void _Ninja_MaxXPHelper_Trackers_InitBuckets() {
         MEM_Free(_Ninja_MaxXPHelper_Trackers_BucketsArray);
     };
     _Ninja_MaxXPHelper_Trackers_BucketsArray = MEM_Alloc(4 * _Ninja_MaxXPHelper_Trackers_MaxBuckets);
-        repeat(i, _Ninja_MaxXPHelper_Trackers_MaxBuckets - 1); var int i;
+        repeat(i, _Ninja_MaxXPHelper_Trackers_MaxBuckets - 1); const int i = 0;
         MEM_WriteIntArray(_Ninja_MaxXPHelper_Trackers_BucketsArray, i, 0);
     end;
 };
@@ -244,9 +244,9 @@ func void Ninja_MaxXPHelper_Trackers_Init() {
 };
 
 func int Ninja_MaxXPHelper_Trackers_Create() {
-    var int trackerPtr; trackerPtr = create(_Ninja_MaxXPHelper_Tracker@);
+    const int trackerPtr = 0; trackerPtr = create(_Ninja_MaxXPHelper_Tracker@);
     Ninja_MaxXPHelper_HT_Insert(_Ninja_MaxXPHelper_Trackers_Handles, trackerPtr, _Ninja_MaxXPHelper_Trackers_NextID);
-    var int rootPtr; rootPtr = MEM_ReadIntArray(_Ninja_MaxXPHelper_Trackers_BucketsArray, _Ninja_MaxXPHelper_Trackers_MaxBuckets - 1);
+    const int rootPtr = 0; rootPtr = MEM_ReadIntArray(_Ninja_MaxXPHelper_Trackers_BucketsArray, _Ninja_MaxXPHelper_Trackers_MaxBuckets - 1);
     if rootPtr {
         var _Ninja_MaxXPHelper_Tracker oldRootTracker; oldRootTracker = _^(rootPtr);
         var _Ninja_MaxXPHelper_Tracker newRootTracker; newRootTracker = _^(trackerPtr);
@@ -259,9 +259,9 @@ func int Ninja_MaxXPHelper_Trackers_Create() {
 };
 
 func void _Ninja_MaxXPHelper_Trackers_MoveBucket(var _Ninja_MaxXPHelper_Tracker tracker, var int newBucketIdx) {
-    var int newBucketRootPtr; newBucketRootPtr = MEM_ReadIntArray(_Ninja_MaxXPHelper_Trackers_BucketsArray, newBucketIdx);
-    var int oldBucketRootPtr; oldBucketRootPtr = MEM_ReadIntArray(_Ninja_MaxXPHelper_Trackers_BucketsArray, tracker.priority);
-    var int trackerPtr; trackerPtr = _@(tracker);
+    const int newBucketRootPtr = 0; newBucketRootPtr = MEM_ReadIntArray(_Ninja_MaxXPHelper_Trackers_BucketsArray, newBucketIdx);
+    const int oldBucketRootPtr = 0; oldBucketRootPtr = MEM_ReadIntArray(_Ninja_MaxXPHelper_Trackers_BucketsArray, tracker.priority);
+    const int trackerPtr = 0; trackerPtr = _@(tracker);
     if tracker.priority == newBucketIdx {
         return;
     };
@@ -289,26 +289,26 @@ func void _Ninja_MaxXPHelper_Trackers_MoveBucket(var _Ninja_MaxXPHelper_Tracker 
 };
 
 func void Ninja_MaxXPHelper_Trackers_SetAutoExpire(var int trackerId, var int durationInMillis) {
-    var int trackerPtr; trackerPtr = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
+    const int trackerPtr = 0; trackerPtr = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
     if !trackerPtr { return; };
     var _Ninja_MaxXPHelper_Tracker tracker; tracker = _^(trackerPtr);
     tracker.autoExpireAt = TimerGT() + durationInMillis;
 };
 
 func void Ninja_MaxXPHelper_Trackers_SetZBufferBias(var int trackerId, var int zBufferBias) {
-    var int trackerPtr; trackerPtr = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
+    const int trackerPtr = 0; trackerPtr = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
     if !trackerPtr { return; };
     var _Ninja_MaxXPHelper_Tracker tracker; tracker = _^(trackerPtr);
     tracker.zBufferBias = zBufferBias;
 };
 
 func void Ninja_MaxXPHelper_Trackers_Hide(var int trackerId, var int keepPriority) {
-    var int trackerPtr; trackerPtr = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
+    const int trackerPtr = 0; trackerPtr = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
     if !trackerPtr { return; };
     var _Ninja_MaxXPHelper_Tracker tracker; tracker = _^(trackerPtr);
     tracker.skip = TRUE;
     if !keepPriority {
-        var int priority; priority = _Ninja_MaxXPHelper_Trackers_MaxBuckets - 1;
+        const int priority = 0; priority = _Ninja_MaxXPHelper_Trackers_MaxBuckets - 1;
         _Ninja_MaxXPHelper_Trackers_MoveBucket(tracker, priority);
         tracker.priority = priority;
     };
@@ -323,7 +323,7 @@ func void Ninja_MaxXPHelper_Trackers_Show(
     var int priority,
     var string textureName
 ) {
-    var int trackerPtr; trackerPtr = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
+    const int trackerPtr = 0; trackerPtr = Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_Trackers_Handles, trackerId);
     if !trackerPtr { return; };
     var _Ninja_MaxXPHelper_Tracker tracker; tracker = _^(trackerPtr);
     if priority < 0 {

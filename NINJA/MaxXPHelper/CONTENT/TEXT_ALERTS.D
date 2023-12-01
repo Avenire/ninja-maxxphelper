@@ -5,11 +5,11 @@ const int _Ninja_MaxXPHelper_TextAlerts_MaxActiveCount = 5;
 const int _Ninja_MaxXPHelper_TextAlerts_Duration = 5000;
 
 class _Ninja_MaxXPHelper_TextAlert {
-    var int expiresAfter;
+    const int expiresAfter = 0;
     var string message;
-    var int color;
-    var int onShowFnc;
-    var int next;
+    const int color = 0;
+    const int onShowFnc = 0;
+    const int next = 0;
 };
 instance _Ninja_MaxXPHelper_TextAlert@(_Ninja_MaxXPHelper_TextAlert) {
     expiresAfter = 0;
@@ -22,7 +22,7 @@ instance _Ninja_MaxXPHelper_TextAlert@(_Ninja_MaxXPHelper_TextAlert) {
 func int _Ninja_MaxXPHelper_TextAlerts_Enqueue(var int rootHandle, var int newAlertHandle) {
     if Hlp_IsValidHandle(rootHandle) {
         var _Ninja_MaxXPHelper_TextAlert rootNode;
-        var int currHandle; currHandle = rootHandle;
+        const int currHandle = 0; currHandle = rootHandle;
         while (Hlp_IsValidHandle(currHandle));
             rootNode = get(currHandle);
             currHandle = rootNode.next;
@@ -46,7 +46,7 @@ func void _Ninja_MaxXPHelper_TextAlerts_CallOnShowFunc(var int alertHandle) {
 func void _Ninja_MaxXPHelper_TextAlerts_Show() {
     if Timer_IsPaused() { return; };
     while (Hlp_IsValidHandle(_Ninja_MaxXPHelper_TextAlerts_ActiveQueue));
-        var int alertHandle; alertHandle = _Ninja_MaxXPHelper_TextAlerts_ActiveQueue;
+        const int alertHandle = 0; alertHandle = _Ninja_MaxXPHelper_TextAlerts_ActiveQueue;
         var _Ninja_MaxXPHelper_TextAlert alert; alert =  get(alertHandle);
         if  alert.expiresAfter < TimerGT() {
             _Ninja_MaxXPHelper_TextAlerts_ActiveCount -= 1;
@@ -60,7 +60,7 @@ func void _Ninja_MaxXPHelper_TextAlerts_Show() {
         Hlp_IsValidHandle(_Ninja_MaxXPHelper_TextAlerts_WaitingQueue) && 
         _Ninja_MaxXPHelper_TextAlerts_ActiveCount < _Ninja_MaxXPHelper_TextAlerts_MaxActiveCount
     );
-        var int alertHandle; alertHandle = _Ninja_MaxXPHelper_TextAlerts_WaitingQueue;
+        const int alertHandle = 0; alertHandle = _Ninja_MaxXPHelper_TextAlerts_WaitingQueue;
         var _Ninja_MaxXPHelper_TextAlert alert; alert = get(alertHandle);
         _Ninja_MaxXPHelper_TextAlerts_ActiveCount += 1;
         _Ninja_MaxXPHelper_TextAlerts_CallOnShowFunc(alertHandle);
@@ -89,7 +89,7 @@ func void Ninja_MaxXPHelper_TextAlerts_Init() {
 };
 
 func int Ninja_MaxXPHelper_TextAlerts_Create(var string msg, var int duration, var int color, var int instant) {
-    var int alertHandle; alertHandle = new(_Ninja_MaxXPHelper_TextAlert@);
+    const int alertHandle = 0; alertHandle = new(_Ninja_MaxXPHelper_TextAlert@);
     var _Ninja_MaxXPHelper_TextAlert newAlert; newAlert =  get(alertHandle);
     newAlert.message = msg;
     newAlert.expiresAfter = duration;

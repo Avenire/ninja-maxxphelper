@@ -19,9 +19,9 @@ func void Ninja_MaxXPHelper_PrintS_Ext(var string message, var int alertDuration
     if !_Ninja_MaxXPHelper_TextAlert_TextHeight {
         _Ninja_MaxXPHelper_TextAlert_TextHeight = Print_ToVirtual(Print_GetFontHeight(_Ninja_MaxXPHelper_TextAlert_Font), PS_Y);
     };
-    var int h; h = new(gCPrintS@);
+    const int h = 0; h = new(gCPrintS@);
     var gCPrintS p; p = get(h);
-    var int v; v = Anim8_NewExt(1, _Ninja_MaxXPHelper_gCPrintS_Alpha, h, false);
+    const int v = 0; v = Anim8_NewExt(1, _Ninja_MaxXPHelper_gCPrintS_Alpha, h, false);
     Anim8_RemoveIfEmpty(v, true);
     Anim8_RemoveDataIfEmpty(v, true);
     Anim8 (v, 255, PF_FadeInTime,  A8_Constant);

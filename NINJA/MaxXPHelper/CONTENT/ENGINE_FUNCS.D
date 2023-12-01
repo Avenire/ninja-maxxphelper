@@ -6,8 +6,8 @@ func int _Ninja_MaxXPHelper_GetBBoxPtr(var zCVob vob) {
 
 func int Ninja_MaxXPHelper_IsVobAheadOfCamera(var zCVob vob) {
     const int call = 0;
-    var int bboxPtr; bboxPtr = _Ninja_MaxXPHelper_GetBBoxPtr(vob);
-    var int camera; camera = _@(MEM_Camera);
+    const int bboxPtr = 0; bboxPtr = _Ninja_MaxXPHelper_GetBBoxPtr(vob);
+    const int camera = 0; camera = _@(MEM_Camera);
     if (CALL_Begin(call))
     {
         CALL_IntParam(_@(bboxPtr));
@@ -19,17 +19,17 @@ func int Ninja_MaxXPHelper_IsVobAheadOfCamera(var zCVob vob) {
 
 func int Ninja_MaxXPHelper_IsPointAhead(var int xf, var int yf, var int zf) {
     const int call = 0;
-    var int bbox[6];
+    const int bbox[6] = {0,0,0,0,0,0};
     bbox[0] = xf;
     bbox[1] = yf;
     bbox[2] = zf;
     bbox[3] = xf;
     bbox[4] = yf;
     bbox[5] = zf;
-    var int camera; camera = _@(MEM_Camera);
-    var int bboxPtr; bboxPtr = _@(bbox);
+    const int camera = 0; camera = _@(MEM_Camera);
+    const int bboxPtr = 0; bboxPtr = _@(bbox);
     const int clip = 15; // No far clip
-    var int clipPtr; clipPtr = _@(clip);
+    const int clipPtr = 0; clipPtr = _@(clip);
     if (CALL_Begin(call))
     {
         CALL_IntParam(_@(clipPtr));
@@ -41,10 +41,10 @@ func int Ninja_MaxXPHelper_IsPointAhead(var int xf, var int yf, var int zf) {
 };
 
 func void Ninja_MaxXPHelper_oCNPCSearchVobList(var int bufferArrayPtr) {
-	var int worldPtrArg; worldPtrArg = _@(MEM_World);
-    var int bufferArrayPtrArg; bufferArrayPtrArg = bufferArrayPtr;
-    var int oCNpc__classDef; oCNpc__classDef = MEMINT_SwitchG1G2(9286664, 11214368);
-    var int zCWorld__SearchVobListByClass; zCWorld__SearchVobListByClass = MEMINT_SwitchG1G2(6249792, 6439504);
+	const int worldPtrArg = 0; worldPtrArg = _@(MEM_World);
+    const int bufferArrayPtrArg = 0; bufferArrayPtrArg = bufferArrayPtr;
+    const int oCNpc__classDef = 0; oCNpc__classDef = MEMINT_SwitchG1G2(9286664, 11214368);
+    const int zCWorld__SearchVobListByClass = 0; zCWorld__SearchVobListByClass = MEMINT_SwitchG1G2(6249792, 6439504);
     const int null = 0;
 	const int call = 0; 
 	if (CALL_Begin(call)) {
@@ -58,7 +58,7 @@ func void Ninja_MaxXPHelper_oCNPCSearchVobList(var int bufferArrayPtr) {
 
 func int Ninja_MaxXPHelper_GetWaypointByName(var string wpname) {
     const int call = 0;
-    var int waypointNamePtr; waypointNamePtr = _@s(wpname);
+    const int waypointNamePtr = 0; waypointNamePtr = _@s(wpname);
     if (CALL_Begin(call))
     {
         CALL__fastcall (_@(MEM_World.wayNet), _@(waypointNamePtr), MEMINT_SwitchG1G2(7366448, 8061744));
@@ -69,7 +69,7 @@ func int Ninja_MaxXPHelper_GetWaypointByName(var string wpname) {
 
 func void Ninja_MaxXPHelper_ProjectCameraToPx(var int zVEC3ptrvar, var int xfPtr, var int yfPtr) {
     const int call = 0;
-    var int _thisPtr; _thisPtr = _@(MEM_Camera);
+    const int _thisPtr = 0; _thisPtr = _@(MEM_Camera);
     if (CALL_Begin(call))
     {
         

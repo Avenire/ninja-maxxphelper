@@ -1,6 +1,6 @@
 const int Ninja_MaxXPHelper_ThiefScanner_NPC_2_PickpocketInfo = 0;
 const int Ninja_MaxXPHelper_ThiefScanner_PickpocketableNPCArray = 0;
-var int Ninja_MaxXPHelper_ThiefScanner_PickpocketAlertsHT_Handle;
+const int Ninja_MaxXPHelper_ThiefScanner_PickpocketAlertsHT_Handle = 0;
 const int Ninja_MaxXPHelper_ThiefScanner_NotPickpocktableOnLoadHT = 0;
 const int _Ninja_MaxXPHelper_ThiefScanner_NextGlobalNpcPtr = 0;
 const int _Ninja_MaxXPHelper_ThiefScanner_InitOnce = FALSE;
@@ -9,7 +9,7 @@ const int _Ninja_MaxXPHelper_ThiefScanner_HackIsState = FALSE;
 const int _Ninja_MaxXPHelper_ThiefScanner_FakeIsInStateReturn = TRUE;
 
 func int _Ninja_MaxXPHelper_ThiefScanner_CallCondition(var int condition, var C_NPC npc) {
-    var int pickpocketable; pickpocketable = FALSE;
+    const int pickpocketable = 0; pickpocketable = FALSE;
     self = Hlp_GetNpc(npc);
     other = Hlp_GetNpc(hero);
     // Implicit returns are so stupid in Daedalus, default FALSE return val has to be pushed here because plenty of pickpokcet 
@@ -19,11 +19,11 @@ func int _Ninja_MaxXPHelper_ThiefScanner_CallCondition(var int condition, var C_
 };
 
 func int _Ninja_MaxXPHelper_ThiefScanner_CanPickpocketNpc(var C_NPC npc, var int considerFailed) {
-    var int instanceId; instanceId = Hlp_GetInstanceID(npc);
+    const int instanceId = 0; instanceId = Hlp_GetInstanceID(npc);
     if considerFailed && HT_Has(Ninja_MaxXPHelper_ThiefScanner_PickpocketAlertsHT_Handle, instanceId) {
         return FALSE;
     };
-    var int infoPtr; infoPtr = Ninja_MaxXPHelper_HT_Get(Ninja_MaxXPHelper_ThiefScanner_NPC_2_PickpocketInfo, instanceId);
+    const int infoPtr = 0; infoPtr = Ninja_MaxXPHelper_HT_Get(Ninja_MaxXPHelper_ThiefScanner_NPC_2_PickpocketInfo, instanceId);
     if infoPtr {
         return npc.aivar[AIV_PlayerHasPickedMyPocket] == FALSE;
     } else {
@@ -41,7 +41,7 @@ const int Ninja_MaxXPHelper_ThiefScanner_Unknown = 0;
 
 func int Ninja_MaxXPHelper_ThiefScanner_EnoughDexToPickpocket(var C_NPC npc) {
     // Assumes NPC can still be pickpocketed
-    var int instanceId; instanceId = Hlp_GetInstanceID(npc);
+    const int instanceId = 0; instanceId = Hlp_GetInstanceID(npc);
     if Ninja_MaxXPHelper_HT_Get(Ninja_MaxXPHelper_ThiefScanner_NotPickpocktableOnLoadHT, instanceId) ||
        _Ninja_MaxXPHelper_ThiefScanner_TheftDiff <= 0 {
         return Ninja_MaxXPHelper_ThiefScanner_Unknown;
@@ -56,16 +56,16 @@ func int Ninja_MaxXPHelper_ThiefScanner_EnoughDexToPickpocket(var C_NPC npc) {
     };
     var c_npc selfBak; selfBak = Hlp_GetNpc(self);
     var c_npc otherBak; otherBak = Hlp_GetNpc(other);
-    var int infoPtr; infoPtr = Ninja_MaxXPHelper_HT_Get(Ninja_MaxXPHelper_ThiefScanner_NPC_2_PickpocketInfo, instanceId);
+    const int infoPtr = 0; infoPtr = Ninja_MaxXPHelper_HT_Get(Ninja_MaxXPHelper_ThiefScanner_NPC_2_PickpocketInfo, instanceId);
     if !infoPtr { return Ninja_MaxXPHelper_ThiefScanner_Unknown; };
     var oCInfo info; info = _^(infoPtr);
-    var int heroPickpocket; heroPickpocket = Npc_GetTalentSkill(hero, NPC_TALENT_PICKPOCKET);
-    var int heroDex; heroDex = hero.attribute[ATR_DEXTERITY];
+    const int heroPickpocket = 0; heroPickpocket = Npc_GetTalentSkill(hero, NPC_TALENT_PICKPOCKET);
+    const int heroDex = 0; heroDex = hero.attribute[ATR_DEXTERITY];
     Npc_SetTalentSkill(hero, NPC_TALENT_PICKPOCKET, TRUE);
     hero.attribute[ATR_DEXTERITY] = hero.attribute[ATR_DEXTERITY] - Theftdiff;
     _Ninja_MaxXPHelper_ThiefScanner_HackIsState = TRUE;
     _Ninja_MaxXPHelper_ThiefScanner_FakeIsInStateReturn = TRUE;
-    var int pickpocketable; pickpocketable = _Ninja_MaxXPHelper_ThiefScanner_CallCondition(info.conditions, npc);
+    const int pickpocketable = 0; pickpocketable = _Ninja_MaxXPHelper_ThiefScanner_CallCondition(info.conditions, npc);
     _Ninja_MaxXPHelper_ThiefScanner_HackIsState = FALSE;
     if pickpocketable {
         pickpocketable = Ninja_MaxXPHelper_ThiefScanner_SeemsEnough;
@@ -87,7 +87,7 @@ func void Ninja_MaxXPHelper_ThiefScanner_Tezt() {
     var c_npc otherBak; otherBak = Hlp_GetNpc(other);
     self = Hlp_GetNpc(BAU_944_Ehnim);
     other = Hlp_GetNpc(hero);
-    var int f;
+    const int f = 0;
     Ninja_MaxXPHelper_LogInfo(ConcatStrings("DIA_Ehnim_STREIT5_noPerm ", inttostring(DIA_Ehnim_STREIT5_noPerm)));
     _Ninja_MaxXPHelper_ThiefScanner_HackIsState = TRUE;
     _Ninja_MaxXPHelper_ThiefScanner_FakeIsInStateReturn = TRUE;
@@ -114,18 +114,18 @@ func void _Ninja_MaxXPHelper_ThiefScanner_RefreshLoop() {
     };
 
     if !Ninja_MaxXPHelper_ConsiderPickpocketing { return; };
-    var int size; size = MEM_ArraySize(Ninja_MaxXPHelper_ThiefScanner_PickpocketableNPCArray);
-    var int idx; 
+    const int size = 0; size = MEM_ArraySize(Ninja_MaxXPHelper_ThiefScanner_PickpocketableNPCArray);
+    const int idx = 0; 
     if !_Ninja_MaxXPHelper_ThiefScanner_FullyScanned {
         idx = 0;
     };
     var c_npc selfBak; selfBak = Hlp_GetNpc(self);
     var c_npc otherBak; otherBak = Hlp_GetNpc(other);
-    var int heroPickpocket; heroPickpocket = Npc_GetTalentSkill(hero, NPC_TALENT_PICKPOCKET);
-    var int heroDex; heroDex = hero.attribute[ATR_DEXTERITY];
+    const int heroPickpocket = 0; heroPickpocket = Npc_GetTalentSkill(hero, NPC_TALENT_PICKPOCKET);
+    const int heroDex = 0; heroDex = hero.attribute[ATR_DEXTERITY];
     Npc_SetTalentSkill(hero, NPC_TALENT_PICKPOCKET, TRUE);
     hero.attribute[ATR_DEXTERITY] = 9999;
-    var int processed; processed = 0;
+    const int processed = 0; processed = 0;
     while (TRUE);
         if idx >= size {
             _Ninja_MaxXPHelper_ThiefScanner_FullyScanned = TRUE;
@@ -135,18 +135,18 @@ func void _Ninja_MaxXPHelper_ThiefScanner_RefreshLoop() {
             processed >= Ninja_MaxXPHelper_XPNPCLocator_MaxNPCToProcessEachFrameBeforeYield {
             break;
         };
-        var int instanceId; instanceId = MEM_ArrayRead(Ninja_MaxXPHelper_ThiefScanner_PickpocketableNPCArray, idx);
+        const int instanceId = 0; instanceId = MEM_ArrayRead(Ninja_MaxXPHelper_ThiefScanner_PickpocketableNPCArray, idx);
         idx = idx + 1;
         processed = processed + 1;
 
         var C_NPC npc; npc = Hlp_GetNpc(instanceId);
         if Hlp_IsValidNpc(npc) && _Ninja_MaxXPHelper_ThiefScanner_CanPickpocketNpc(npc, FALSE) {
-            var int instanceId; instanceId = Hlp_GetInstanceID(npc);
+            const int instanceId = 0; instanceId = Hlp_GetInstanceID(npc);
             // Magic time
-            var int infoPtr; infoPtr = Ninja_MaxXPHelper_HT_Get(Ninja_MaxXPHelper_ThiefScanner_NPC_2_PickpocketInfo, instanceId);
+            const int infoPtr = 0; infoPtr = Ninja_MaxXPHelper_HT_Get(Ninja_MaxXPHelper_ThiefScanner_NPC_2_PickpocketInfo, instanceId);
             var oCInfo info; info = _^(infoPtr);
-            var int isDead; isDead = Npc_IsDead(npc);
-            var int pickpocketable; pickpocketable = !isDead;
+            const int isDead = 0; isDead = Npc_IsDead(npc);
+            const int pickpocketable = 0; pickpocketable = !isDead;
             if pickpocketable {
                 pickpocketable = _Ninja_MaxXPHelper_ThiefScanner_CallCondition(info.conditions, npc);
             };
@@ -170,7 +170,7 @@ func void _Ninja_MaxXPHelper_ThiefScanner_RefreshLoop() {
             ) {
                 continue;
             };
-            var int color;
+            const int color = 0;
             var string msg; msg = "";
             if isDead {
                 color = Ninja_MaxXPHelper_DeathAlertsFailColor;
@@ -180,7 +180,7 @@ func void _Ninja_MaxXPHelper_ThiefScanner_RefreshLoop() {
                 msg = Ninja_MaxXPHelper_LOC_PickpocketWarningOther;
             };
             if STR_Len(msg) {
-                var int s; s = SB_New();
+                const int s = 0; s = SB_New();
                 SB(npc.name);
                 SB(" - ");
                 SB(msg);
@@ -204,7 +204,7 @@ func void _Ninja_MaxXPHelper_ThiefScanner_RefreshLoop() {
 
 const int _Ninja_MaxXPHelper_ThiefScanner_TheftDiff = 0;
 func void _Ninja_MaxXPHelper_ThiefScanner_InitTheftDiff() {
-    var int symbolPtr; symbolPtr = MEM_GetSymbol("Theftdiff");
+    const int symbolPtr = 0; symbolPtr = MEM_GetSymbol("Theftdiff");
     if symbolPtr {
          var zCPar_Symbol s; s = _^(symbolPtr);
          _Ninja_MaxXPHelper_ThiefScanner_TheftDiff = s.content;
@@ -212,12 +212,12 @@ func void _Ninja_MaxXPHelper_ThiefScanner_InitTheftDiff() {
 };
 
 func int _Ninja_MaxXPHelper_ThiefScanner_CreateBlacklistHT() {
-    var int blacklist; blacklist = Ninja_MaxXPHelper_HT_Create();
+    const int blacklist = 0; blacklist = Ninja_MaxXPHelper_HT_Create();
     STRINT_SplitReset();
-    var int count; count = STR_SplitCount(Ninja_MaxXPHelper_PickpocketBlacklist, ";");
-    repeat(i, count); var int i;
+    const int count = 0; count = STR_SplitCount(Ninja_MaxXPHelper_PickpocketBlacklist, ";");
+    repeat(i, count); const int i = 0;
         var string npcCode; npcCode = STRINT_SplitGet(i);
-        var int instanceId; instanceId = MEM_GetSymbolIndex(npcCode);
+        const int instanceId = 0; instanceId = MEM_GetSymbolIndex(npcCode);
         Ninja_MaxXPHelper_HT_InsertOrChange(blacklist, instanceId, TRUE);
     end;
     return blacklist;
@@ -227,12 +227,12 @@ func void _Ninja_MaxXPHelper_ThiefScanner_InsertIntoPickpocketableNPCArray(var i
     MEM_ArrayInsert(Ninja_MaxXPHelper_ThiefScanner_PickpocketableNPCArray, npc);
 };
 func void _Ninja_MaxXPHelper_ThiefScanner_LoadPickpocketInfos() {
-    var int blacklist; 
+    const int blacklist = 0; 
     blacklist = _Ninja_MaxXPHelper_ThiefScanner_CreateBlacklistHT();
     const string pickpocketSuffix = "_PICKPOCKET";
     const string altPickpocketSuffix = "_PICKME"; // Cassia...
-    var int pickpocketSuffixLen; pickpocketSuffixLen = STR_Len(pickpocketSuffix);
-    var int listPtr; listPtr = _@(MEM_InfoMan.infoList_compare);
+    const int pickpocketSuffixLen = 0; pickpocketSuffixLen = STR_Len(pickpocketSuffix);
+    const int listPtr = 0; listPtr = _@(MEM_InfoMan.infoList_compare);
     while (listPtr);
         var zCListSort list; list = _^(listPtr);
         listPtr = list.next;
@@ -261,7 +261,7 @@ func void _Ninja_MaxXPHelper_ThiefScanner_LoadPickpocketInfos() {
 // so all is left is play with the assembly myself.
 func void _Ninja_MaxXPHelper_ThiefScanner_Hook_NPC_IsInState_External() {
     var zCPar_Symbol symbol; symbol = _^(MEM_GetSymbol("Npc_IsInState"));
-    var int originalPtr; originalPtr = symbol.content;
+    const int originalPtr = 0; originalPtr = symbol.content;
     // todo: make sure this is still external func symbol?
     if _Ninja_MaxXPHelper_ThiefScanner_NPC_IsInState_HookPtr && 
         originalPtr == _Ninja_MaxXPHelper_ThiefScanner_NPC_IsInState_HookPtr {
