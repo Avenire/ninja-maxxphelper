@@ -129,6 +129,7 @@ func int _Ninja_MaxXPHelper_XPNPCLocator_ProcessNPC(var oCNPC npc, var int proce
             color = Ninja_MaxXPHelper_PickpocketSeemsNotEnoughDexColor;
         };
     } else if 
+        Ninja_MaxXPHelper_PickpocketTrackersOnly ||
         (cnpc.flags & NPC_FLAG_IMMORTAL) || 
         (!Ninja_MaxXPHelper_ConsiderG1DoubleXPGlitch && Ninja_MaxXPHelper_VictoryXPReceived(cnpc)) ||
         (!Ninja_MaxXPHelper_ConsiderLevelZeroNPC && cnpc.level <= 0) {

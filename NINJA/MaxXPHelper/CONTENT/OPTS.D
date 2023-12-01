@@ -23,6 +23,7 @@ const int Ninja_MaxXPHelper_ConsiderPickpocketing = 0;
 const int Ninja_MaxXPHelper_PickpocketSeemsEnoughDexColor = 0;
 const int Ninja_MaxXPHelper_PickpocketSeemsNotEnoughDexColor = 0;
 const int Ninja_MaxXPHelper_PickpocketIndeterminableColor = 0;
+const int Ninja_MaxXPHelper_PickpocketTrackersOnly = 0;
 
 const int Ninja_MaxXPHelper_XPNPCLocatorHostileColor = 0;
 const int Ninja_MaxXPHelper_XPNPCLocatorNonHostileColor = 0;

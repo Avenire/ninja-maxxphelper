@@ -54,7 +54,9 @@ It would be possible to render all NPCs but this would likely lower framerate to
 # Thief Scanner
 Enabled with `considerPickpocketing=1` ini option. Videos showcasing the feature are [here](https://youtu.be/HmdfoVVA32E), [here](https://youtu.be/VoiYJIP8H-I) and [here](https://youtu.be/Rfctm-ixfj0).
 
-This integrates with XPNPCLocator to display a pickpocket tracker if NPC hasn't been pickpocketed yet (and is possible to). Color of the tracker depends on whether dexterity requirements are met or not. For some edge cases, it's not possible to tell (at least using the approach I chose) so there're 3 colors in total - `pickpocketSeemsEnoughDexColor`, `pickpocketSeemsNotEnoughDexColor` and `pickpocketIndeterminableColor`.
+This integrates with XPNPCLocator to display a pickpocket tracker if NPC hasn't been pickpocketed yet (and is possible to). Color of the tracker depends on whether dexterity requirements are met or not. For some edge cases, it's not possible to tell (at least using the approach I chose) so there're 3 colors in total - `pickpocketSeemsEnoughDexColor`, `pickpocketSeemsNotEnoughDexColor` and `pickpocketIndeterminableColor`. Most of the time, indeterminable color is applied only if hero's dexterity is very low, under 20ish (so irrelevant in practice).
+
+You can also opt in for XPNPCLocator to show only pickpocket trackers with `showPickpocketTrackersOnly=1` ini option (by default it's off).
 
 In addition, pickpocketable NPCs are continuously scanned and a text alert (similar to DeathAlerts) will pop up when NPC can no longer be pickpocketed which could happen if:
 - NPC died
@@ -104,16 +106,6 @@ deathAlertTextDurationInMillis=5000
 deathAlertsFailColor=#FF3232
 ; ... Hex string (RBG) of a color for system notifications (i.e. when XPNPCLocator is toggled). Default is green #32FF32.
 systemNotificationsColor=#32FF32
-; ... Enables thief scanner,  1 - on, 0 - off, default - on in Gothic 2.
-considerPickpocketing=1
-; ... Color of the text alert if thief scanner determined NPC to become not-pickpocketable.
-pickpocketAlertsWarningColor=#FF5F15
-; ... Color of XPNPCLocator pickpocket tracker when thief scanner thinks pickpocketing attempt will succeed.
-pickpocketSeemsEnoughDexColor=#32FF32
-; ... Color of XPNPCLocator pickpocket tracker when thief scanner thinks pickpocketing attempt will fail.
-pickpocketSeemsNotEnoughDexColor=#FF3232
-; ... Color of XPNPCLocator pickpocket tracker when thief scanner cannot determine if pickpocketing will succeed or is currently unavailable (NPC doesn't have the item yet etc).
-pickpocketIndeterminableColor=#FF5F15
 ; ... Color of XPNPCLocator tracker if NPC is hostile towards player (like monster).
 locatorHostileNPCColor=#FF3232
 ; ... How long system notifications (i.e. when XPNPCLocator is toggled) are displayed.
@@ -122,8 +114,21 @@ locatorIconSize=50
 systemNotificationDurationInMillis=2000
 ; ... Color of XPNPCLocator tracker if NPC is not hostile towards player (like Khorinis citizen).
 locatorNonHostileNPCColor=#FFFFFF
+; ... ThiefScanner (Gothic 2 NotR only):
+; ... Enable/disable ThiefScanner,  1 - on, 0 - off, default - on in Gothic 2.
+considerPickpocketing=1
 ; ... list of NPC instances to be ignored by Thief Scanner.
 pickpocketBlacklist=A;B;C;
+; ... If on, XPNPCLocator will only show pickpocket trackers, 1 - on, 0 - off, default - off.
+showPickpocketTrackersOnly=0
+; ... Color of the text alert if thief scanner determined NPC to become not-pickpocketable.
+pickpocketAlertsWarningColor=#FF5F15
+; ... Color of XPNPCLocator pickpocket tracker when thief scanner thinks pickpocketing attempt will succeed.
+pickpocketSeemsEnoughDexColor=#32FF32
+; ... Color of XPNPCLocator pickpocket tracker when thief scanner thinks pickpocketing attempt will fail.
+pickpocketSeemsNotEnoughDexColor=#FF3232
+; ... Color of XPNPCLocator pickpocket tracker when thief scanner cannot determine if pickpocketing will succeed or is currently unavailable (NPC doesn't have the item yet etc).
+pickpocketIndeterminableColor=#FF5F15
 ```
 ### Dead on arrival defaults
 Following is the default for Gothic 2 NotR. I extracted this by running a script located at `tools/g2notr_print_doa_npcs.py` against the scripts from [here](https://github.com/IDizor/GothicScripts). For Gothic 1 its empty as there're no cases where a seemingly normal NPC gets killed off-screen by game's scripts pretty much the first time player arrives in new location. **Note:** this must be terminated by a semicolon and end with a new line.

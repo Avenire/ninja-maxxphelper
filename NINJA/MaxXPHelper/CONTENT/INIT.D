@@ -105,6 +105,11 @@ func void Ninja_MaxXPHelper_SetOpts() {
         "pickpocketBlacklist", 
         Ninja_MaxXPHelper_PickpocketBlacklist
     );
+    Ninja_MaxXPHelper_PickpocketTrackersOnly = Ninja_MaxXPHelper_GetIntOptOrSetDefault(
+        "showPickpocketTrackersOnly", 
+        0
+    );
+    
 };
 
 func void Ninja_MaxXPHelper_Init()
