@@ -3,6 +3,7 @@ LeGo
 
 content\utils_shared.d
 content\utils_g2.d
+content\file_utils.d
 content\engine_funcs.d
 content\const.d
 content\opts.d
@@ -11,6 +12,8 @@ content\text_alerts.d
 content\tracker_sprite.d
 content\trackers.d
 content\localization.d
+
+content\warning_alerts.d
 content\thief_scanner.d
 content\xp_npc_locator.d
 content\death_alerts.d

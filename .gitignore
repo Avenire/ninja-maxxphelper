@@ -1,2 +1,4 @@
 build/
 dot.env
+__pycache__/
+.ipynb_checkpoints/

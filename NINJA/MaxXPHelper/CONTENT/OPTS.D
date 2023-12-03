@@ -6,6 +6,8 @@ const int Ninja_MaxXPHelper_ToggleTrackersMaxRenderingLevelKeyCode = 0;
 const int Ninja_MaxXPHelper_TrackersUseZBuffer = 0;
 const int Ninja_MaxXPHelper_ToggleTrackersUseZBufferKeyCode = 0;
 const int Ninja_MaxXPHelper_ConsiderG1DoubleXPGlitch = 0;
+const int Ninja_MaxXPHelper_WarnG1DoubleXPGlitch = 0;
+const int Ninja_MaxXPHelper_WarnSummonKill = 0;
 const int Ninja_MaxXPHelper_ConsiderLevelZeroNPC = 0;
 const int Ninja_MaxXPHelper_ShowDeathAlerts = 0;
 const string Ninja_MaxXPHelper_DeadOnArrivalNPCList = "";
@@ -25,12 +27,22 @@ const int Ninja_MaxXPHelper_PickpocketSeemsNotEnoughDexColor = 0;
 const int Ninja_MaxXPHelper_PickpocketIndeterminableColor = 0;
 const int Ninja_MaxXPHelper_PickpocketTrackersOnly = 0;
 
+const int Ninja_MaxXPHelper_XPNPCLocatorNextModeKey = 0;
+const int Ninja_MaxXPHelper_XPNPCLocatorPreviousModeKey = 0;
+
+const int Ninja_MaxXPHelper_WarningAlertsItemStatsKey = 0;
+
 const int Ninja_MaxXPHelper_XPNPCLocatorHostileColor = 0;
 const int Ninja_MaxXPHelper_XPNPCLocatorNonHostileColor = 0;
 
 const int Ninja_MaxXPHelper_IconSize = 0;
 
 const int Ninja_MaxXPHelper_SystemAlertDurationInMillis = 0;
+
+// Warning Alerts
+const string Ninja_MaxXPHelper_WarningAlerts_WarningsConfigFilePath = "";
+const int _Ninja_MaxXPHelper_debug = FALSE;
+
 
 
 func int Ninja_MaxXPHelper_GetKeyCodeOptOrSetDefault(var string optionKey, var string defaultKeyName) {

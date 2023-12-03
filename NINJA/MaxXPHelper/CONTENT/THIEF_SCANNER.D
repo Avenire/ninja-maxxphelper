@@ -20,7 +20,7 @@ func int _Ninja_MaxXPHelper_ThiefScanner_CallCondition(var int condition, var C_
 
 func int _Ninja_MaxXPHelper_ThiefScanner_CanPickpocketNpc(var C_NPC npc, var int considerFailed) {
     const int instanceId = 0; instanceId = Hlp_GetInstanceID(npc);
-    if considerFailed && HT_Has(Ninja_MaxXPHelper_ThiefScanner_PickpocketAlertsHT_Handle, instanceId) {
+    if considerFailed && Ninja_MaxXPHelper_HT_Has(Ninja_MaxXPHelper_ThiefScanner_PickpocketAlertsHT_Handle, instanceId) {
         return FALSE;
     };
     const int infoPtr = 0; infoPtr = Ninja_MaxXPHelper_HT_Get(Ninja_MaxXPHelper_ThiefScanner_NPC_2_PickpocketInfo, instanceId);
@@ -81,6 +81,27 @@ func int Ninja_MaxXPHelper_ThiefScanner_EnoughDexToPickpocket(var C_NPC npc) {
 };
 
 const int _Ninja_MaxXPHelper_ThiefScanner_FullyScanned = FALSE;
+
+func void Ninja_MaxXPHelper_ThiefScanner_OnNPCDeath(var C_Npc npc) {
+    
+    if !Ninja_MaxXPHelper_ThiefScanner_CanPickpocketNpc(npc) { return; };
+    const int color = 0; color = Ninja_MaxXPHelper_DeathAlertsFailColor;
+    const string msg = ""; msg = Ninja_MaxXPHelper_LOC_PickpocketWarningDeath;
+    const int s = 0; s = SB_New();
+    SB(npc.name);
+    SB(" - ");
+    SB(msg);
+    Ninja_MaxXPHelper_TextAlerts_Create(
+        SB_ToString(),  
+        Ninja_MaxXPHelper_DeathAlertTextDurationInMillis, 
+        color, 
+        FALSE
+    );
+    SB_Clear();
+    SB_Destroy();
+    Ninja_MaxXPHelper_HT_Insert(Ninja_MaxXPHelper_ThiefScanner_PickpocketAlertsHT_Handle, TRUE, Hlp_GetInstanceID(npc));
+    Ninja_MaxXPHelper_WarningAlerts_OnLostPickpocket(npc);
+};
 func void _Ninja_MaxXPHelper_ThiefScanner_RefreshLoop() {
     if !Ninja_MaxXPHelper_ShouldRunHook() {
         return;
@@ -136,13 +157,15 @@ func void _Ninja_MaxXPHelper_ThiefScanner_RefreshLoop() {
             if  pickpocketable && 
                 Ninja_MaxXPHelper_HT_Get(Ninja_MaxXPHelper_ThiefScanner_NotPickpocktableOnLoadHT, instanceId) {
                 Ninja_MaxXPHelper_HT_InsertOrChange(Ninja_MaxXPHelper_ThiefScanner_NotPickpocktableOnLoadHT, instanceId, FALSE);
-                HT_Remove(Ninja_MaxXPHelper_ThiefScanner_PickpocketAlertsHT_Handle, instanceId);
+                if Ninja_MaxXPHelper_HT_Has(Ninja_MaxXPHelper_ThiefScanner_PickpocketAlertsHT_Handle, instanceId) {
+                    Ninja_MaxXPHelper_HT_Remove(Ninja_MaxXPHelper_ThiefScanner_PickpocketAlertsHT_Handle, instanceId);
+                };
                 continue;
             };
             // Skip if NPC is alive and wasn't observed to be pickpocketable since last load or was failure was already alerted.
             if (
                 (!isDead && Ninja_MaxXPHelper_HT_Get(Ninja_MaxXPHelper_ThiefScanner_NotPickpocktableOnLoadHT, instanceId)) ||
-                HT_Has(Ninja_MaxXPHelper_ThiefScanner_PickpocketAlertsHT_Handle, instanceId) ||
+                Ninja_MaxXPHelper_HT_Has(Ninja_MaxXPHelper_ThiefScanner_PickpocketAlertsHT_Handle, instanceId) ||
                 pickpocketable
             ) {
                 continue;
@@ -155,6 +178,13 @@ func void _Ninja_MaxXPHelper_ThiefScanner_RefreshLoop() {
             } else {
                 color = Ninja_MaxXPHelper_PickpocketAlertsWarningColor;
                 msg = Ninja_MaxXPHelper_LOC_PickpocketWarningOther;
+                const int s = 0; s = MEM_GetSymbol("NpcObsessedByDMT");
+                if (s) {
+                    var zCPar_Symbol _NpcObsessedByDMT; _NpcObsessedByDMT = _^(s);
+                    if _NpcObsessedByDMT.content {
+                        continue; 
+                    };
+                };
             };
             if STR_Len(msg) {
                 const int s = 0; s = SB_New();
@@ -169,7 +199,8 @@ func void _Ninja_MaxXPHelper_ThiefScanner_RefreshLoop() {
                 );
                 SB_Clear();
                 SB_Destroy();
-                HT_Insert(Ninja_MaxXPHelper_ThiefScanner_PickpocketAlertsHT_Handle, TRUE, instanceId);
+                Ninja_MaxXPHelper_HT_Insert(Ninja_MaxXPHelper_ThiefScanner_PickpocketAlertsHT_Handle, TRUE, instanceId);
+                Ninja_MaxXPHelper_WarningAlerts_OnLostPickpocket(npc);
             };
         };
     end;
@@ -203,6 +234,130 @@ func int _Ninja_MaxXPHelper_ThiefScanner_CreateBlacklistHT() {
 func void _Ninja_MaxXPHelper_ThiefScanner_InsertIntoPickpocketableNPCArray(var int npc, var int value) {
     MEM_ArrayInsert(Ninja_MaxXPHelper_ThiefScanner_PickpocketableNPCArray, npc);
 };
+
+func int _Ninja_MaxXPHelper_ThiefScanner_Handle_C_Beklauen(var int codePtr) {
+    const int C_Beklauen_content = 0;
+    if !C_Beklauen_content {
+        var zCPar_Symbol symbol; symbol = _^(MEM_GetSymbol("C_Beklauen"));
+        C_Beklauen_content = symbol.content;
+    };
+    const int pushInt_dex_maybe = 0; pushInt_dex_maybe = MEM_ReadByte(codePtr);
+    const int pushInt_gold_maybe = 0; pushInt_gold_maybe = MEM_ReadByte(codePtr + 5);
+    const int callFunc_maybe = 0; callFunc_maybe = MEM_ReadByte(codePtr + 10);
+    const int C_Beklauen_content_maybe = 0; C_Beklauen_content_maybe = MEM_ReadInt(codePtr + 11);
+    if (
+        pushInt_dex_maybe == zPAR_TOK_PUSHINT &&
+        pushInt_gold_maybe == zPAR_TOK_PUSHINT &&
+        callFunc_maybe == zPAR_TOK_CALL &&
+        C_Beklauen_content_maybe == C_Beklauen_content
+    ) {
+        return MEM_ReadInt(codePtr + 1); // dex required
+    };
+    return FALSE;
+};
+
+func int _Ninja_MaxXPHelper_ThiefScanner_ParseCodeUntilReturn(var int functionIdx) {
+    const int symPtr = 0; symPtr = MEM_GetSymbolByIndex(functionIdx);
+    var zCPar_Symbol symbol; symbol = _^(symPtr);
+    const int codePtr = 0; codePtr = MEM_ReadInt(ContentParserAddress + zCParser_stack_offset) + symbol.content;
+
+    const int hasItemsFound = 0;
+    const int pushedInt = 0;
+    const int command = 0;
+    const int probablyTheDex = -1;
+    const int arg = 0;
+    const int isPickpocketInfo = 0;
+    const int pushUnexpectedSymbolEncountered = -1; // For cases where condition checks variables other than skill check, dex check or item check
+    pushUnexpectedSymbolEncountered = FALSE; 
+    probablyTheDex = -1;
+    hasItemsFound = FALSE;
+    isPickpocketInfo = FALSE;
+    pushedInt = -1;
+    const int Npc_HasItems_idx = FALSE;
+
+    if !Npc_HasItems_idx {
+        Npc_HasItems_idx = MEM_GetSymbolIndex("Npc_HasItems");
+    };
+    const int C_NPC_attribute_idx = 0;
+    if !C_NPC_attribute_idx {
+        C_NPC_attribute_idx = MEM_GetSymbolIndex("C_NPC.ATTRIBUTE");
+    };
+    const int C_NPC_AIVAR_idx = 0;
+    if !C_NPC_AIVAR_idx {
+        C_NPC_AIVAR_idx = MEM_GetSymbolIndex("C_NPC.AIVAR");
+    };
+    const int C_Beklauen_content = 0;
+    if !C_Beklauen_content {
+        symbol = _^(MEM_GetSymbol("C_Beklauen"));
+        C_Beklauen_content = symbol.content;
+    };
+    const int pushDexterityEncountered = 0;
+    pushDexterityEncountered = FALSE;
+    const int gotoLabel = 0; gotoLabel = MEM_StackPos.position;
+    command = MEM_ReadByte(codePtr);
+    if command == 15 || command == 16 || command == 17 || command == 18 {
+        // Reset context on comparison command
+        if pushDexterityEncountered && probablyTheDex == -1 {
+            probablyTheDex = pushedInt;
+        };
+        pushedInt = -1;
+        codePtr = codePtr + 1;
+    } else if command == 60 {
+        // First return opcode met, exit parsing
+        if isPickpocketInfo {
+            var string x; x = symbol.name;
+            x = ConcatStrings(x, "@");
+            x = ConcatStrings(x, IntToString(codePtr));
+            // Ninja_MaxXPHelper_LogInfo(x);
+            symbol = _^(symPtr);
+            // Ninja_MaxXPHelper_LogInfo(ConcatStrings("probablyTheDex=", IntToString(probablyTheDex)));
+            // Ninja_MaxXPHelper_LogInfo(ConcatStrings("hasItemsFound=", IntToString(hasItemsFound)));
+            return probablyTheDex;
+        };
+        return -1;
+    } else if command == 61 || command == 62 {
+        arg = MEM_ReadInt(codePtr + 1);
+        if arg == Npc_HasItems_idx {
+            hasItemsFound = TRUE;
+        } else if arg == C_Beklauen_content {
+            isPickpocketInfo = TRUE;
+            probablyTheDex = pushedInt;
+        } else {
+        };
+        codePtr = codePtr + 5;
+    } else if command == 64 {
+        if pushedInt < 0 {
+            pushedInt = MEM_ReadInt(codePtr + 1);
+        };
+        // push int, skip opcode + int arg
+        codePtr = codePtr + 5;
+    } else if command == 65 {
+        arg = MEM_ReadInt(codePtr + 1);
+        codePtr = codePtr + 5;
+    } else if command == 66 || command == 67 || command == 75 || command == 76 || command == 80 {
+        codePtr = codePtr + 5;
+    } else if command == 245 {
+        arg = MEM_ReadInt(codePtr + 1);
+        // G2 NotR symbol offset (?) for attributes array
+        if arg == C_NPC_attribute_idx {
+            arg = MEM_ReadByte(codePtr + 5);
+            if arg == ATR_DEXTERITY {
+                pushDexterityEncountered = TRUE;
+            };
+        } else if arg == C_NPC_AIVAR_idx {
+            arg = MEM_ReadByte(codePtr + 5);
+            if arg == AIV_PlayerHasPickedMyPocket {
+                isPickpocketInfo = TRUE;
+            };
+        };
+        // skip opcode, int, byte
+        codePtr = codePtr + 6;
+    } else {
+        codePtr = codePtr + 1;
+    };
+    MEM_StackPos.position = gotoLabel;
+};
+
 func void _Ninja_MaxXPHelper_ThiefScanner_LoadPickpocketInfos() {
     const int blacklist = 0; 
     blacklist = _Ninja_MaxXPHelper_ThiefScanner_CreateBlacklistHT();
@@ -210,12 +365,21 @@ func void _Ninja_MaxXPHelper_ThiefScanner_LoadPickpocketInfos() {
     const string altPickpocketSuffix = "_PICKME"; // Cassia...
     const int pickpocketSuffixLen = 0; pickpocketSuffixLen = STR_Len(pickpocketSuffix);
     const int listPtr = 0; listPtr = _@(MEM_InfoMan.infoList_compare);
+    const int dex = 0;
     while (listPtr);
         var zCListSort list; list = _^(listPtr);
         listPtr = list.next;
         if list.data {            
             var oCInfo info; info = _^(list.data);
             if Ninja_MaxXPHelper_HT_Has(blacklist, info.npc) { continue; };
+            dex = _Ninja_MaxXPHelper_ThiefScanner_ParseCodeUntilReturn(info.conditions);
+            if dex > 0 {
+                var string newDescription; newDescription = ConcatStrings(" (", IntToString(dex));
+                newDescription = ConcatStrings(newDescription, ")");
+                if !Ninja_MaxXPHelper_EndsWith(info.description, newDescription) {
+                    info.description = ConcatStrings(info.description, newDescription);
+                };
+            };
             if Ninja_MaxXPHelper_EndsWith(info.name, altPickpocketSuffix) {
                 Ninja_MaxXPHelper_HT_InsertOrChange(Ninja_MaxXPHelper_ThiefScanner_NPC_2_PickpocketInfo, info.npc, _@(info));
                 continue;
@@ -278,19 +442,16 @@ func void _Ninja_MaxXPHelper_ThiefScanner_Hook_NPC_IsInState_External() {
     symbol.content = _Ninja_MaxXPHelper_ThiefScanner_NPC_IsInState_HookPtr;
 };
 
-    
 
 func void Ninja_MaxXPHelper_ThiefScanner_Init() {
     _Ninja_MaxXPHelper_ThiefScanner_FullyScanned = FALSE;
     _Ninja_MaxXPHelper_ThiefScanner_NextGlobalNpcPtr = 0;
-    if !HLP_IsValidHandle(Ninja_MaxXPHelper_ThiefScanner_PickpocketAlertsHT_Handle) {
-        Ninja_MaxXPHelper_ThiefScanner_PickpocketAlertsHT_Handle = HT_Create();
-    };
     if Ninja_MaxXPHelper_ThiefScanner_PickpocketableNPCArray {
         MEM_ArrayFree(Ninja_MaxXPHelper_ThiefScanner_PickpocketableNPCArray);
     };
     Ninja_MaxXPHelper_ThiefScanner_PickpocketableNPCArray = MEM_ArrayCreate();
     _Ninja_MaxXPHelper_ThiefScanner_InitTheftDiff();
+    Ninja_MaxXPHelper_HT_ClearAndCreate(_@(Ninja_MaxXPHelper_ThiefScanner_PickpocketAlertsHT_Handle), 0);
     Ninja_MaxXPHelper_HT_ClearAndCreate(_@(Ninja_MaxXPHelper_ThiefScanner_NotPickpocktableOnLoadHT), 0);
     Ninja_MaxXPHelper_HT_ClearAndCreate(_@(Ninja_MaxXPHelper_ThiefScanner_NPC_2_PickpocketInfo), 0);
     _Ninja_MaxXPHelper_ThiefScanner_LoadPickpocketInfos();
