@@ -130,4 +130,5 @@ func void Ninja_MaxXPHelper_Init()
     Ninja_MaxXPHelper_DeathAlerts_Init();
     Ninja_MaxXPHelper_ThiefScanner_Init();
     Ninja_MaxXPHelper_XPNPCLocator_Init();
+    Ninja_MaxXPHelper_WarningAlerts_Init();
 };

@@ -8,3 +8,7 @@ func int Ninja_MaxXPHelper_ThiefScanner_EnoughDexToPickpocket(var C_NPC npc) { r
 const int Ninja_MaxXPHelper_ThiefScanner_SeemsEnough = 1; 
 const int Ninja_MaxXPHelper_ThiefScanner_SeemsNotEnough = -1;
 const int Ninja_MaxXPHelper_ThiefScanner_Unknown = 0;
+
+func int Ninja_MaxXPHelper_ThiefScanner_HasPlayerPickedPocket(C_NPC npc) {
+    return FALSE; // Not supported
+};

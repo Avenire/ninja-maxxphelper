@@ -70,6 +70,7 @@ func void _Ninja_MaxXPHelper_DeathAlerts_TriggerAlert(var c_npc cnpc, var string
         );
     };
 };
+
 const int Ninja_MaxXPHelper_DeathAlerts_Init_Once = 0;
 func void Ninja_MaxXPHelper_DeathAlerts_Init() {
     _Ninja_MaxXPHelper_DeathAlerts_LastSVM = 0;
@@ -226,6 +227,7 @@ func void Ninja_MaxXPHelper_ZS_Dead_Hook() {
     if !handled {
         handled = _Ninja_MaxXPHelper_DeathAlerts_Handler_NPCDiedAndPlayerCouldLoseXP(_self, _other);
     };
+    Ninja_MaxXPHelper_WarningAlerts_OnNPCDeath(_self);
     ContinueCall();
 };
 
@@ -255,6 +257,7 @@ func void Ninja_MaxXPHelper_B_KillNpc_Hook(var int npcInstance) {
     if !handled {
         handled = _Ninja_MaxXPHelper_DeathAlerts_Handler_StoryScriptedDeath(npcInstance);
     };
+    Ninja_MaxXPHelper_WarningAlerts_OnNPCDeath(cnpc);
     PassArgumentI(npcInstance);
     ContinueCall();
 };
@@ -266,12 +269,14 @@ func void Ninja_MaxXPHelper_B_MagicHurtNpc_Hook(var C_NPC attacker, var int dama
     PassArgumentN(attacker);
     PassArgumentI(damage);
     ContinueCall();
-    if Npc_IsDead(self) {
+    var C_NPC _self; _self = Hlp_GetNpc(self);
+    if Npc_IsDead(_self) {
         // Death XP of NPC killed by DOT stun spell like pyrokinesis could also happen in B_MagicHurtNpc.
         // ZS_Dead might be called after this script with invalid (empty) NPC set as killer ("other" variable) which 
         // would trigger false positive alert.
         // To reproduce - spawn character helper, beat him, when he's up finish him off with a single cast of pyrokinesis.
         Ninja_MaxXPHelper_HT_Insert(_Ninja_MaxXPHelper_DeathAlerts_B_MagicHurtNpc_Killed_To_RealKiller_HT, _@(attacker), _@(self));
+        Ninja_MaxXPHelper_WarningAlerts_OnNPCDeath(_self);
     };
 };
 
@@ -303,4 +308,5 @@ func void Ninja_MaxXPHelper_B_RemoveNpc_Hook(var int npcInstance) {
     };
     PassArgumentI(npcInstance);
     ContinueCall();
+    Ninja_MaxXPHelper_WarningAlerts_OnNPCDeath(cnpc); // Technically not a death but whatever.
 };

@@ -31,6 +31,10 @@ func int _Ninja_MaxXPHelper_ThiefScanner_CanPickpocketNpc(var C_NPC npc, var int
     };
 };
 
+func int Ninja_MaxXPHelper_ThiefScanner_HasPlayerPickedPocket(var C_NPC npc) {
+    return npc.aivar[AIV_PlayerHasPickedMyPocket] == FALSE;
+};
+
 func int Ninja_MaxXPHelper_ThiefScanner_CanPickpocketNpc(var C_NPC npc) {
     return _Ninja_MaxXPHelper_ThiefScanner_CanPickpocketNpc(npc, TRUE);
 };
@@ -278,7 +282,6 @@ func void _Ninja_MaxXPHelper_ThiefScanner_Hook_NPC_IsInState_External() {
     symbol.content = _Ninja_MaxXPHelper_ThiefScanner_NPC_IsInState_HookPtr;
 };
 
-    
 
 func void Ninja_MaxXPHelper_ThiefScanner_Init() {
     _Ninja_MaxXPHelper_ThiefScanner_FullyScanned = FALSE;
