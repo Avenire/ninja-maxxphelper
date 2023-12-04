@@ -102,7 +102,7 @@ func void _Ninja_MaxXPHelper_WarningAlerts_Handler_PICKPOCKET_LOST_OnChoice() {
 
 
 func void _Ninja_MaxXPHelper_WarningAlerts_Handler_CHAPTER_OPTIMAL_INFO() {
-    const string instanceName = ""; npcCode = STRINT_SplitGet(1);
+    const string instanceName = ""; instanceName = STRINT_SplitGet(1);
     const int instanceId = 0; instanceId = MEM_GetSymbolIndex(instanceName);
     if instanceId < 0 { return; };
     const int handle = 0; handle = new(Ninja_MaxXPHelper_Entry@);
