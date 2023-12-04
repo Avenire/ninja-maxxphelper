@@ -100,19 +100,77 @@ func void _Ninja_MaxXPHelper_WarningAlerts_Handler_PICKPOCKET_LOST_OnChoice() {
 };
 
 
-
+const int _Ninja_MaxXPHelper_debug = TRUE;
 func void _Ninja_MaxXPHelper_WarningAlerts_Handler_CHAPTER_OPTIMAL_INFO() {
     const string instanceName = ""; instanceName = STRINT_SplitGet(1);
     const int instanceId = 0; instanceId = MEM_GetSymbolIndex(instanceName);
     if instanceId < 0 { return; };
+    if _Ninja_MaxXPHelper_debug {
+        const int s = 0; s = SB_New();
+        SB(" instance="); 
+        SB(instanceName);
+        SB(" id="); 
+        SB(IntToString(instanceId));
+        SB(" chapter="); 
+        SB(STRINT_SplitGet(2));
+        Ninja_MaxXPHelper_LogInfo(SB_ToString());  
+        SB_Clear();
+        SB_Destroy();
+    };
     const int handle = 0; handle = new(Ninja_MaxXPHelper_Entry@);
     var Ninja_MaxXPHelper_Entry entry; entry = get(handle);
     entry.argument = STRINT_SplitGet(2);
     Ninja_MaxXPHelper_HT_InsertOrChange(
-        Ninja_MaxXPHelper_WarningAlerts_RequiredInfoHT_Handle,
+        Ninja_MaxXPHelper_WarningAlerts_ChapterOptimalInfoHT_Handle,
         instanceId,
         handle
     );
+};
+
+func void _Ninja_MaxXPHelper_WarningAlerts_OnChoice_ChapterOptimalInfo(var oCInfoChoice choice) {
+    const int ht = 0; ht = Ninja_MaxXPHelper_WarningAlerts_ChapterOptimalInfoHT_Handle;
+    const int instanceId = 0; instanceId = choice.Function;
+    const int symbolPtr = 0; symbolPtr = MEM_GetSymbolByIndex(instanceId);
+    if _Ninja_MaxXPHelper_debug {
+        const int s = 0; s = SB_New();
+        SB(" _Ninja_MaxXPHelper_WarningAlerts_OnChoice_ChapterOptimalInfo checking"); 
+        SB(" instanceId="); 
+        SB(IntToString(instanceId)); 
+        Ninja_MaxXPHelper_LogInfo(SB_ToString());  
+        SB_Clear();
+        SB_Destroy();
+    };
+    var zCPar_Symbol symbol; symbol = _^(symbolPtr);
+    if !Ninja_MaxXPHelper_HT_Has(ht, instanceId) { return; };
+    var Ninja_MaxXPHelper_Entry entry; entry = get(
+        Ninja_MaxXPHelper_HT_Get(ht, instanceId)
+    );
+    if _Ninja_MaxXPHelper_debug {
+        const int s = 0; s = SB_New();
+        SB(" instance="); 
+        SB(symbol.name);
+        SB(" id="); 
+        SB(IntToString(instanceId));
+        SB(" chapter="); 
+        SB(entry.argument);
+        Ninja_MaxXPHelper_LogInfo(SB_ToString());  
+        SB_Clear();
+        SB_Destroy();
+    };
+    const int chapter = 0; chapter = STR_ToInt(entry.argument);
+    if Kapitel >= chapter { return; }; // todo: on next chapter, check if any dialogs were missed (won't work for choices) tho?
+    const int s = 0; s = SB_New();
+    SB(symbol.name);
+    SB(" info should be taken in chapter "); 
+    SB(IntToString(chapter));
+    Ninja_MaxXPHelper_TextAlerts_Create(
+        SB_ToString(),  
+        Ninja_MaxXPHelper_DeathAlertTextDurationInMillis, 
+        Ninja_MaxXPHelper_PickpocketAlertsWarningColor, 
+        FALSE
+    );  
+    SB_Clear();
+    SB_Destroy();
 };
 
 func void _Ninja_MaxXPHelper_WarningAlerts_Handler_REQUIRED_INFO_BEFORE_DEAD() {
@@ -169,7 +227,7 @@ func void _Ninja_MaxXPHelper_WarningAlerts_OnChoice_LostPickpocket(var oCInfoCho
     repeat(i, count); const int i = 0;
         const string npcCode = ""; npcCode = STRINT_SplitGet(i);
         const int npcInstanceId = 0; npcInstanceId = MEM_GetSymbolIndex(npcCode);
-        if instanceId < 0 { continue; };
+        if npcInstanceId < 0 { continue; };
         var C_NPC npc; npc = Hlp_GetNpc(npcInstanceId);
         if Hlp_IsValidNpc(npc) {
             if Ninja_MaxXPHelper_ThiefScanner_HasPlayerPickedPocket(npc) {
@@ -184,33 +242,9 @@ func void _Ninja_MaxXPHelper_WarningAlerts_OnChoice_LostPickpocket(var oCInfoCho
     end;
 };
 
-func void _Ninja_MaxXPHelper_WarningAlerts_OnChoice_ChapterOptimalInfo(var oCInfoChoice choice) {
-    const int ht = 0; ht = Ninja_MaxXPHelper_WarningAlerts_ChapterOptimalInfoHT_Handle;
-    const int instanceId = 0; instanceId = choice.Function;
-    if Ninja_MaxXPHelper_HT_Has(ht, instanceId) { return; };
-    var Ninja_MaxXPHelper_Entry entry; entry = get(
-        Ninja_MaxXPHelper_HT_Get(ht, instanceId)
-    );
-    const int chapter = 0; chapter = STR_ToInt(entry.argument);
-    if Kapitel >= chapter { return; }; // todo: on next chapter, check if any dialogs were missed (won't work for choices) tho?
-    const int s = 0; s = SB_New();
-    const int symbolPtr = 0; symbolPtr = MEM_GetSymbolByIndex();
-    var zCPar_Symbol symbol; symbol = _^(symbolPtr);
-    SB(symbol.name);
-    SB(" info should be taken in chapter "); 
-    SB(IntToString(chapter));
-    Ninja_MaxXPHelper_TextAlerts_Create(
-        SB_ToString(),  
-        Ninja_MaxXPHelper_DeathAlertTextDurationInMillis, 
-        Ninja_MaxXPHelper_PickpocketAlertsWarningColor, 
-        FALSE
-    );  
-    SB_Clear();
-    SB_Destroy();
-};
-
 func void Ninja_MaxXPHelper_WarningAlerts_OnChoice() {
     // OnChoice is __fastcall convention, ECX is oCInformationManager, EDX is oCInfoChoice* param.
+    Ninja_MaxXPHelper_LogInfo("Ninja_MaxXPHelper_WarningAlerts_OnChoice");
     var oCInfoChoice choice; choice = _^(EDX);
     _Ninja_MaxXPHelper_WarningAlerts_OnChoice_LostPickpocket(choice);
     _Ninja_MaxXPHelper_WarningAlerts_OnChoice_ChapterOptimalInfo(choice);
