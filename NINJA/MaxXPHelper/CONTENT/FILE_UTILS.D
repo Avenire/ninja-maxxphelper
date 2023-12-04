@@ -39,7 +39,7 @@ func int _Ninja_MaxXPHelper_ReadUpTo2Bytes(var _Ninja_MaxXPHelper_FileStream str
     if stream.cursor >= stream.size {
         return 0;
     };
-    const int length = 2;
+    const int length = 0; length = 2;
     if stream.cursor + length >= stream.size {
         length = stream.size - stream.cursor;
     };
@@ -78,9 +78,9 @@ func string Ninja_MaxXPHelper_TextLine(var int streamPtr) {
         if _Ninja_MaxXPHelper_CRLF == b2 {
             b2 = 2;
         } else {
-            // Take first four bits and see if it's CR
-            if (b2 & _Ninja_MaxXPHelper_1111Mask) == _Ninja_MaxXPHelper_CR {
-                stream.cursor -= 1;
+            // Check if CR is the last byte
+            if ((b2 >> 8) & _Ninja_MaxXPHelper_1111Mask) == _Ninja_MaxXPHelper_CR {
+                stream.cursor -= 1; // Next will read CR as first and LF should follow
             };
             MEM_StackPos.position = gotoLabel; // continue looping
         };
