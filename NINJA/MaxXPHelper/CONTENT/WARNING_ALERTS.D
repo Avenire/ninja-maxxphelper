@@ -127,9 +127,9 @@ func void _Ninja_MaxXPHelper_WarningAlerts_Handler_CHAPTER_OPTIMAL_INFO() {
     );
 };
 
-func void _Ninja_MaxXPHelper_WarningAlerts_OnChoice_ChapterOptimalInfo(var oCInfoChoice choice) {
+func void _Ninja_MaxXPHelper_WarningAlerts_ChapterOptimalInfo(var int choiceOrInfoId) {
     const int ht = 0; ht = Ninja_MaxXPHelper_WarningAlerts_ChapterOptimalInfoHT_Handle;
-    const int instanceId = 0; instanceId = choice.Function;
+    const int instanceId = 0; instanceId = choiceOrInfoId;
     const int symbolPtr = 0; symbolPtr = MEM_GetSymbolByIndex(instanceId);
     if _Ninja_MaxXPHelper_debug {
         const int s = 0; s = SB_New();
@@ -216,7 +216,7 @@ func void _Ninja_MaxXPHelper_WarningAlerts_ParseCSV() {
     };
 };
 
-func void _Ninja_MaxXPHelper_WarningAlerts_OnChoice_LostPickpocket(var oCInfoChoice choice) {
+func void _Ninja_MaxXPHelper_WarningAlerts_LostPickpocket(var int choiceOrInfoId) {
     const int ht = 0; ht = Ninja_MaxXPHelper_WarningAlerts_LostPickpocketHT_Handle;
     if Ninja_MaxXPHelper_HT_Has(ht, choice.Function) { return; };
     var Ninja_MaxXPHelper_Entry entry; entry = get(
@@ -242,15 +242,25 @@ func void _Ninja_MaxXPHelper_WarningAlerts_OnChoice_LostPickpocket(var oCInfoCho
     end;
 };
 
-func void Ninja_MaxXPHelper_WarningAlerts_OnChoice() {
+func void _Ninja_MaxXPHelper_WarningAlerts_OnChoice() {
     // OnChoice is __fastcall convention, ECX is oCInformationManager, EDX is oCInfoChoice* param.
     Ninja_MaxXPHelper_LogInfo("Ninja_MaxXPHelper_WarningAlerts_OnChoice");
     var oCInfoChoice choice; choice = _^(EDX);
-    _Ninja_MaxXPHelper_WarningAlerts_OnChoice_LostPickpocket(choice);
-    _Ninja_MaxXPHelper_WarningAlerts_OnChoice_ChapterOptimalInfo(choice);
+    _Ninja_MaxXPHelper_WarningAlerts_LostPickpocket(choice.Function);
+    _Ninja_MaxXPHelper_WarningAlerts_ChapterOptimalInfo(choice.Function);
+};
+
+
+func void _Ninja_MaxXPHelper_WarningAlerts_OnInfo() {
+    // OnChoice is __fastcall convention, ECX is oCInformationManager, EDX is oCInfoChoice* param.
+    Ninja_MaxXPHelper_LogInfo("Ninja_MaxXPHelper_WarningAlerts_OnInfo");
+    var oCInfo info; info = _^(EDX);
+    _Ninja_MaxXPHelper_WarningAlerts_LostPickpocket(info.information);
+    _Ninja_MaxXPHelper_WarningAlerts_ChapterOptimalInfo(info.information);
 };
 
 const int Ninja_MaxXPHelper_oCInformationManager_OnChoice = 6695328; // todo g1
+const int Ninja_MaxXPHelper_oCInformationManager_OnInfo = 6693520;
 const int Ninja_MaxXPHelper_WarningAlerts_Init_Once = FALSE;
 func void Ninja_MaxXPHelper_WarningAlerts_Init() {
     _Ninja_MaxXPHelper_WarningAlerts_ParseCSV();
@@ -259,7 +269,12 @@ func void Ninja_MaxXPHelper_WarningAlerts_Init() {
         HookEngineF(
             Ninja_MaxXPHelper_oCInformationManager_OnChoice, 
             7, // first instruction is just 2 bytes, second is 5. To hook a jump we need at least 5 bytes so here we must take 2 instructions.
-            Ninja_MaxXPHelper_WarningAlerts_OnChoice
+            _Ninja_MaxXPHelper_WarningAlerts_OnChoice
+        );
+        HookEngineF(
+            Ninja_MaxXPHelper_oCInformationManager_OnInfo, 
+            7, // first instruction is just 2 bytes, second is 5. To hook a jump we need at least 5 bytes so here we must take 2 instructions.
+            _Ninja_MaxXPHelper_WarningAlerts_OnInfo
         );
         Ninja_MaxXPHelper_WarningAlerts_Init_Once = TRUE;
     };
