@@ -199,7 +199,7 @@ func void _Ninja_MaxXPHelper_WarningAlerts_ParseCSV() {
     var int streamPtr; streamPtr = Ninja_MaxXPHelper_OpenFileStreamForReading("system\maxxphelper_warnings.csv");
     if streamPtr {
         const int gotoLabel = 0; gotoLabel = MEM_StackPos.position;
-        if !Ninja_MaxXPHelper_EOF(streamPtr) {
+        if !Ninja_MaxXPHelper_EOF(streamPtr) {  
             STRINT_SplitReset();
             const string line = ""; line = Ninja_MaxXPHelper_TextLine(streamPtr);
             const int count = 0; count = STR_SplitCount(line, ";");
@@ -218,9 +218,9 @@ func void _Ninja_MaxXPHelper_WarningAlerts_ParseCSV() {
 
 func void _Ninja_MaxXPHelper_WarningAlerts_LostPickpocket(var int choiceOrInfoId) {
     const int ht = 0; ht = Ninja_MaxXPHelper_WarningAlerts_LostPickpocketHT_Handle;
-    if Ninja_MaxXPHelper_HT_Has(ht, choice.Function) { return; };
+    if Ninja_MaxXPHelper_HT_Has(ht, choiceOrInfoId) { return; };
     var Ninja_MaxXPHelper_Entry entry; entry = get(
-        Ninja_MaxXPHelper_HT_Get(ht, choice.Function)
+        Ninja_MaxXPHelper_HT_Get(ht, choiceOrInfoId)
     );
     STRINT_SplitReset();
     const int count = 0; count = STR_SplitCount(entry.argument, ",");
