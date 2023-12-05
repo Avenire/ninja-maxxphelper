@@ -1,5 +1,6 @@
 const int _Ninja_MaxXPHelper_DeathAlerts_DeadOnArrivalNpc_HT = 0;
 const int _Ninja_MaxXPHelper_DeathAlerts_B_MagicHurtNpc_Killed_To_RealKiller_HT = 0;
+const int _Ninja_MaxXPHelper_DeathAlerts_RemovedNPCs_HT = 0;
 const int _Ninja_MaxXPHelper_DeathAlerts_AlertIdToTrackerId_HT = 0;
 const int _Ninja_MaxXPHelper_DeathAlerts_LastSVM = 0;
 const int _Ninja_MaxXPHelper_DeathAlerts_SVMThrottleInMillis = 10000;
@@ -76,7 +77,7 @@ func void Ninja_MaxXPHelper_DeathAlerts_Init() {
     _Ninja_MaxXPHelper_DeathAlerts_LastSVM = 0;
     Ninja_MaxXPHelper_HT_Destroy(_Ninja_MaxXPHelper_DeathAlerts_AlertIdToTrackerId_HT);
     Ninja_MaxXPHelper_HT_Destroy(_Ninja_MaxXPHelper_DeathAlerts_B_MagicHurtNpc_Killed_To_RealKiller_HT);
-
+    Ninja_MaxXPHelper_HT_ClearAndCreate(_@(_Ninja_MaxXPHelper_DeathAlerts_RemovedNPCs_HT), 0);
     _Ninja_MaxXPHelper_DeathAlerts_AlertIdToTrackerId_HT = Ninja_MaxXPHelper_HT_Create();
     _Ninja_MaxXPHelper_DeathAlerts_B_MagicHurtNpc_Killed_To_RealKiller_HT = Ninja_MaxXPHelper_HT_Create();
 
@@ -179,7 +180,6 @@ func int _Ninja_MaxXPHelper_DeathAlerts_Handler_StoryScriptedDeath(var int npcIn
     var c_npc cnpc; cnpc = Hlp_GetNpc(npcInstance);
     // todo: handle G2 cases where mortal NPCs travel worlds between chapters (Diego CH2->CH3, Gorn CH2, CH3, CH4...)
     if  // testing note: Should be false only for off-screen kill? Would need to check range otherwise.
-        !npc.percActive && // <- skip this if NPC who's "B_KillNpc"'ed is also in processing range (or there's double ZS_Dead alert bug) 
         !Npc_IsDead(cnpc) && // NPC is lying dead on the ground like some Free Mine NPCs - we'd get false alert
         // Skip immortal NPC
         !( cnpc.flags & NPC_FLAG_IMMORTAL) {
@@ -199,12 +199,18 @@ func int _Ninja_MaxXPHelper_DeathAlerts_Handler_StoryScriptedDeath(var int npcIn
 
 func void Ninja_MaxXPHelper_ZS_Dead_Hook() {
     if !Ninja_MaxXPHelper_ShouldRunHook() {
+        ContinueCall();
         return;
     };
     var c_npc _self; _self = Hlp_GetNpc (self);
     var c_npc _other; _other = Hlp_GetNpc (other);
     Ninja_MaxXPHelper_LogInfo(ConcatStrings("ZS_Dead killed ", _self.name));
     Ninja_MaxXPHelper_LogInfo(ConcatStrings("ZS_Dead killer ", _other.name));
+    Ninja_MaxXPHelper_LogInfo(IntToString(Hlp_GetInstanceID(_self)));
+    if Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_DeathAlerts_RemovedNPCs_HT, Hlp_GetInstanceID(_self)) {
+        ContinueCall();
+        return;
+    };
     const int handled = 0; handled = !Ninja_MaxXPHelper_ShowDeathAlerts;
     if !handled {
         handled = _Ninja_MaxXPHelper_DeathAlerts_Handler_SkipPlayerDeath(_self);
@@ -227,16 +233,24 @@ func void Ninja_MaxXPHelper_ZS_Dead_Hook() {
     if !handled {
         handled = _Ninja_MaxXPHelper_DeathAlerts_Handler_NPCDiedAndPlayerCouldLoseXP(_self, _other);
     };
+    Ninja_MaxXPHelper_HT_InsertOrChange(_Ninja_MaxXPHelper_DeathAlerts_RemovedNPCs_HT, Hlp_GetInstanceID(cnpc), TRUE);
     Ninja_MaxXPHelper_WarningAlerts_OnNPCDeath(_self);
     ContinueCall();
 };
 
 func void Ninja_MaxXPHelper_B_KillNpc_Hook(var int npcInstance) {
     if !Ninja_MaxXPHelper_ShouldRunHook() {
+        PassArgumentI(npcInstance);
+        ContinueCall();
         return;
     };
     const int handled = 0; handled = !Ninja_MaxXPHelper_ShowDeathAlerts;
     var c_npc cnpc; cnpc = Hlp_GetNpc(npcInstance);
+    if Ninja_MaxXPHelper_HT_Get(_Ninja_MaxXPHelper_DeathAlerts_RemovedNPCs_HT, npcInstance) {
+        PassArgumentI(npcInstance);
+        ContinueCall();
+        return;
+    };
     Ninja_MaxXPHelper_LogInfo(ConcatStrings("B_KillNpc ", cnpc.name));
     if !handled {
         // Should never happen?
@@ -257,18 +271,17 @@ func void Ninja_MaxXPHelper_B_KillNpc_Hook(var int npcInstance) {
     if !handled {
         handled = _Ninja_MaxXPHelper_DeathAlerts_Handler_StoryScriptedDeath(npcInstance);
     };
+    Ninja_MaxXPHelper_HT_InsertOrChange(_Ninja_MaxXPHelper_DeathAlerts_RemovedNPCs_HT, Hlp_GetInstanceID(cnpc), TRUE);
     Ninja_MaxXPHelper_WarningAlerts_OnNPCDeath(cnpc);
-    PassArgumentI(npcInstance);
-    ContinueCall();
 };
 
 func void Ninja_MaxXPHelper_B_MagicHurtNpc_Hook(var C_NPC attacker, var int damage) {
-    if !Ninja_MaxXPHelper_ShouldRunHook() {
-        return;
-    };
     PassArgumentN(attacker);
     PassArgumentI(damage);
     ContinueCall();
+    if !Ninja_MaxXPHelper_ShouldRunHook() {
+        return;
+    };
     var C_NPC _self; _self = Hlp_GetNpc(self);
     if Npc_IsDead(_self) {
         // Death XP of NPC killed by DOT stun spell like pyrokinesis could also happen in B_MagicHurtNpc.
@@ -276,12 +289,13 @@ func void Ninja_MaxXPHelper_B_MagicHurtNpc_Hook(var C_NPC attacker, var int dama
         // would trigger false positive alert.
         // To reproduce - spawn character helper, beat him, when he's up finish him off with a single cast of pyrokinesis.
         Ninja_MaxXPHelper_HT_Insert(_Ninja_MaxXPHelper_DeathAlerts_B_MagicHurtNpc_Killed_To_RealKiller_HT, _@(attacker), _@(self));
-        Ninja_MaxXPHelper_WarningAlerts_OnNPCDeath(_self);
     };
 };
 
 func void Ninja_MaxXPHelper_B_RemoveNpc_Hook(var int npcInstance) {
     if !Ninja_MaxXPHelper_ShouldRunHook() {
+        PassArgumentI(npcInstance);
+        ContinueCall();
         return;
     };
     var c_npc cnpc; cnpc = Hlp_GetNpc(npcInstance);
@@ -306,6 +320,8 @@ func void Ninja_MaxXPHelper_B_RemoveNpc_Hook(var int npcInstance) {
     if !handled {
         handled = _Ninja_MaxXPHelper_DeathAlerts_Handler_StoryScriptedDeath(npcInstance);
     };
+    // In G2 B_RemoveNpc may also trigger ZS_Dead
+    Ninja_MaxXPHelper_HT_InsertOrChange(_Ninja_MaxXPHelper_DeathAlerts_RemovedNPCs_HT, Hlp_GetInstanceID(cnpc), TRUE);
     PassArgumentI(npcInstance);
     ContinueCall();
     Ninja_MaxXPHelper_WarningAlerts_OnNPCDeath(cnpc); // Technically not a death but whatever.
