@@ -233,7 +233,7 @@ func void Ninja_MaxXPHelper_ZS_Dead_Hook() {
     if !handled {
         handled = _Ninja_MaxXPHelper_DeathAlerts_Handler_NPCDiedAndPlayerCouldLoseXP(_self, _other);
     };
-    Ninja_MaxXPHelper_HT_InsertOrChange(_Ninja_MaxXPHelper_DeathAlerts_RemovedNPCs_HT, Hlp_GetInstanceID(cnpc), TRUE);
+    Ninja_MaxXPHelper_HT_InsertOrChange(_Ninja_MaxXPHelper_DeathAlerts_RemovedNPCs_HT, Hlp_GetInstanceID(_self), TRUE);
     Ninja_MaxXPHelper_WarningAlerts_OnNPCDeath(_self);
     ContinueCall();
 };
