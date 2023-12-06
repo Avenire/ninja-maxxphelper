@@ -207,6 +207,64 @@ func int _Ninja_MaxXPHelper_ThiefScanner_CreateBlacklistHT() {
 func void _Ninja_MaxXPHelper_ThiefScanner_InsertIntoPickpocketableNPCArray(var int npc, var int value) {
     MEM_ArrayInsert(Ninja_MaxXPHelper_ThiefScanner_PickpocketableNPCArray, npc);
 };
+
+func int _Ninja_MaxXPHelper_ThiefScanner_Handle_C_Beklauen(var int codePtr) {
+    const int C_Beklauen_content = 0;
+    if !C_Beklauen_content {
+        var zCPar_Symbol symbol; symbol = _^(MEM_GetSymbol("C_Beklauen"));
+        C_Beklauen_content = symbol.content;
+
+    };
+    const int pushInt_dex_maybe = 0; pushInt_dex_maybe = MEM_ReadByte(codePtr);
+    const int pushInt_gold_maybe = 0; pushInt_gold_maybe = MEM_ReadByte(codePtr + 5);
+    const int callFunc_maybe = 0; callFunc_maybe = MEM_ReadByte(codePtr + 10);
+    const int C_Beklauen_content_maybe = 0; C_Beklauen_content_maybe = MEM_ReadInt(codePtr + 11);
+    if (
+        pushInt_dex_maybe == zPAR_TOK_PUSHINT &&
+        pushInt_gold_maybe == zPAR_TOK_PUSHINT &&
+        callFunc_maybe == zPAR_TOK_CALL &&
+        C_Beklauen_content_maybe == C_Beklauen_content
+    ) {
+        return MEM_ReadInt(codePtr + 1); // dex required
+    };
+    return FALSE;
+};
+
+func int _Ninja_MaxXPHelper_ThiefScanner_Handle_C_Beklauen(var int codePtr) {
+    const int C_Beklauen_content = 0;
+    const int pushInt_dex_maybe = 0; pushInt_dex_maybe = MEM_ReadByte(codePtr);
+    const int pushInt_gold_maybe = 0; pushInt_gold_maybe = MEM_ReadByte(codePtr + 5);
+    const int callFunc_maybe = 0; callFunc_maybe = MEM_ReadByte(codePtr + 10);
+    const int C_Beklauen_content_maybe = 0; C_Beklauen_content_maybe = MEM_ReadInt(codePtr + 11);
+    if (
+        pushInt_dex_maybe == zPAR_TOK_PUSHINT &&
+        pushInt_gold_maybe == zPAR_TOK_PUSHINT &&
+        callFunc_maybe == zPAR_TOK_CALL &&
+        C_Beklauen_content_maybe == C_Beklauen_content
+    ) {
+        return MEM_ReadInt(codePtr + 1); // dex required
+    };
+    return FALSE;
+};
+
+func void _Ninja_MaxXPHelper_ThiefScanner_ParseByteCode(
+    var int functionIdx
+) {
+    const int symPtr = 0; symPtr = MEM_GetSymbolByIndex(functionIdx);
+    var zCPar_Symbol symbol; symbol = _^(symPtr);
+    const int codePtr = 0; codePtr = MEM_ReadInt(ContentParserAddress + zCParser_stack_offset) + symbol.content;
+    const int handled = 0; handled = _Ninja_MaxXPHelper_ThiefScanner_Handle_C_Beklauen(codePtr);
+    if handled > 0 {
+        const int s = 0; s = SB_New();
+        SB(symbol.name);
+        SB(" uses C_Beklauen func, dex=");
+        SB(IntToString(handled));
+        Ninja_MaxXPHelper_LogInfo(SB_ToString());
+        SB_Clear();
+        SB_Destroy();
+    };
+};
+
 func void _Ninja_MaxXPHelper_ThiefScanner_LoadPickpocketInfos() {
     const int blacklist = 0; 
     blacklist = _Ninja_MaxXPHelper_ThiefScanner_CreateBlacklistHT();
@@ -226,6 +284,7 @@ func void _Ninja_MaxXPHelper_ThiefScanner_LoadPickpocketInfos() {
             };
             if  Ninja_MaxXPHelper_EndsWith(info.name, pickpocketSuffix) && 
                 !Ninja_MaxXPHelper_HT_Has(Ninja_MaxXPHelper_ThiefScanner_NPC_2_PickpocketInfo, info.npc) {
+                _Ninja_MaxXPHelper_ThiefScanner_ParseByteCode(info.conditions);
                 Ninja_MaxXPHelper_HT_Insert(Ninja_MaxXPHelper_ThiefScanner_NPC_2_PickpocketInfo, _@(info), info.npc);
                 continue;
             };
