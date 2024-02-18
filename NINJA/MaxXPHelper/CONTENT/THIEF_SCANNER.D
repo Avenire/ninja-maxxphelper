@@ -213,7 +213,6 @@ func int _Ninja_MaxXPHelper_ThiefScanner_Handle_C_Beklauen(var int codePtr) {
     if !C_Beklauen_content {
         var zCPar_Symbol symbol; symbol = _^(MEM_GetSymbol("C_Beklauen"));
         C_Beklauen_content = symbol.content;
-
     };
     const int pushInt_dex_maybe = 0; pushInt_dex_maybe = MEM_ReadByte(codePtr);
     const int pushInt_gold_maybe = 0; pushInt_gold_maybe = MEM_ReadByte(codePtr + 5);
@@ -230,39 +229,106 @@ func int _Ninja_MaxXPHelper_ThiefScanner_Handle_C_Beklauen(var int codePtr) {
     return FALSE;
 };
 
-func int _Ninja_MaxXPHelper_ThiefScanner_Handle_C_Beklauen(var int codePtr) {
-    const int C_Beklauen_content = 0;
-    const int pushInt_dex_maybe = 0; pushInt_dex_maybe = MEM_ReadByte(codePtr);
-    const int pushInt_gold_maybe = 0; pushInt_gold_maybe = MEM_ReadByte(codePtr + 5);
-    const int callFunc_maybe = 0; callFunc_maybe = MEM_ReadByte(codePtr + 10);
-    const int C_Beklauen_content_maybe = 0; C_Beklauen_content_maybe = MEM_ReadInt(codePtr + 11);
-    if (
-        pushInt_dex_maybe == zPAR_TOK_PUSHINT &&
-        pushInt_gold_maybe == zPAR_TOK_PUSHINT &&
-        callFunc_maybe == zPAR_TOK_CALL &&
-        C_Beklauen_content_maybe == C_Beklauen_content
-    ) {
-        return MEM_ReadInt(codePtr + 1); // dex required
-    };
-    return FALSE;
-};
-
-func void _Ninja_MaxXPHelper_ThiefScanner_ParseByteCode(
-    var int functionIdx
-) {
+func int _Ninja_MaxXPHelper_ThiefScanner_ParseCodeUntilReturn(var int functionIdx) {
     const int symPtr = 0; symPtr = MEM_GetSymbolByIndex(functionIdx);
     var zCPar_Symbol symbol; symbol = _^(symPtr);
     const int codePtr = 0; codePtr = MEM_ReadInt(ContentParserAddress + zCParser_stack_offset) + symbol.content;
-    const int handled = 0; handled = _Ninja_MaxXPHelper_ThiefScanner_Handle_C_Beklauen(codePtr);
-    if handled > 0 {
-        const int s = 0; s = SB_New();
-        SB(symbol.name);
-        SB(" uses C_Beklauen func, dex=");
-        SB(IntToString(handled));
-        Ninja_MaxXPHelper_LogInfo(SB_ToString());
-        SB_Clear();
-        SB_Destroy();
+
+    const int hasItemsFound = 0;
+    const int pushedInt = 0;
+    const int command = 0;
+    const int probablyTheDex = -1;
+    const int arg = 0;
+    const int isPickpocketInfo = 0;
+    const int pushUnexpectedSymbolEncountered = -1; // For cases where condition checks variables other than skill check, dex check or item check
+    pushUnexpectedSymbolEncountered = FALSE; 
+    probablyTheDex = -1;
+    hasItemsFound = FALSE;
+    isPickpocketInfo = FALSE;
+    pushedInt = -1;
+    const int Npc_HasItems_idx = FALSE;
+
+    if !Npc_HasItems_idx {
+        Npc_HasItems_idx = MEM_GetSymbolIndex("Npc_HasItems");
     };
+    const int C_NPC_attribute_idx = 0;
+    if !C_NPC_attribute_idx {
+        C_NPC_attribute_idx = MEM_GetSymbolIndex("C_NPC.ATTRIBUTE");
+    };
+    const int C_NPC_AIVAR_idx = 0;
+    if !C_NPC_AIVAR_idx {
+        C_NPC_AIVAR_idx = MEM_GetSymbolIndex("C_NPC.AIVAR");
+    };
+    const int C_Beklauen_content = 0;
+    if !C_Beklauen_content {
+        symbol = _^(MEM_GetSymbol("C_Beklauen"));
+        C_Beklauen_content = symbol.content;
+    };
+    const int pushDexterityEncountered = 0;
+    pushDexterityEncountered = FALSE;
+    var int gotoLabel; gotoLabel = MEM_StackPos.position;
+    command = MEM_ReadByte(codePtr);
+    if command == 15 || command == 16 || command == 17 || command == 18 {
+        // Reset context on comparison command
+        if pushDexterityEncountered && probablyTheDex == -1 {
+            probablyTheDex = pushedInt;
+        };
+        pushedInt = -1;
+        codePtr = codePtr + 1;
+    } else if command == 60 {
+        // First return opcode met, exit parsing
+        if isPickpocketInfo {
+            var string x; x = symbol.name;
+            x = ConcatStrings(x, "@");
+            x = ConcatStrings(x, IntToString(codePtr));
+            Ninja_MaxXPHelper_LogInfo(x);
+            symbol = _^(symPtr);
+            Ninja_MaxXPHelper_LogInfo(ConcatStrings("probablyTheDex=", IntToString(probablyTheDex)));
+            Ninja_MaxXPHelper_LogInfo(ConcatStrings("hasItemsFound=", IntToString(hasItemsFound)));
+            return probablyTheDex;
+        };
+        return -1;
+    } else if command == 61 || command == 62 {
+        arg = MEM_ReadInt(codePtr + 1);
+        if arg == Npc_HasItems_idx {
+            hasItemsFound = TRUE;
+        } else if arg == C_Beklauen_content {
+            isPickpocketInfo = TRUE;
+            probablyTheDex = pushedInt;
+        } else {
+        };
+        codePtr = codePtr + 5;
+    } else if command == 64 {
+        if pushedInt < 0 {
+            pushedInt = MEM_ReadInt(codePtr + 1);
+        };
+        // push int, skip opcode + int arg
+        codePtr = codePtr + 5;
+    } else if command == 65 {
+        arg = MEM_ReadInt(codePtr + 1);
+        codePtr = codePtr + 5;
+    } else if command == 66 || command == 67 || command == 75 || command == 76 || command == 80 {
+        codePtr = codePtr + 5;
+    } else if command == 245 {
+        arg = MEM_ReadInt(codePtr + 1);
+        // G2 NotR symbol offset (?) for attributes array
+        if arg == C_NPC_attribute_idx {
+            arg = MEM_ReadByte(codePtr + 5);
+            if arg == ATR_DEXTERITY {
+                pushDexterityEncountered = TRUE;
+            };
+        } else if arg == C_NPC_AIVAR_idx {
+            arg = MEM_ReadByte(codePtr + 5);
+            if arg == AIV_PlayerHasPickedMyPocket {
+                isPickpocketInfo = TRUE;
+            };
+        };
+        // skip opcode, int, byte
+        codePtr = codePtr + 6;
+    } else {
+        codePtr = codePtr + 1;
+    };
+    MEM_StackPos.position = gotoLabel;
 };
 
 func void _Ninja_MaxXPHelper_ThiefScanner_LoadPickpocketInfos() {
@@ -272,19 +338,27 @@ func void _Ninja_MaxXPHelper_ThiefScanner_LoadPickpocketInfos() {
     const string altPickpocketSuffix = "_PICKME"; // Cassia...
     const int pickpocketSuffixLen = 0; pickpocketSuffixLen = STR_Len(pickpocketSuffix);
     const int listPtr = 0; listPtr = _@(MEM_InfoMan.infoList_compare);
+    const int dex = 0;
     while (listPtr);
         var zCListSort list; list = _^(listPtr);
         listPtr = list.next;
         if list.data {            
             var oCInfo info; info = _^(list.data);
             if Ninja_MaxXPHelper_HT_Has(blacklist, info.npc) { continue; };
+            dex = _Ninja_MaxXPHelper_ThiefScanner_ParseCodeUntilReturn(info.conditions);
+            if dex > 0 {
+                var string newDescription; newDescription = ConcatStrings(" (", IntToString(dex));
+                newDescription = ConcatStrings(newDescription, ")");
+                if !Ninja_MaxXPHelper_EndsWith(info.description, newDescription) {
+                    info.description = ConcatStrings(info.description, newDescription);
+                };
+            };
             if Ninja_MaxXPHelper_EndsWith(info.name, altPickpocketSuffix) {
                 Ninja_MaxXPHelper_HT_InsertOrChange(Ninja_MaxXPHelper_ThiefScanner_NPC_2_PickpocketInfo, info.npc, _@(info));
                 continue;
             };
             if  Ninja_MaxXPHelper_EndsWith(info.name, pickpocketSuffix) && 
                 !Ninja_MaxXPHelper_HT_Has(Ninja_MaxXPHelper_ThiefScanner_NPC_2_PickpocketInfo, info.npc) {
-                _Ninja_MaxXPHelper_ThiefScanner_ParseByteCode(info.conditions);
                 Ninja_MaxXPHelper_HT_Insert(Ninja_MaxXPHelper_ThiefScanner_NPC_2_PickpocketInfo, _@(info), info.npc);
                 continue;
             };
