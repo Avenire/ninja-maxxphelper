@@ -563,19 +563,21 @@ func void _Ninja_MaxXPHelper_WarningAlerts_ShowItemStats() {
     const int goblinBerry = 0; goblinBerry = MEM_GetSymbolIndex("ITPL_DEX_HERB_01");
     const int swampherbs = 0; swampherbs = 0;
     const int swampherb = 0; swampherb = MEM_GetSymbolIndex("ITPL_SWAMPHERB");
+    const int gil_pal_ = 0; gil_pal_ = MEM_GetSymbolIndex("GIL_PAL");
+    const int gil_djg_ = 0; gil_djg_ = MEM_GetSymbolIndex("GIL_DJG");
     while (listPtr);
         list = _^(listPtr);
         listPtr = list.next;
         if !list.data { continue; };
         cnpc = _^(list.data);
         if !Hlp_IsValidNpc(cnpc) ||  Npc_IsPlayer(cnpc)  { continue; };
-        if Npc_HasItems(cnpc, goblinBerry) && cnpc.guild == GIL_PAL && !(cnpc.flags & NPC_FLAG_IMMORTAL) {
+        if gil_pal_ > 0 && Npc_HasItems(cnpc, goblinBerry) && cnpc.guild == gil_pal_ && !(cnpc.flags & NPC_FLAG_IMMORTAL) {
             const int symbolPtr = 0; symbolPtr = MEM_GetSymbolByIndex(Hlp_GetInstanceID(cnpc));
             var zCPar_Symbol symbol; symbol = _^(symbolPtr);
             Ninja_MaxXPHelper_LogInfo(ConcatStrings("has goblin berry ", symbol.name));
             goblinBerries += 1;
         };
-        if Npc_HasItems(cnpc, swampherb) && cnpc.guild == GIL_DJG && !(cnpc.flags & NPC_FLAG_IMMORTAL) {
+        if gil_djg_ > 0 && Npc_HasItems(cnpc, swampherb) && cnpc.guild == gil_djg_ && !(cnpc.flags & NPC_FLAG_IMMORTAL) {
             const int symbolPtr = 0; symbolPtr = MEM_GetSymbolByIndex(Hlp_GetInstanceID(cnpc));
             var zCPar_Symbol symbol; symbol = _^(symbolPtr);
             Ninja_MaxXPHelper_LogInfo(ConcatStrings("has swampherb ", symbol.name));

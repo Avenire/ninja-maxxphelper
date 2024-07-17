@@ -2,7 +2,7 @@
 func int Ninja_MaxXPHelper_ThiefScanner_CanPickpocketNpc(var C_NPC npc) {
     return FALSE;
 };
-func void Ninja_MaxXPHelper_ThiefScanner_OnNPCDeath(var C_Npc npc) {}
+func void Ninja_MaxXPHelper_ThiefScanner_OnNPCDeath(var C_Npc npc) {};
 func void Ninja_MaxXPHelper_ThiefScanner_Init() {};
 func int Ninja_MaxXPHelper_ThiefScanner_EnoughDexToPickpocket(var C_NPC npc) { return FALSE; };
 const int Ninja_MaxXPHelper_ThiefScanner_SeemsEnough = 1; 
