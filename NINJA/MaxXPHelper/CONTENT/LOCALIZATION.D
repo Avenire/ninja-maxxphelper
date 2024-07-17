@@ -1,7 +1,13 @@
 const string Ninja_MaxXPHelper_LOC_RIPPrefix = "RIP: ";
-const string Ninja_MaxXPHelper_LOC_ScriptedDeathTip = "(Scripted Death)";
-const string Ninja_MaxXPHelper_LOC_DoubleXPMeleeFinisherTip = "(Double XP Glitch - Lost Magic/Range Kill XP)";
-const string Ninja_MaxXPHelper_LOC_DoubleXPNoZSUnconsciousXP = "(Double XP Glitch - Lost Victory XP)";
+const string Ninja_MaxXPHelper_LOC_DoubleXPMeleeFinisherTip = "Double XP Glitch - Lost ZS_Dead XP";
+const string Ninja_MaxXPHelper_LOC_WarnDoubleXPViolation = "used Double XP Glitch";
+const string Ninja_MaxXPHelper_LOC_WarnKilledSummon = "killed summoned creature";
+const string Ninja_MaxXPHelper_LOC_DoubleXPNoZSUnconsciousXP = "Double XP Glitch - Lost ZS_Unconscious XP";
+
+const string Ninja_MaxXPHelper_LOC_LostVictoryXP = "Lost XP";
+const string Ninja_MaxXPHelper_LOC_KilledBy = "killed by ";
+const string Ninja_MaxXPHelper_LOC_XPNotRegisteredBug = "no XP received bug";
+
 const string Ninja_MaxXPHelper_LOC_LocatorOn = "XPNPCLocator ON";
 const string Ninja_MaxXPHelper_LOC_LocatorOff = "XPNPCLocator OFF";
 
@@ -17,6 +23,15 @@ const string Ninja_MaxXPHelper_LOC_PickpocketWarningDeath = "Not Pickpocketable 
 
 const string Ninja_MaxXPHelper_LOC_PickpocketWarningOther = "Not Pickpocketable Anymore (Item Was Likely Looted)";
 const string Ninja_MaxXPHelper_LOC_PickpocketWarningDeath = "Not Pickpocketable Anymore (NPC Died)";
+
+const string Ninja_MaxXPHelper_LOC_XPLocatorModeAll = "XPLocator ON - all";
+const string Ninja_MaxXPHelper_LOC_XPLocatorModePickpocket = "XPLocator ON - NPCs to pickpocket";
+const string Ninja_MaxXPHelper_LOC_XPLocatorModeItems = "XPLocator ON - XP run relevant items";
+
+const string Ninja_MaxXPHelper_LOC_XPLocatorModeNPCsToBeat = "XPLocator ON - NPCs to beat";
+
+const string Ninja_MaxXPHelper_LOC_WarningsBerryCount = "Goblin Berries count scanned = ";
+const string Ninja_MaxXPHelper_LOC_Swampherbscount = "Swamp herbs count scanned = ";
 
 // https://github.com/szapp/Ninja/wiki/Inject-Changes#localization
 func int Ninja_MaxXPHelper_GuessLocalization() { // Adjust the name!

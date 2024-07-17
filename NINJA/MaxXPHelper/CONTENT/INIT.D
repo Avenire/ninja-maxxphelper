@@ -15,6 +15,14 @@ func void Ninja_MaxXPHelper_SetOpts() {
         "considerG1DoubleXPGlitch",
         0
     );
+    Ninja_MaxXPHelper_WarnG1DoubleXPGlitch = Ninja_MaxXPHelper_GetIntOptOrSetDefault(
+        "warnG1DoubleXPGlitch",
+        0
+    );
+    Ninja_MaxXPHelper_WarnSummonKill = Ninja_MaxXPHelper_GetIntOptOrSetDefault(
+        "warnSummonKill",
+        0
+    );
     Ninja_MaxXPHelper_ConsiderLevelZeroNPC = Ninja_MaxXPHelper_GetIntOptOrSetDefault(
         "considerLevelZeroNPC",
         0 // Skip NPCs like Mud which wouldn't yield any XP in base game anyway.
@@ -26,6 +34,18 @@ func void Ninja_MaxXPHelper_SetOpts() {
     Ninja_MaxXPHelper_ToggleXPNPCLocatorKeyCode = Ninja_MaxXPHelper_GetKeyCodeOptOrSetDefault(
         "toggleXPNPCLocatorKey", 
         "KEY_V"
+    );
+    Ninja_MaxXPHelper_XPNPCLocatorNextModeKey = Ninja_MaxXPHelper_GetKeyCodeOptOrSetDefault(
+        "XPNPCLocatorNextModeKey", 
+        "KEY_RBRACKET"
+    );
+    Ninja_MaxXPHelper_XPNPCLocatorPreviousModeKey = Ninja_MaxXPHelper_GetKeyCodeOptOrSetDefault(
+        "XPNPCLocatorPreviousModeKey", 
+        "KEY_LBRACKET"
+    );
+    Ninja_MaxXPHelper_WarningAlertsItemStatsKey = Ninja_MaxXPHelper_GetKeyCodeOptOrSetDefault(
+        "WarningAlertsItemStatsKey", 
+        "" // "secret" feature, KEY_NUMPAD5
     );
     Ninja_MaxXPHelper_ToggleTrackersUseZBufferKeyCode = Ninja_MaxXPHelper_GetKeyCodeOptOrSetDefault(
         "toggleTrackersUseZBufferKey", 
@@ -109,19 +129,21 @@ func void Ninja_MaxXPHelper_SetOpts() {
         "showPickpocketTrackersOnly", 
         0
     );
-    
+    Ninja_MaxXPHelper_WarningAlerts_WarningsConfigFilePath = Ninja_MaxXPHelper_GetStrOptOrSetDefault(
+        "warningsConfigFilePath", 
+        "system/maxxphelper_warnings.cfg"
+    );
 };
 
 func void Ninja_MaxXPHelper_Init()
 {
     MEM_InitAll();
-    LeGo_MergeFlags(LeGo_HookEngine | LeGo_FrameFunctions | LeGo_Interface | LeGo_PrintS | LeGo_Timer);
-    
-    const int once = 0;
+    LeGo_MergeFlags(LeGo_HookEngine | LeGo_FrameFunctions | LeGo_Interface | LeGo_PrintS | LeGo_Timer);  
+    const int once = FALSE;
     if (!once) {
         // todo: use init menu.
         Ninja_MaxXPHelper_SetOpts();
-        once = 1;
+        once = TRUE;
     };
     Ninja_MaxXPHelper_Localization_Init();
     Ninja_MaxXPHelper_TextAlerts_Init();
@@ -130,4 +152,5 @@ func void Ninja_MaxXPHelper_Init()
     Ninja_MaxXPHelper_DeathAlerts_Init();
     Ninja_MaxXPHelper_ThiefScanner_Init();
     Ninja_MaxXPHelper_XPNPCLocator_Init();
+    Ninja_MaxXPHelper_WarningAlerts_Init();
 };

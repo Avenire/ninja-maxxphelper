@@ -38,6 +38,10 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
     var int minSideSize,
     var int zBufferBias
 ) {
+    const int EPSILON = 0;
+    if EPSILON == 0 {
+        EPSILON = 925353388; // should be around 0.00001 if interpreted as float
+    };
     // Given center point (xfcenter,yfcenter,zfcenter) in world's coordinate system (vobs/wp trafo positions) and desired sideSize size
     // sets _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result where:
     // idx 0: xfcenter screen pixel coord
@@ -93,21 +97,21 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
     // https://en.wikipedia.org/wiki/Z-buffering
     // Values gets normalized to [0,1]
     const int depthValue = 0; depthValue = addf(
-        divf(MEM_Camera.farClipZ, subf(MEM_Camera.farClipZ, MEM_Camera.nearClipZ)),
+        divf(MEM_Camera.farClipZ, addf(subf(MEM_Camera.farClipZ, MEM_Camera.nearClipZ), EPSILON)),
         divf(
             divf(
                 negf(mulf(MEM_Camera.farClipZ, MEM_Camera.nearClipZ)),
-                subf(MEM_Camera.farClipZ, MEM_Camera.nearClipZ)
+                addf(subf(MEM_Camera.farClipZ, MEM_Camera.nearClipZ), EPSILON)
             ),
-            subf(zCamera, zBufferBias)
+            addf(subf(zCamera, zBufferBias), EPSILON)
         )
     );
-    if GOTHIC_BASE_VERSION > 1 {
+    if GOTHIC_BASE_VERSION == 2 {
         // For some reason Gothic 2 NotR does things bit differently.
         // First it does a reciprocate of passed Z in DrawPolySimple and that goes to DirectX.
         // Reciprocate means far values end up being close to 0, near values to 1.
         // Hence I do 1 - depthValue and then take a reciprocate of that to adapt the value for DrawPolySimple there.
-        depthValue = divf(FLOATONE, subf(FLOATONE, depthValue));
+        depthValue = divf(FLOATONE, addf(subf(FLOATONE, depthValue), EPSILON));
     };
     _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result[3] = depthValue;
     
@@ -117,7 +121,7 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
             mulf(
                 divf(
                     FLOATONE, 
-                    zCamera
+                    addf(zCamera, EPSILON)
                 ), 
                 mulf(
                     addf(halfside, xCamera), 
@@ -133,7 +137,7 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
                     MEM_Camera.viewDistanceX,
                     divf(
                         FLOATONE,
-                        zCamera
+                        addf(zCamera, EPSILON)
                     )
                 )
             ),
@@ -145,17 +149,17 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
         subf(
             MEM_Camera.ycenter, 
             mulf(
-                divf(FLOATONE, zCamera),
+                divf(FLOATONE, addf(zCamera, EPSILON)),
                 mulf(
                     addf(halfside, yCamera),
-                    MEM_Camera.viewDistanceY
+                    addf(MEM_Camera.viewDistanceY, EPSILON)
                 )
             )
         ),
         subf(
             MEM_Camera.ycenter, 
             mulf(
-                divf(FLOATONE, zCamera),
+                divf(FLOATONE, addf(zCamera, EPSILON)),
                 mulf(
                     yCamera,
                     MEM_Camera.viewDistanceY
@@ -163,7 +167,7 @@ func int _Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
             )
         )
     );
-    const int px = 0; var int py;
+    const int px = 0; const int py = 0;
     Ninja_MaxXPHelper_ProjectCameraToPx(
         _@(_Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx_Result), 
         _@(px), 
@@ -187,13 +191,13 @@ func int _Ninja_MaxXPHelper_TrackerSprite_UpdateSprite(
     var int verticesPtr, var int xfcenter, var int yfcenter, var int zfcenter, var int color, var int iconSize,
     var int zBufferBias
 ) {
-    const int px = 0; var int py;
+    const int px = 0; const int py = 0;
     if !_Ninja_MaxXPHelper_Trackers_ProjectWorldToScreenPx(
         xfcenter, 
         yfcenter, 
         zfcenter, 
         iconSize, 
-        mkf(5),
+        mkf(10),
         zBufferBias
     ) {
         return FALSE;
